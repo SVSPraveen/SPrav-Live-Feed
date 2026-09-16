@@ -2,8 +2,8 @@ name: SPrav Sovereign Daily Jobs Mirror
 
 on:
   schedule:
-    # Run automatically every 24 hours at 00:00 UTC (Midnight)
-    - cron: '0 0 * * *'
+    # Run automatically every 8 hours (00:00, 08:00, 16:00 UTC)
+    - cron: '0 */8 * * *'
   workflow_dispatch: # Allows 1-click manual trigger from GitHub Actions tab
 
 permissions:
@@ -33,6 +33,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist_mirror
           publish_branch: gh-pages
-          commit_message: "Automated Daily ATS Mirror Ingestion [skip ci]"
+          commit_message: "Automated 8-Hour ATS Mirror Ingestion [skip ci]"
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
