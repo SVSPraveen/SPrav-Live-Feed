@@ -27,12 +27,12 @@ jobs:
         run: |
           node scripts/sprav_daily_jobs_mirror.js
 
-      - name: Deploy Mirror Feeds to GitHub Pages Branch
+      - name: Deploy Mirror Feed to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist_mirror
           publish_branch: gh-pages
-          commit_message: "Automated 8-Hour ATS Mirror Ingestion [skip ci]"
+          commit_message: "Automated Daily ATS Mirror Ingestion [skip ci]"
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
