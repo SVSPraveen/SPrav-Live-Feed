@@ -1,0 +1,38 @@
+name: SPrav Sovereign Daily Jobs Mirror
+
+on:
+  schedule:
+    # Run automatically every 24 hours at 00:00 UTC (Midnight)
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allows 1-click manual trigger from GitHub Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  scrape-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run Daily ATS Mirror Aggregator
+        run: |
+          node scripts/sprav_daily_jobs_mirror.js
+
+      - name: Deploy Mirror Feeds to GitHub Pages Branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist_mirror
+          publish_branch: gh-pages
+          commit_message: "Automated Daily ATS Mirror Ingestion [skip ci]"
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
