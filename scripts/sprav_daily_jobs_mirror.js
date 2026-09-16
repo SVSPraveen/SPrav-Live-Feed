@@ -221,6 +221,69 @@ async function scrapeOpenApis() {
     }
   } catch (e) {}
 
+  // Jobicy Engineering API
+  try {
+    const res = await fetchWithRetry('https://jobicy.com/api/v2/remote-jobs?count=100&industry=engineering', 1, 5000);
+    if (res && res.ok) {
+      const json = await res.json();
+      for (const j of (json.jobs || [])) {
+        jobs.push({
+          id: `mirror_jobicy_${j.id || Math.random().toString(36).slice(2, 9)}`,
+          title: j.jobTitle,
+          company: j.companyName,
+          location: j.jobGeo || 'Remote',
+          url: j.url,
+          source: 'JOBICY_MIRROR',
+          portal: 'Jobicy Remote Tech',
+          category: j.jobIndustry || 'Engineering',
+          description: `${j.jobTitle} at ${j.companyName}. Level: ${j.jobLevel || 'Any'}.`,
+          is_remote: true,
+          salary: (j.annualSalaryMin && j.annualSalaryMax) ? `${j.salaryCurrency || '$'}${j.annualSalaryMin} - ${j.annualSalaryMax}` : null,
+          posted_at: j.pubDate || new Date().toISOString()
+        });
+      }
+    }
+  } catch (e) {}
+
+  // Hacker News "Who is Hiring" Algolia Stream
+  try {
+    const res = await fetchWithRetry('https://hn.algolia.com/api/v1/search_by_date?tags=story,author_whoishiring&hitsPerPage=1', 1, 4000);
+    if (res && res.ok) {
+      const data = await res.json();
+      const storyId = data.hits?.[0]?.objectID;
+      if (storyId) {
+        const commRes = await fetchWithRetry(`https://hn.algolia.com/api/v1/search?tags=comment,story_${storyId}&hitsPerPage=50`, 1, 4000);
+        if (commRes && commRes.ok) {
+          const commData = await commRes.json();
+          for (const c of (commData.hits || [])) {
+            const rawText = (c.comment_text || '').replace(/<[^>]+>/g, ' ');
+            const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
+            const firstLine = lines[0] || 'Software Engineer';
+            const parts = firstLine.split('|').map(p => p.trim());
+            const company = parts[0] || 'Tech Startup (HN)';
+            const title = parts[1] || 'Software Engineer';
+            const loc = parts[2] || 'Remote / Hybrid';
+            const hnUrl = `https://news.ycombinator.com/item?id=${c.objectID}`;
+
+            jobs.push({
+              id: `mirror_hn_${c.objectID}`,
+              title: title.length > 80 ? title.slice(0, 77) + '...' : title,
+              company: company.length > 50 ? company.slice(0, 47) + '...' : company,
+              location: loc.length > 60 ? loc.slice(0, 57) + '...' : loc,
+              url: hnUrl,
+              source: 'HN_WHO_IS_HIRING',
+              portal: 'Hacker News Who is Hiring',
+              category: 'Startup & Foundation Engineering',
+              description: rawText.slice(0, 400),
+              is_remote: loc.toLowerCase().includes('remote'),
+              posted_at: c.created_at || new Date().toISOString()
+            });
+          }
+        }
+      }
+    }
+  } catch (e) {}
+
   return jobs;
 }
 
