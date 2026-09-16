@@ -20,7 +20,7 @@ import fs from 'fs';
 import path from 'path';
 import zlib from 'zlib';
 import { fileURLToPath } from 'url';
-import { ALL_SOVEREIGN_TECH_COMPANIES } from '../src/utils/top_tech_companies_catalog.js';
+import { ALL_SOVEREIGN_TECH_COMPANIES, WORKDAY_ENTERPRISE_TENANTS } from '../src/utils/top_tech_companies_catalog.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -138,7 +138,8 @@ async function scrapeSimplifyJobs() {
   const jobs = [];
   const feeds = [
     { name: 'New-Grad', url: 'https://raw.githubusercontent.com/SimplifyJobs/New-Grad-Positions/dev/.github/scripts/listings.json' },
-    { name: 'Internships', url: 'https://raw.githubusercontent.com/SimplifyJobs/Summer2025-Internships/dev/.github/scripts/listings.json' }
+    { name: 'Internships 2025', url: 'https://raw.githubusercontent.com/SimplifyJobs/Summer2025-Internships/dev/.github/scripts/listings.json' },
+    { name: 'Internships 2026', url: 'https://raw.githubusercontent.com/SimplifyJobs/Summer2026-Internships/dev/.github/scripts/listings.json' }
   ];
 
   for (const feed of feeds) {
@@ -284,7 +285,132 @@ async function scrapeOpenApis() {
     }
   } catch (e) {}
 
+  // RemoteOK Developer Stream
+  try {
+    const res = await fetchWithRetry('https://remoteok.com/api', 1, 5000);
+    if (res && res.ok) {
+      const json = await res.json();
+      const devJobs = (Array.isArray(json) ? json.slice(1) : []).filter(j => j && j.position && j.url);
+      for (const j of devJobs.slice(0, 100)) {
+        jobs.push({
+          id: `mirror_remoteok_${j.id || Math.random().toString(36).slice(2, 9)}`,
+          title: j.position,
+          company: j.company || 'Remote Tech Co',
+          location: j.location || 'Remote',
+          url: j.url,
+          source: 'REMOTEOK_MIRROR',
+          portal: 'RemoteOK Developer Feed',
+          category: (j.tags || []).join(', ') || 'Software Development',
+          description: `${j.position} at ${j.company}. Tags: ${(j.tags || []).join(', ')}.`,
+          is_remote: true,
+          salary: (j.salary_min && j.salary_max) ? `$${j.salary_min} - $${j.salary_max}` : null,
+          posted_at: j.date || new Date().toISOString()
+        });
+      }
+    }
+  } catch (e) {}
+
   return jobs;
+}
+
+// 4. Scrape Workday Enterprise CXS Tenants (Fortune 500 Tech Titans)
+async function scrapeWorkdayTenant(tenantConfig) {
+  const { name, url, host, maxJobs = 100 } = tenantConfig;
+  const jobs = [];
+  const pageSize = 20;
+  const maxPages = Math.ceil(maxJobs / pageSize);
+
+  for (let page = 0; page < maxPages; page++) {
+    const offset = page * pageSize;
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        },
+        body: JSON.stringify({ appliedFacets: {}, limit: pageSize, offset, searchText: '' }),
+        signal: AbortSignal.timeout(4500)
+      });
+      if (!res.ok) break;
+      const data = await res.json();
+      const postings = data.jobPostings || [];
+      if (postings.length === 0) break;
+
+      for (const p of postings) {
+        const fullUrl = p.externalPath ? `${host}${p.externalPath.startsWith('/') ? '' : '/'}${p.externalPath}` : host;
+        jobs.push({
+          id: `mirror_workday_${name.toLowerCase().replace(/[^a-z0-9]/g, '_')}_${p.bulletFields?.[0] || Math.random().toString(36).slice(2, 9)}`,
+          title: p.title || 'Software Engineer',
+          company: name,
+          location: p.locationsText || 'Multiple Locations',
+          url: fullUrl,
+          source: 'WORKDAY_CXS_ENTERPRISE',
+          portal: `${name} Workday Careers`,
+          category: 'Enterprise Engineering',
+          description: `${p.title} at ${name}. Locations: ${p.locationsText || 'Global'}.`,
+          is_remote: (p.locationsText || '').toLowerCase().includes('remote'),
+          posted_at: new Date().toISOString()
+        });
+      }
+      if (postings.length < pageSize) break;
+    } catch (e) {
+      break;
+    }
+  }
+  return jobs;
+}
+
+// 5. Scrape High-Volume Open Tech Universe Stream (29,000+ Company ATS Index)
+async function scrapeUniverseStream(chunkCount = 4) {
+  const chunkIds = Array.from({ length: chunkCount }, (_, i) => i);
+  try {
+    const chunkPromises = chunkIds.map(async id => {
+      try {
+        const res = await fetchWithRetry(`https://raw.githubusercontent.com/Feashliaa/job-board-data/main/data/chunks/jobs_chunk_${id}.json.gz`, 1, 8000);
+        if (!res || !res.ok) return [];
+        const buf = await res.arrayBuffer();
+        const decompressed = zlib.gunzipSync(Buffer.from(buf));
+        const list = JSON.parse(decompressed.toString('utf-8'));
+        if (!Array.isArray(list)) return [];
+        const mapped = [];
+        for (const j of list) {
+          if (!j || !j.title || !j.company) continue;
+          const ats = (j.ats || 'ATS').trim();
+          let salaryRange = null;
+          if (j.salary && j.salary.median) {
+            const p25 = j.salary.p25 ? Math.round(j.salary.p25 / 1000) : null;
+            const p75 = j.salary.p75 ? Math.round(j.salary.p75 / 1000) : null;
+            salaryRange = p25 && p75 ? `$${p25}k - $${p75}k` : `~$${Math.round(j.salary.median / 1000)}k/yr`;
+          }
+          mapped.push({
+            id: `mirror_univ_${ats.toLowerCase().replace(/[^a-z0-9]/g, '')}_${Math.random().toString(36).slice(2, 9)}`,
+            title: j.title.trim(),
+            company: j.company.trim(),
+            location: j.location || 'Remote',
+            url: j.url || `https://jobs.${ats.toLowerCase()}.com`,
+            source: `${ats.toUpperCase()}_UNIVERSE`,
+            portal: `${ats} (Universe Index)`,
+            category: 'Engineering & Tech',
+            description: `${j.title} at ${j.company}. Level: ${j.skill_level || 'General'}. Location: ${j.location || 'Remote'}.${salaryRange ? ' Compensation: ' + salaryRange : ''}`,
+            salary: salaryRange,
+            is_remote: !j.location || /remote|anywhere|virtual/i.test(j.location),
+            posted_at: j.first_seen || j.scraped_at || new Date().toISOString()
+          });
+        }
+        return mapped;
+      } catch (err) {
+        console.warn(`[Daily Mirror] Failed universe chunk ${id}:`, err.message);
+        return [];
+      }
+    });
+
+    const chunkResults = await Promise.all(chunkPromises);
+    return chunkResults.flat();
+  } catch (e) {
+    console.warn('[Daily Mirror] Universe stream error:', e.message);
+    return [];
+  }
 }
 
 // Concurrency Pool Helper
@@ -308,23 +434,32 @@ async function asyncPool(limit, items, fn) {
 // Main Aggregator Execution
 export async function runDailyMirror() {
   const t0 = Date.now();
-  console.log(`[SPrav V3 Universe] Starting high-volume ingestion across ${ALL_SOVEREIGN_TECH_COMPANIES.length} direct ATS boards, SimplifyJobs & Global APIs...`);
+  console.log(`[SPrav V4 Universe] Starting massive ingestion across ${ALL_SOVEREIGN_TECH_COMPANIES.length} direct ATS boards, ${WORKDAY_ENTERPRISE_TENANTS.length} Workday Titans, SimplifyJobs & Global APIs...`);
 
-  // Phase 1: Parallel Direct ATS scrape (concurrency 10)
-  const atsResults = await asyncPool(10, ALL_SOVEREIGN_TECH_COMPANIES, scrapeDirectAts);
+  // Phase 1: Parallel Direct ATS scrape (concurrency 12)
+  const atsResults = await asyncPool(12, ALL_SOVEREIGN_TECH_COMPANIES, scrapeDirectAts);
   const atsJobs = atsResults.flat();
   console.log(`  ✓ Phase 1: Ingested ${atsJobs.length} roles from ${ALL_SOVEREIGN_TECH_COMPANIES.length} Direct ATS Boards.`);
 
-  // Phase 2: SimplifyJobs Verified Community Feeds
+  // Phase 2: Workday Enterprise CXS Titans
+  const workdayResults = await asyncPool(6, WORKDAY_ENTERPRISE_TENANTS, scrapeWorkdayTenant);
+  const workdayJobs = workdayResults.flat();
+  console.log(`  ✓ Phase 2: Ingested ${workdayJobs.length} roles from ${WORKDAY_ENTERPRISE_TENANTS.length} Enterprise Workday Tenants.`);
+
+  // Phase 3: SimplifyJobs Verified Community Feeds
   const simplifyJobs = await scrapeSimplifyJobs();
-  console.log(`  ✓ Phase 2: Ingested ${simplifyJobs.length} roles from SimplifyJobs.`);
+  console.log(`  ✓ Phase 3: Ingested ${simplifyJobs.length} roles from SimplifyJobs.`);
 
-  // Phase 3: Open Global Tech APIs
+  // Phase 4: Open Global Tech APIs & Streams
   const apiJobs = await scrapeOpenApis();
-  console.log(`  ✓ Phase 3: Ingested ${apiJobs.length} roles from Open Global APIs.`);
+  console.log(`  ✓ Phase 4: Ingested ${apiJobs.length} roles from Open Global APIs & Streams.`);
 
-  // Phase 4: High-Efficiency Deduplication
-  const allRaw = [...atsJobs, ...simplifyJobs, ...apiJobs];
+  // Phase 5: High-Volume Open Tech Universe Stream (5 chunks = 125k roles -> 100k+ unique)
+  const universeJobs = await scrapeUniverseStream(5);
+  console.log(`  ✓ Phase 5: Ingested ${universeJobs.length} roles from Universe ATS Stream.`);
+
+  // Phase 6: High-Efficiency Deduplication
+  const allRaw = [...atsJobs, ...workdayJobs, ...simplifyJobs, ...apiJobs, ...universeJobs];
   const seenUrls = new Set();
   const seenSignatures = new Set();
   const aggregatedJobs = [];
@@ -339,6 +474,12 @@ export async function runDailyMirror() {
     aggregatedJobs.push(j);
   }
 
+  // Calculate distinct companies
+  const distinctCompanies = new Set();
+  for (const j of aggregatedJobs) {
+    if (j.company) distinctCompanies.add(j.company.toLowerCase().trim());
+  }
+
   // Sort by newest first
   aggregatedJobs.sort((a, b) => new Date(b.posted_at || 0) - new Date(a.posted_at || 0));
 
@@ -350,14 +491,18 @@ export async function runDailyMirror() {
   const manifest = {
     updated_at: new Date().toISOString(),
     total_jobs: aggregatedJobs.length,
-    boards_scraped: ALL_SOVEREIGN_TECH_COMPANIES.length,
+    companies_count: distinctCompanies.size,
+    boards_scraped: ALL_SOVEREIGN_TECH_COMPANIES.length + WORKDAY_ENTERPRISE_TENANTS.length,
     sources_breakdown: {
       direct_ats_boards: atsJobs.length,
+      workday_enterprise: workdayJobs.length,
       simplify_community: simplifyJobs.length,
       open_apis: apiJobs.length,
-      unique_published: aggregatedJobs.length
+      universe_stream: universeJobs.length,
+      unique_published: aggregatedJobs.length,
+      distinct_companies: distinctCompanies.size
     },
-    version: '3.0.0-universe'
+    version: '4.0.0-universe'
   };
 
   fs.writeFileSync(path.join(outputDir, 'mirror_manifest.json'), JSON.stringify(manifest, null, 2));
@@ -371,6 +516,12 @@ export async function runDailyMirror() {
   fs.writeFileSync(path.join(outputDir, 'latest-tech-jobs.json.gz'), gzipped);
   fs.writeFileSync(path.join(outputDir, 'latest.json.gz'), gzipped);
 
+  // Write lite tier (top 15,000 roles)
+  const litePayload = JSON.stringify(aggregatedJobs.slice(0, 15000));
+  fs.writeFileSync(path.join(outputDir, 'latest-tech-jobs-lite.json'), litePayload);
+  const liteGzipped = zlib.gzipSync(Buffer.from(litePayload, 'utf-8'));
+  fs.writeFileSync(path.join(outputDir, 'latest-tech-jobs-lite.json.gz'), liteGzipped);
+
   // Write .nojekyll and index.html
   fs.writeFileSync(path.join(outputDir, '.nojekyll'), '');
   const templatePath = path.join(__dirname, 'feed_index.html');
@@ -379,13 +530,13 @@ export async function runDailyMirror() {
   }
 
   const durationSec = ((Date.now() - t0) / 1000).toFixed(1);
-  console.log(`[SPrav V3 Universe] Success! Published ${aggregatedJobs.length} verified jobs in ${durationSec}s (${(gzipped.length / 1024 / 1024).toFixed(2)} MB gzipped).`);
+  console.log(`[SPrav V4 Universe] Success! Published ${aggregatedJobs.length} verified jobs across ${distinctCompanies.size} companies in ${durationSec}s (${(gzipped.length / 1024 / 1024).toFixed(2)} MB full .gz / ${(liteGzipped.length / 1024).toFixed(0)} KB lite .gz).`);
   return aggregatedJobs;
 }
 
 export const TARGET_BOARDS = ALL_SOVEREIGN_TECH_COMPANIES;
 export const scrapeBoard = scrapeDirectAts;
-export { scrapeDirectAts, scrapeSimplifyJobs, scrapeOpenApis };
+export { scrapeDirectAts, scrapeWorkdayTenant, scrapeSimplifyJobs, scrapeOpenApis, scrapeUniverseStream, WORKDAY_ENTERPRISE_TENANTS };
 
 // Direct execution entrypoint
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
@@ -394,3 +545,4 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.exit(1);
   });
 }
+

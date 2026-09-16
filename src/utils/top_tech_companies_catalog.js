@@ -1108,6 +1108,26 @@ export const ALL_SOVEREIGN_TECH_COMPANIES = Object.freeze([
 ]);
 
 /**
+ * Enterprise Workday CXS Verified Tenants
+ * High-volume Fortune 500 tech platforms with open CXS search endpoints.
+ */
+export const WORKDAY_ENTERPRISE_TENANTS = Object.freeze([
+  { name: 'Nvidia', url: 'https://nvidia.wd5.myworkdayjobs.com/wday/cxs/nvidia/NVIDIAExternalCareerSite/jobs', host: 'https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite', maxJobs: 100 },
+  { name: 'Salesforce', url: 'https://salesforce.wd12.myworkdayjobs.com/wday/cxs/salesforce/External_Career_Site/jobs', host: 'https://salesforce.wd12.myworkdayjobs.com/en-US/External_Career_Site', maxJobs: 100 },
+  { name: 'Adobe', url: 'https://adobe.wd5.myworkdayjobs.com/wday/cxs/adobe/external_experienced/jobs', host: 'https://adobe.wd5.myworkdayjobs.com/en-US/external_experienced', maxJobs: 100 },
+  { name: 'Autodesk', url: 'https://autodesk.wd1.myworkdayjobs.com/wday/cxs/autodesk/Ext/jobs', host: 'https://autodesk.wd1.myworkdayjobs.com/en-US/Ext', maxJobs: 100 },
+  { name: 'Workday', url: 'https://workday.wd5.myworkdayjobs.com/wday/cxs/workday/Workday/jobs', host: 'https://workday.wd5.myworkdayjobs.com/en-US/Workday', maxJobs: 100 },
+  { name: 'PayPal', url: 'https://paypal.wd1.myworkdayjobs.com/wday/cxs/paypal/jobs/jobs', host: 'https://paypal.wd1.myworkdayjobs.com/en-US/jobs', maxJobs: 100 },
+  { name: 'Micron', url: 'https://micron.wd1.myworkdayjobs.com/wday/cxs/micron/External/jobs', host: 'https://micron.wd1.myworkdayjobs.com/en-US/External', maxJobs: 100 },
+  { name: 'Mastercard', url: 'https://mastercard.wd1.myworkdayjobs.com/wday/cxs/mastercard/CorporateCareers/jobs', host: 'https://mastercard.wd1.myworkdayjobs.com/en-US/CorporateCareers', maxJobs: 100 },
+  { name: 'Target Tech', url: 'https://target.wd5.myworkdayjobs.com/wday/cxs/target/targetcareers/jobs', host: 'https://target.wd5.myworkdayjobs.com/en-US/targetcareers', maxJobs: 100 },
+  { name: 'Cisco', url: 'https://cisco.wd5.myworkdayjobs.com/wday/cxs/cisco/Cisco_Careers/jobs', host: 'https://cisco.wd5.myworkdayjobs.com/en-US/Cisco_Careers', maxJobs: 100 },
+  { name: 'Intel', url: 'https://intel.wd1.myworkdayjobs.com/wday/cxs/intel/External/jobs', host: 'https://intel.wd1.myworkdayjobs.com/en-US/External', maxJobs: 100 },
+  { name: 'Boeing', url: 'https://boeing.wd1.myworkdayjobs.com/wday/cxs/boeing/EXTERNAL_CAREERS/jobs', host: 'https://boeing.wd1.myworkdayjobs.com/en-US/EXTERNAL_CAREERS', maxJobs: 100 },
+  { name: 'Broadcom', url: 'https://broadcom.wd1.myworkdayjobs.com/wday/cxs/broadcom/External_Career/jobs', host: 'https://broadcom.wd1.myworkdayjobs.com/en-US/External_Career', maxJobs: 100 }
+]);
+
+/**
  * Returns companies matching a target tech domain or category keyword.
  * @param {string} domain
  * @returns {Array<typeof ALL_SOVEREIGN_TECH_COMPANIES[0]>}
@@ -1122,3 +1142,4 @@ export function getCompaniesByDomain(domain = '') {
            (c.name && c.name.toLowerCase().includes(clean));
   });
 }
+

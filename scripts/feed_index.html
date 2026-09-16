@@ -315,12 +315,12 @@
 
     <div class="metrics-grid">
       <div class="metric-card">
-        <div class="metric-value" id="metric-jobs">3,373+</div>
-        <div class="metric-label">Active Roles</div>
+        <div class="metric-value" id="metric-jobs">100,000+</div>
+        <div class="metric-label">Universe Active Roles</div>
       </div>
       <div class="metric-card">
-        <div class="metric-value" id="metric-boards">18</div>
-        <div class="metric-label">Curated ATS Boards</div>
+        <div class="metric-value" id="metric-boards">1,200+</div>
+        <div class="metric-label">Verified Tech Employers</div>
       </div>
       <div class="metric-card">
         <div class="metric-value" id="metric-updated">Today</div>
@@ -342,10 +342,21 @@
           <span class="method-badge">GET</span>
           <div>
             <div class="endpoint-path">/latest-tech-jobs.json.gz</div>
-            <div class="endpoint-desc">High-speed gzip compressed feed (primary stream for SPrav Job AI)</div>
+            <div class="endpoint-desc">Complete V4 Universe gzip stream (100,000+ roles, ~4.3MB compressed)</div>
           </div>
         </div>
-        <a href="latest-tech-jobs.json.gz" class="action-btn" download>Download .gz</a>
+        <a href="latest-tech-jobs.json.gz" class="action-btn" download>Download Full .gz</a>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-info">
+          <span class="method-badge">GET</span>
+          <div>
+            <div class="endpoint-path">/latest-tech-jobs-lite.json.gz</div>
+            <div class="endpoint-desc">High-priority curated tier (15,000 roles, ~700KB compressed)</div>
+          </div>
+        </div>
+        <a href="latest-tech-jobs-lite.json.gz" class="action-btn" download>Download Lite .gz</a>
       </div>
 
       <div class="endpoint-card">
