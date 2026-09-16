@@ -1,5 +1,12 @@
 {
-  "updated_at": "2026-09-16T22:05:36.004Z",
-  "total_jobs": 3373,
-  "boards_scraped": 18
+  "updated_at": "2026-09-16T23:07:36.026Z",
+  "total_jobs": 13045,
+  "boards_scraped": 159,
+  "sources_breakdown": {
+    "direct_ats_boards": 12871,
+    "simplify_community": 7263,
+    "open_apis": 263,
+    "unique_published": 13045
+  },
+  "version": "3.0.0-universe"
 }
