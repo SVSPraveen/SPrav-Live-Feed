@@ -127,8 +127,14 @@ async function runDailyMirror() {
   fs.writeFileSync(path.join(outputDir, 'latest-tech-jobs.json.gz'), gzipped);
   fs.writeFileSync(path.join(outputDir, 'latest.json.gz'), gzipped);
 
+  // Write .nojekyll and index.html so GitHub Pages root renders a live status dashboard instead of 404
+  fs.writeFileSync(path.join(outputDir, '.nojekyll'), '');
+  const templatePath = path.join(__dirname, 'feed_index.html');
+  if (fs.existsSync(templatePath)) {
+    fs.copyFileSync(templatePath, path.join(outputDir, 'index.html'));
+  }
 
-  console.log(`[SPrav Daily Mirror] Success! Published ${aggregatedJobs.length} jobs (${(gzipped.length / 1024).toFixed(1)} KB gzipped).`);
+  console.log(`[SPrav Daily Mirror] Success! Published ${aggregatedJobs.length} jobs with live status index.html (${(gzipped.length / 1024).toFixed(1)} KB gzipped).`);
 }
 
 if (require.main === module) {
