@@ -1,15 +1,15 @@
 {
-  "updated_at": "2026-09-16T23:42:31.429Z",
-  "total_jobs": 102625,
+  "updated_at": "2026-09-16T23:45:42.668Z",
+  "total_jobs": 102627,
   "companies_count": 4732,
   "boards_scraped": 232,
   "sources_breakdown": {
-    "direct_ats_boards": 20066,
+    "direct_ats_boards": 20069,
     "workday_enterprise": 1300,
     "simplify_community": 11451,
     "open_apis": 512,
     "universe_stream": 125000,
-    "unique_published": 102625,
+    "unique_published": 102627,
     "distinct_companies": 4732
   },
   "version": "4.0.0-universe"
