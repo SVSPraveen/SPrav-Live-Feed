@@ -320,6 +320,10 @@ export async function runDailyMirror() {
   return aggregatedJobs;
 }
 
+export const TARGET_BOARDS = ALL_SOVEREIGN_TECH_COMPANIES;
+export const scrapeBoard = scrapeDirectAts;
+export { scrapeDirectAts, scrapeSimplifyJobs, scrapeOpenApis };
+
 // Direct execution entrypoint
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   runDailyMirror().catch(err => {
