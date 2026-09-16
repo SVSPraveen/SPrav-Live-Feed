@@ -1,6 +1,7 @@
 {
   "name": "sprav-live-feed",
-  "version": "1.0.0",
+  "version": "3.0.0",
+  "type": "module",
   "description": "Daily automated sovereign tech job mirror powered by GitHub Actions.",
   "scripts": {
     "sync": "node scripts/sprav_daily_jobs_mirror.js"
@@ -11,6 +12,8 @@
     "greenhouse",
     "ashby",
     "lever",
+    "smartrecruiters",
+    "simplifyjobs",
     "sprav-job-ai"
   ],
   "author": "SVS Praveen <svspraveens@gmail.com>",
