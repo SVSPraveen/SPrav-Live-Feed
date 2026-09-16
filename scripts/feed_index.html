@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPrav Live Feed | Autonomous Tech Job Stream CDN</title>
+  <meta name="description" content="High-frequency, direct ATS job feed aggregation engine powering SPrav Job AI. Free, open, zero-rate-limit job data CDN.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07090e;
+      --card-bg: rgba(15, 23, 42, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-hover-border: rgba(16, 185, 129, 0.4);
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.2);
+      --cyan: #06b6d4;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2.5rem 1.25rem;
+      background-image: 
+        radial-gradient(circle at 15% 20%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 75%, rgba(6, 182, 212, 0.08) 0%, transparent 40%);
+    }
+
+    .container {
+      max-width: 880px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: 9999px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--emerald);
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      margin-bottom: 1.25rem;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 10px var(--emerald);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.75rem;
+    }
+
+    p.subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .metric-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      backdrop-filter: blur(16px);
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .metric-card:hover {
+      border-color: var(--card-hover-border);
+      transform: translateY(-2px);
+    }
+
+    .metric-value {
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 0.25rem;
+      letter-spacing: -0.02em;
+    }
+
+    .metric-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .endpoints-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .endpoint-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      backdrop-filter: blur(16px);
+      transition: all 0.2s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .endpoint-card:hover {
+      border-color: var(--card-hover-border);
+      background: rgba(20, 30, 55, 0.85);
+    }
+
+    .endpoint-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      overflow: hidden;
+    }
+
+    .method-badge {
+      background: rgba(6, 182, 212, 0.15);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      color: var(--cyan);
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-family: monospace;
+    }
+
+    .endpoint-path {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .endpoint-desc {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-top: 0.15rem;
+    }
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.9rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .action-btn:hover {
+      background: var(--emerald);
+      color: #07090e;
+      border-color: var(--emerald);
+    }
+
+    .preview-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      backdrop-filter: blur(16px);
+      margin-bottom: 2rem;
+    }
+
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .job-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .job-item {
+      padding: 0.85rem 1rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .job-title {
+      font-weight: 600;
+      font-size: 0.92rem;
+      color: #ffffff;
+      margin-bottom: 0.2rem;
+    }
+
+    .job-company {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .job-link {
+      color: var(--emerald);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .job-link:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: auto;
+      padding-top: 2rem;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+    }
+
+    footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: var(--emerald);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="status-pill">
+        <span class="pulse-dot"></span>
+        <span id="status-text">All Feed Systems Operational</span>
+      </div>
+      <h1>SPrav Live Job Feed</h1>
+      <p class="subtitle">Autonomous high-frequency ATS job aggregator and sovereign CDN mirror powering real-time search on SPrav Job AI.</p>
+    </header>
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-value" id="metric-jobs">3,373+</div>
+        <div class="metric-label">Active Roles</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="metric-boards">18</div>
+        <div class="metric-label">Curated ATS Boards</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="metric-updated">Today</div>
+        <div class="metric-label">Last Auto-Sync</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="metric-latency">CDN Live</div>
+        <div class="metric-label">Delivery Health</div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      <span>📡</span> Public CDN Endpoints
+    </div>
+
+    <div class="endpoints-list">
+      <div class="endpoint-card">
+        <div class="endpoint-info">
+          <span class="method-badge">GET</span>
+          <div>
+            <div class="endpoint-path">/latest-tech-jobs.json.gz</div>
+            <div class="endpoint-desc">High-speed gzip compressed feed (primary stream for SPrav Job AI)</div>
+          </div>
+        </div>
+        <a href="latest-tech-jobs.json.gz" class="action-btn" download>Download .gz</a>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-info">
+          <span class="method-badge">GET</span>
+          <div>
+            <div class="endpoint-path">/latest.json</div>
+            <div class="endpoint-desc">Uncompressed standardized JSON feed with all curated job listings</div>
+          </div>
+        </div>
+        <a href="latest.json" class="action-btn" target="_blank">View JSON</a>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-info">
+          <span class="method-badge">GET</span>
+          <div>
+            <div class="endpoint-path">/mirror_manifest.json</div>
+            <div class="endpoint-desc">Live sync metadata, job totals, and verification timestamps</div>
+          </div>
+        </div>
+        <a href="mirror_manifest.json" class="action-btn" target="_blank">View Manifest</a>
+      </div>
+    </div>
+
+    <div class="preview-card">
+      <div class="preview-header">
+        <div class="section-title" style="margin-bottom:0">
+          <span>⚡</span> Live Feed Preview
+        </div>
+        <span style="font-size:0.8rem; color:var(--text-dim);" id="preview-status">Reading live mirror...</span>
+      </div>
+      <div class="job-list" id="job-list">
+        <div class="job-item">
+          <div>
+            <div class="job-title">Loading live engineering roles from CDN...</div>
+            <div class="job-company">Ashby &bull; Greenhouse &bull; Lever</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Powered by <a href="https://github.com/SVSPraveen" target="_blank">SPrav Sovereign Job AI</a> &bull; $0 Zero-Cost Infrastructure via GitHub Actions &amp; Pages
+    </footer>
+  </div>
+
+  <script>
+    // Live client-side hydration from the mirror manifest
+    async function hydrateFeed() {
+      const startTime = performance.now();
+      try {
+        const res = await fetch('mirror_manifest.json', { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          const latency = Math.round(performance.now() - startTime);
+          
+          if (data.total_jobs) {
+            document.getElementById('metric-jobs').textContent = data.total_jobs.toLocaleString();
+          }
+          if (data.boards_scraped) {
+            document.getElementById('metric-boards').textContent = data.boards_scraped;
+          }
+          if (data.updated_at) {
+            const date = new Date(data.updated_at);
+            document.getElementById('metric-updated').textContent = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          }
+          document.getElementById('metric-latency').textContent = latency + 'ms';
+          document.getElementById('status-text').textContent = 'All Systems Operational (200 OK)';
+        }
+      } catch (e) {
+        console.warn('Could not fetch manifest:', e);
+      }
+
+      // Sample a few live jobs
+      try {
+        const jobsRes = await fetch('latest.json', { cache: 'no-store' });
+        if (jobsRes.ok) {
+          const jobs = await jobsRes.json();
+          if (Array.isArray(jobs) && jobs.length > 0) {
+            const sample = jobs.slice(0, 4);
+            const container = document.getElementById('job-list');
+            container.innerHTML = sample.map(j => `
+              <div class="job-item">
+                <div>
+                  <div class="job-title">${escapeHtml(j.title || 'Engineering Role')}</div>
+                  <div class="job-company">${escapeHtml(j.company || 'Tech Company')} &bull; ${escapeHtml(j.location || 'Remote')}</div>
+                </div>
+                <a href="${escapeHtml(j.url || '#')}" target="_blank" rel="noopener noreferrer" class="job-link">View Role &rarr;</a>
+              </div>
+            `).join('');
+            document.getElementById('preview-status').textContent = `Showing 4 of ${jobs.length.toLocaleString()} active jobs`;
+          }
+        }
+      } catch (e) {
+        document.getElementById('preview-status').textContent = 'Live stream ready';
+      }
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    window.addEventListener('DOMContentLoaded', hydrateFeed);
+  </script>
+</body>
+</html>
