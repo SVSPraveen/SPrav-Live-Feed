@@ -1,16 +1,16 @@
 {
-  "updated_at": "2026-09-17T02:57:44.732Z",
-  "total_jobs": 102624,
-  "companies_count": 4734,
+  "updated_at": "2026-09-17T12:58:00.868Z",
+  "total_jobs": 102607,
+  "companies_count": 4753,
   "boards_scraped": 232,
   "sources_breakdown": {
-    "direct_ats_boards": 20036,
+    "direct_ats_boards": 20038,
     "workday_enterprise": 1300,
-    "simplify_community": 11503,
-    "open_apis": 512,
+    "simplify_community": 11446,
+    "open_apis": 514,
     "universe_stream": 125000,
-    "unique_published": 102624,
-    "distinct_companies": 4734
+    "unique_published": 102607,
+    "distinct_companies": 4753
   },
   "version": "4.0.0-universe"
 }
