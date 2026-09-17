@@ -529,6 +529,27 @@ export async function runDailyMirror() {
     fs.copyFileSync(templatePath, path.join(outputDir, 'index.html'));
   }
 
+  // Write vercel.json into dist_mirror so Vercel skips/ignores preview builds on sovereign-job-feed branch
+  const mirrorVercelConfig = {
+    version: 2,
+    buildCommand: "echo 'Sovereign job feed data branch - skipping compilation'",
+    outputDirectory: ".",
+    ignoreCommand: "exit 0"
+  };
+  fs.writeFileSync(path.join(outputDir, 'vercel.json'), JSON.stringify(mirrorVercelConfig, null, 2));
+
+  // Write minimal package.json into dist_mirror so Vercel detects a valid no-op build script if triggered
+  const mirrorPackageJson = {
+    name: "sprav-sovereign-job-feed",
+    private: true,
+    version: "1.0.0",
+    description: "SPrav Sovereign Daily Jobs Mirror Data Feed",
+    scripts: {
+      build: "echo 'Sovereign job feed data branch - skipping compilation'"
+    }
+  };
+  fs.writeFileSync(path.join(outputDir, 'package.json'), JSON.stringify(mirrorPackageJson, null, 2));
+
   const durationSec = ((Date.now() - t0) / 1000).toFixed(1);
   console.log(`[SPrav V4 Universe] Success! Published ${aggregatedJobs.length} verified jobs across ${distinctCompanies.size} companies in ${durationSec}s (${(gzipped.length / 1024 / 1024).toFixed(2)} MB full .gz / ${(liteGzipped.length / 1024).toFixed(0)} KB lite .gz).`);
   return aggregatedJobs;

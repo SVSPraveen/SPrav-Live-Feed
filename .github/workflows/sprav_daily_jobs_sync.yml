@@ -4,13 +4,13 @@ on:
   schedule:
     # Run automatically every 8 hours (00:00, 08:00, 16:00 UTC)
     - cron: '0 */8 * * *'
-  workflow_dispatch: # Allows 1-click manual trigger from GitHub Actions tab
+  workflow_dispatch: # Allow manual trigger from GitHub Actions tab
 
 permissions:
   contents: write
 
 jobs:
-  scrape-and-publish:
+  sync-direct-ats-mirror:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -22,17 +22,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
       - name: Run Daily ATS Mirror Aggregator
         run: |
           node scripts/sprav_daily_jobs_mirror.js
 
-      - name: Deploy Mirror Feed to GitHub Pages
+      - name: Deploy Mirror Feed to Job-Feed Branch
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist_mirror
-          publish_branch: gh-pages
-          commit_message: "Automated Daily ATS Mirror Ingestion [skip ci]"
+          publish_branch: sovereign-job-feed
+          commit_message: "[skip ci] [skip vercel] [vercel skip] Automated Daily ATS Mirror Ingestion"
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
