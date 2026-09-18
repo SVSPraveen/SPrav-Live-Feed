@@ -185,3 +185,83 @@ test('chunkAndCompressJobs: partitions jobs into gzip chunks and writes manifest
   // Clean up test scratch
   fs.rmSync(testOutputDir, { recursive: true, force: true });
 });
+
+test('tokenizeForSearch: extracts clean normalized tokens and preserves tech compounds', async () => {
+  const { tokenizeForSearch } = await import('./sprav_universe_chunker.js');
+  
+  const tokens1 = tokenizeForSearch('Senior React.js / Node.js Developer (AI/ML & CI/CD)');
+  assert.ok(tokens1.includes('senior'));
+  assert.ok(tokens1.includes('react'));
+  assert.ok(tokens1.includes('nodejs'));
+  assert.ok(tokens1.includes('aiml'));
+  assert.ok(tokens1.includes('cicd'));
+  assert.ok(tokens1.includes('developer'));
+  // Stopwords omitted
+  assert.ok(!tokens1.includes('and'));
+
+  const tokens2 = tokenizeForSearch('C++ / C# Graphics Engine Architect at Unreal');
+  assert.ok(tokens2.includes('cpp'));
+  assert.ok(tokens2.includes('csharp'));
+  assert.ok(tokens2.includes('graphics'));
+  assert.ok(tokens2.includes('architect'));
+  assert.ok(tokens2.includes('unreal'));
+});
+
+test('detectSeniority: accurately classifies role seniority tiers', async () => {
+  const { detectSeniority } = await import('./sprav_universe_chunker.js');
+
+  assert.equal(detectSeniority('Staff Software Engineer'), 'staff');
+  assert.equal(detectSeniority('Principal Cloud Architect'), 'staff');
+  assert.equal(detectSeniority('Senior Fullstack Developer'), 'senior');
+  assert.equal(detectSeniority('Sr. Backend Engineer'), 'senior');
+  assert.equal(detectSeniority('Junior Frontend Engineer'), 'entry');
+  assert.equal(detectSeniority('Software Engineering Intern'), 'entry');
+  assert.equal(detectSeniority('Software Engineer'), 'mid');
+});
+
+test('buildInvertedIndex: generates compressed inverted index and facets', async () => {
+  const { buildInvertedIndex } = await import('./sprav_universe_chunker.js');
+  const testOutputDir = path.join(process.cwd(), 'scratch', 'test_index_output');
+  if (fs.existsSync(testOutputDir)) {
+    fs.rmSync(testOutputDir, { recursive: true, force: true });
+  }
+
+  const sampleJobs = [
+    { title: 'Senior Rust Engineer', company: 'Stripe', location: 'Remote', skill_level: 'senior' },
+    { title: 'Frontend Developer (React)', company: 'Vercel', location: 'San Francisco, CA, US', skill_level: 'mid' },
+    { title: 'Staff Go Infrastructure', company: 'Uber', location: 'Bengaluru, India', skill_level: 'staff' },
+    { title: 'Junior QA Engineer', company: 'Stripe', location: 'London, UK', skill_level: 'entry' }
+  ];
+
+  const res = buildInvertedIndex(sampleJobs, ['jobs_chunk_0.json.gz'], testOutputDir, {
+    chunkSize: 2
+  });
+
+  assert.ok(res.totalTerms >= 8);
+  assert.ok(res.compressedBytes > 0);
+  assert.ok(fs.existsSync(res.indexPath));
+
+  // Decompress and verify content
+  const decompressed = zlib.gunzipSync(fs.readFileSync(res.indexPath));
+  const parsed = JSON.parse(decompressed.toString('utf-8'));
+
+  assert.equal(parsed.version, '1.0.0-edge-index');
+  assert.equal(parsed.total_jobs, 4);
+  assert.ok(parsed.terms['rust']);
+  assert.ok(parsed.terms['stripe']);
+  assert.ok(parsed.terms['react']);
+
+  // Check chunk assignment: with chunkSize: 2, jobs 0-1 are chunk 0, jobs 2-3 are chunk 1
+  assert.deepEqual(parsed.terms['rust'], [0]); // job 0 -> chunk 0
+  assert.deepEqual(parsed.terms['stripe'], [0, 1]); // job 0 in chunk 0, job 3 in chunk 1
+
+  // Facet verification
+  assert.ok(parsed.facets.seniority.senior.includes(0));
+  assert.ok(parsed.facets.seniority.staff.includes(1));
+  assert.ok(parsed.facets.location.remote.includes(0));
+  assert.ok(parsed.facets.location.india.includes(1));
+
+  // Clean up
+  fs.rmSync(testOutputDir, { recursive: true, force: true });
+});
+

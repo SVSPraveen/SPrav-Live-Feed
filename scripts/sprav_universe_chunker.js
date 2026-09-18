@@ -326,7 +326,17 @@ export function chunkAndCompressJobs(jobs, outputDir, metadataConfig = {}) {
   const manifestPath = path.join(chunksDir, 'jobs_manifest.json');
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
 
-  // 2. Write standard metadata.json in outputDir (compatible with Feashliaa standard and SPrav)
+  // 2. Generate and write Chunked Inverted Index
+  let indexStats = null;
+  try {
+    indexStats = buildInvertedIndex(sortedJobs, chunkFilenames, outputDir, {
+      chunkSize: CHUNK_SIZE
+    });
+  } catch (err) {
+    console.warn('[Chunker] Warning: Inverted Index build encountered an error:', err.message);
+  }
+
+  // 3. Write standard metadata.json in outputDir (compatible with Feashliaa standard and SPrav)
   const metadata = {
     last_updated: timestamp,
     total_companies: distinctCompanies.size,
@@ -340,7 +350,11 @@ export function chunkAndCompressJobs(jobs, outputDir, metadataConfig = {}) {
       ghost_filtered: true,
       spam_filtered: true,
       max_age_days: metadataConfig.maxAgeDays || MAX_ACTIVE_AGE_DAYS
-    }
+    },
+    index_metrics: indexStats ? {
+      total_terms: indexStats.totalTerms,
+      compressed_bytes: indexStats.compressedBytes
+    } : null
   };
 
   const metadataPath = path.join(outputDir, 'metadata.json');
@@ -354,6 +368,212 @@ export function chunkAndCompressJobs(jobs, outputDir, metadataConfig = {}) {
     manifestPath,
     metadataPath,
     totalJobs: sortedJobs.length,
-    distinctCompanies: distinctCompanies.size
+    distinctCompanies: distinctCompanies.size,
+    indexStats
   };
 }
+
+export const STOPWORDS = new Set([
+  'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', 'as', 'at',
+  'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 'but', 'by', 'can',
+  'could', 'did', 'do', 'does', 'doing', 'down', 'during', 'each',
+  'few', 'for', 'from', 'further', 'had', 'has', 'have', 'having', 'he', 'her',
+  'here', 'hers', 'herself', 'him', 'himself', 'his', 'how', 'i', 'if', 'in', 'into', 'is', 'it', 'its',
+  'itself', 'me', 'more', 'most', 'my', 'myself', 'no', 'nor', 'not', 'of', 'off', 'on',
+  'once', 'only', 'or', 'other', 'our', 'ours', 'ourselves', 'out', 'over', 'own', 'same', 'she', 'should',
+  'so', 'some', 'such', 'than', 'that', 'the', 'their', 'theirs', 'them', 'themselves', 'then',
+  'there', 'these', 'they', 'this', 'those', 'through', 'to', 'too', 'under', 'until', 'up', 'very', 'was',
+  'we', 'were', 'what', 'when', 'where', 'which', 'while', 'who', 'whom', 'why', 'with',
+  'would', 'you', 'your', 'yours', 'yourself', 'yourselves'
+]);
+
+/**
+ * Tokenizes text for high-performance inverted index lookup.
+ * Preserves technical compounds (cpp, csharp, dotnet, nodejs, cicd, aiml, k8s).
+ * @param {string} text
+ * @returns {Array<string>}
+ */
+export function tokenizeForSearch(text) {
+  if (!text || typeof text !== 'string') return [];
+
+  // 1. Lowercase and replace special tech compounds with normalized tokens
+  let s = text.toLowerCase()
+    .replace(/c\+\+/g, ' cpp ')
+    .replace(/c#/g, ' csharp ')
+    .replace(/\.net/g, ' dotnet ')
+    .replace(/node\.js/g, ' nodejs ')
+    .replace(/next\.js/g, ' nextjs ')
+    .replace(/vue\.js/g, ' vuejs ')
+    .replace(/react\.js/g, ' react ')
+    .replace(/ci\/cd/g, ' cicd ')
+    .replace(/ai\/ml/g, ' aiml ')
+    .replace(/ml\/ai/g, ' aiml ');
+
+  // 2. Remove punctuation, keep alphanumerics
+  s = s.replace(/[^a-z0-9\s_-]/g, ' ');
+
+  // 3. Extract tokens
+  const words = s.split(/[\s_\/-]+/);
+  const tokens = new Set();
+
+  for (const w of words) {
+    const clean = w.trim();
+    if (clean.length < 2) continue;
+    if (STOPWORDS.has(clean)) continue;
+    if (/^\d{5,}$/.test(clean)) continue; // Drop long ID numbers
+    tokens.add(clean);
+  }
+
+  return Array.from(tokens);
+}
+
+/**
+ * Classifies role seniority tier for pre-faceted indexing.
+ * @param {string} [title='']
+ * @param {string} [skillLevel='']
+ * @returns {'entry' | 'mid' | 'senior' | 'staff'}
+ */
+export function detectSeniority(title = '', skillLevel = '') {
+  const t = `${title} ${skillLevel}`.toLowerCase();
+  if (/\b(staff|principal|lead|director|head|vp|distinguished|architect)\b/i.test(t)) return 'staff';
+  if (/\b(senior|sr\.?|sr|iii|iv|level\s*[3-5]|l[5-7]|ic[5-7])\b/i.test(t)) return 'senior';
+  if (/\b(junior|jr\.?|jr|entry|intern|internship|associate|apprentice|new\s*grad|fresh|l[1-2]|ic[1-2])\b/i.test(t)) return 'entry';
+  return 'mid';
+}
+
+/**
+ * Builds a compressed inverted index and facet dictionary from cleaned jobs.
+ * @param {Array<Object>} jobs - Cleaned and deduplicated active jobs
+ * @param {Array<string>} chunkFilenames - List of chunk filenames written
+ * @param {string} outputDir - Base output directory (e.g. dist_mirror)
+ * @param {Object} [options]
+ * @returns {{ totalTerms: number, compressedBytes: number, indexPath: string }}
+ */
+export function buildInvertedIndex(jobs, chunkFilenames, outputDir, options = {}) {
+  const indexDir = path.join(outputDir, 'index');
+  if (!fs.existsSync(indexDir)) {
+    fs.mkdirSync(indexDir, { recursive: true });
+  }
+
+  const terms = Object.create(null);
+  const facets = {
+    seniority: { entry: new Set(), mid: new Set(), senior: new Set(), staff: new Set() },
+    location: { remote: new Set(), us: new Set(), india: new Set(), europe: new Set(), uk: new Set(), canada: new Set(), apac: new Set() }
+  };
+
+  const chunkSize = options.chunkSize || CHUNK_SIZE;
+
+  for (let i = 0; i < jobs.length; i++) {
+    const job = jobs[i];
+    if (!job) continue;
+    const chunkIdx = Math.floor(i / chunkSize);
+
+    // Extract search tokens
+    const titleTokens = tokenizeForSearch(job.title || '');
+    const companyTokens = tokenizeForSearch(job.company || '');
+    const locTokens = tokenizeForSearch(job.location || '');
+    const tagTokens = Array.isArray(job.tags) ? job.tags.flatMap(t => tokenizeForSearch(t)) : [];
+
+    const combinedTokens = new Set([...titleTokens, ...companyTokens, ...locTokens, ...tagTokens]);
+
+    for (const token of combinedTokens) {
+      if (!terms[token]) {
+        terms[token] = new Set();
+      }
+      terms[token].add(chunkIdx);
+    }
+
+    // Seniority facet
+    const sen = detectSeniority(job.title, job.skill_level);
+    if (facets.seniority[sen]) {
+      facets.seniority[sen].add(chunkIdx);
+    }
+
+    // Location facet
+    const locLower = (job.location || '').toLowerCase();
+    if (/remote|anywhere|virtual|worldwide/i.test(locLower)) {
+      facets.location.remote.add(chunkIdx);
+    }
+    if (/\b(us|united states|usa|ca|ny|tx|wa)\b/i.test(locLower)) {
+      facets.location.us.add(chunkIdx);
+    }
+    if (/\b(india|bengaluru|bangalore|hyderabad|pune|delhi|mumbai|gurugram)\b/i.test(locLower)) {
+      facets.location.india.add(chunkIdx);
+    }
+    if (/\b(europe|germany|berlin|france|paris|netherlands|amsterdam|spain|poland)\b/i.test(locLower)) {
+      facets.location.europe.add(chunkIdx);
+    }
+    if (/\b(uk|united kingdom|london|england)\b/i.test(locLower)) {
+      facets.location.uk.add(chunkIdx);
+    }
+    if (/\b(canada|toronto|vancouver|montreal|waterloo)\b/i.test(locLower)) {
+      facets.location.canada.add(chunkIdx);
+    }
+    if (/\b(apac|singapore|australia|sydney|japan|tokyo)\b/i.test(locLower)) {
+      facets.location.apac.add(chunkIdx);
+    }
+  }
+
+  // Convert Sets to sorted Arrays
+  const serializableTerms = Object.create(null);
+  for (const [term, chunkSet] of Object.entries(terms)) {
+    serializableTerms[term] = Array.from(chunkSet).sort((a, b) => a - b);
+  }
+
+  const serializableFacets = {
+    seniority: {},
+    location: {}
+  };
+  for (const [sen, chunkSet] of Object.entries(facets.seniority)) {
+    serializableFacets.seniority[sen] = Array.from(chunkSet).sort((a, b) => a - b);
+  }
+  for (const [loc, chunkSet] of Object.entries(facets.location)) {
+    serializableFacets.location[loc] = Array.from(chunkSet).sort((a, b) => a - b);
+  }
+
+  const timestamp = new Date().toISOString();
+  const searchIndex = {
+    version: '1.0.0-edge-index',
+    generated_at: timestamp,
+    total_jobs: jobs.length,
+    total_chunks: chunkFilenames.length,
+    chunk_size: chunkSize,
+    total_terms: Object.keys(serializableTerms).length,
+    terms: serializableTerms,
+    facets: serializableFacets
+  };
+
+  const jsonStr = JSON.stringify(searchIndex);
+  const gzipped = zlib.gzipSync(Buffer.from(jsonStr, 'utf-8'));
+
+  // Write to index/
+  fs.writeFileSync(path.join(indexDir, 'search_index.json'), jsonStr);
+  fs.writeFileSync(path.join(indexDir, 'search_index.json.gz'), gzipped);
+
+  // Write index_manifest.json
+  const indexManifest = {
+    version: '1.0.0-edge-index',
+    last_updated: timestamp,
+    total_jobs: jobs.length,
+    total_chunks: chunkFilenames.length,
+    total_terms: Object.keys(serializableTerms).length,
+    uncompressed_bytes: jsonStr.length,
+    compressed_bytes: gzipped.length
+  };
+  fs.writeFileSync(path.join(indexDir, 'index_manifest.json'), JSON.stringify(indexManifest, null, 2));
+
+  // Also write into chunks/index/ for reverse-proxy CDN path compatibility
+  const chunksIndexDir = path.join(outputDir, 'chunks', 'index');
+  if (!fs.existsSync(chunksIndexDir)) {
+    fs.mkdirSync(chunksIndexDir, { recursive: true });
+  }
+  fs.writeFileSync(path.join(chunksIndexDir, 'search_index.json.gz'), gzipped);
+  fs.writeFileSync(path.join(chunksIndexDir, 'index_manifest.json'), JSON.stringify(indexManifest, null, 2));
+
+  return {
+    totalTerms: Object.keys(serializableTerms).length,
+    compressedBytes: gzipped.length,
+    indexPath: path.join(indexDir, 'search_index.json.gz')
+  };
+}
+

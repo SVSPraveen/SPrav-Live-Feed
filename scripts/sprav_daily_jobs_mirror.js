@@ -906,12 +906,15 @@ export async function runDailyMirror() {
     fs.mkdirSync(outputDir, { recursive: true });
   }
 
-  // Phase 7: Partition & Compress into Sovereign 25k Chunks (chunks/jobs_chunk_N.json.gz)
+  // Phase 7: Partition & Compress into Sovereign 25k Chunks (chunks/jobs_chunk_N.json.gz) and Inverted Index
   const chunkResult = chunkAndCompressJobs(aggregatedJobs, outputDir, {
     platforms: 'Greenhouse, Ashby, Lever, Workday, SmartRecruiters, Himalayas, Remotive, Jobicy, Arbeitnow, HN',
     maxAgeDays: 45
   });
   console.log(`  ✓ Phase 7: Partitioned into ${chunkResult.chunksWritten} sovereign chunks (${chunkResult.totalJobs} jobs) with manifest.`);
+  if (chunkResult.indexStats) {
+    console.log(`  ✓ Phase 8: Built Chunked Inverted Index: ${chunkResult.indexStats.totalTerms} terms, ${(chunkResult.indexStats.compressedBytes / 1024).toFixed(1)} KB gzipped.`);
+  }
 
   const manifest = {
     updated_at: new Date().toISOString(),
@@ -920,6 +923,10 @@ export async function runDailyMirror() {
     boards_scraped: EXPANDED_SOVEREIGN_BOARDS.length + WORKDAY_ENTERPRISE_TENANTS.length,
     chunks_count: chunkResult.chunksWritten,
     hygiene_metrics: hygieneStats,
+    index_metrics: chunkResult.indexStats ? {
+      total_terms: chunkResult.indexStats.totalTerms,
+      compressed_bytes: chunkResult.indexStats.compressedBytes
+    } : null,
     sources_breakdown: {
       direct_ats_boards: atsJobs.length,
       workday_enterprise: workdayJobs.length,
