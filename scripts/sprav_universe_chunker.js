@@ -1,0 +1,359 @@
+/**
+ * scripts/sprav_universe_chunker.js
+ * ===================================
+ * SPrav Sovereign Universe Chunking, Active-Only Validation & Hygiene Engine.
+ * 
+ * Takes raw high-volume job streams, runs strict multi-stage hygiene:
+ * 1. Active-Only Verification (drops closed, inactive, or stale jobs >45 days)
+ * 2. Ghost Job Radar (drops repost loops, dormant evergreen talent pools, generic solicitations)
+ * 3. Spam & Scam Filter (drops MLM, commission-only scams, telegram/crypto lures, unpaid exploitation)
+ * 4. High-Efficiency Canonical Deduplication
+ * 5. Partitioning into standard 25,000-job gzip chunks with manifest & metadata
+ *
+ * Replaces external single-point-of-failure dependencies (like Feashliaa) with
+ * a 100% self-owned, client-ready sovereign data pipeline served via GitHub Pages CDN ($0).
+ */
+
+import fs from 'fs';
+import path from 'path';
+import zlib from 'zlib';
+
+export const CHUNK_SIZE = 25000;
+export const MAX_ACTIVE_AGE_DAYS = 45;
+
+/**
+ * Normalizes and extracts a canonical deduplication signature for a job.
+ */
+export function getJobDedupKey(job) {
+  if (!job) return '';
+  const url = (job.url || '').trim().toLowerCase().split('?')[0].replace(/\/$/, '');
+  const company = (job.company || '').trim().toLowerCase();
+  const title = (job.title || '').trim().toLowerCase();
+
+  // Workday job URL pattern
+  if (url.includes('workday') || url.includes('myworkdayjobs.com')) {
+    const workdayMatch = url.match(/\/jobs\/(\d+)/i);
+    if (workdayMatch) {
+      return `workday:${company}:${workdayMatch[1]}`;
+    }
+  }
+
+  // Greenhouse job board ID pattern
+  const ghMatch = url.match(/greenhouse\.io\/([^/]+)\/jobs\/(\d+)/i);
+  if (ghMatch) {
+    return `greenhouse:${ghMatch[1]}:${ghMatch[2]}`;
+  }
+
+  // Ashby job posting ID pattern
+  const ashbyMatch = url.match(/ashbyhq\.com\/([^/]+)\/([^/?#]+)/i);
+  if (ashbyMatch) {
+    return `ashby:${ashbyMatch[1]}:${ashbyMatch[2]}`;
+  }
+
+  // Lever posting ID pattern
+  const leverMatch = url.match(/lever\.co\/([^/]+)\/([^/?#]+)/i);
+  if (leverMatch) {
+    return `lever:${leverMatch[1]}:${leverMatch[2]}`;
+  }
+
+  if (url) return url;
+  return `${company}:::${title}`;
+}
+
+/**
+ * Validates that a job is currently active and not expired, closed, or stale.
+ * @param {Object} job
+ * @param {number} [maxAgeDays=MAX_ACTIVE_AGE_DAYS]
+ * @returns {boolean}
+ */
+export function isActiveJob(job, maxAgeDays = MAX_ACTIVE_AGE_DAYS) {
+  if (!job || typeof job !== 'object') return false;
+  if (!job.title || !job.company) return false;
+
+  // Explicit inactive or closed signals
+  if (job.active === false || job.is_active === false) return false;
+  if (job.deleted === true || job.is_deleted === true) return false;
+  if (job.status && typeof job.status === 'string') {
+    const s = job.status.toLowerCase().trim();
+    if (s === 'closed' || s === 'inactive' || s === 'archived' || s === 'expired' || s === 'draft') {
+      return false;
+    }
+  }
+
+  // Check timestamp age
+  const rawDate = job.scraped_at || job.posted_at || job.updated_at || job.first_seen;
+  if (rawDate) {
+    const timeMs = new Date(rawDate).getTime();
+    if (!isNaN(timeMs)) {
+      const ageMs = Date.now() - timeMs;
+      const ageDays = ageMs / (1000 * 60 * 60 * 24);
+      // If the listing has not been verified/updated in > maxAgeDays, drop it as stale
+      if (ageDays > maxAgeDays) return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Detects ghost postings, dormant requisitions, and non-hiring talent pools.
+ * @param {Object} job
+ * @returns {{ isGhost: boolean, reason: string|null }}
+ */
+export function evaluateGhostRisk(job) {
+  if (!job) return { isGhost: true, reason: 'Empty job object' };
+
+  const title = (job.title || '').trim();
+  const desc = (job.description || '').trim();
+
+  // 1. Generic non-requisition talent pools & placeholder notices
+  const talentPoolPattern = /\b(talent\s*(community|network|pool)|future\s*opportunities|general\s*application|expression\s*of\s*interest|speculative\s*application|keep\s*in\s*touch|resume\s*submission)\b/i;
+  if (talentPoolPattern.test(title)) {
+    return { isGhost: true, reason: 'Generic talent pool / no specific headcount' };
+  }
+
+  // 2. Content-free or skeleton listings
+  if (desc.length > 0 && desc.length < 35 && !/engineer|developer|analyst|manager/i.test(desc)) {
+    return { isGhost: true, reason: 'Skeleton description without requirements' };
+  }
+
+  // 3. Dormant evergreen requisitions (>90 days old with artificial repost loops)
+  if (job.first_seen && job.scraped_at) {
+    const firstSeenMs = new Date(job.first_seen).getTime();
+    const scrapedMs = new Date(job.scraped_at).getTime();
+    if (!isNaN(firstSeenMs) && !isNaN(scrapedMs)) {
+      const ageFromFirstSeenDays = (Date.now() - firstSeenMs) / (1000 * 60 * 60 * 24);
+      if (ageFromFirstSeenDays > 90) {
+        return { isGhost: true, reason: 'Dormant evergreen listing (>90 days open)' };
+      }
+    }
+  }
+
+  return { isGhost: false, reason: null };
+}
+
+/**
+ * Detects scam, predatory, spam, and non-tech marketing exploits.
+ * @param {Object} job
+ * @returns {{ isSpam: boolean, reason: string|null }}
+ */
+export function evaluateSpamRisk(job) {
+  if (!job) return { isSpam: true, reason: 'Empty job object' };
+
+  const combined = `${job.title || ''} ${job.company || ''} ${job.description || ''}`.toLowerCase();
+
+  // 1. Commission-only / MLM / Pyramid marketing schemes
+  const mlmPatterns = [
+    /100%\s*commission/i,
+    /uncapped\s*commission\s*only/i,
+    /commission\s*only\b/i,
+    /multi-level\s*marketing/i,
+    /be\s*your\s*own\s*boss/i,
+    /door-to-door/i,
+    /unlimited\s*earning\s*potential/i,
+    /investment\s*required/i,
+    /pay\s*for\s*training/i,
+    /make\s*\$?\d{4,}\s*(a|per)\s*week\s*from\s*home/i
+  ];
+  for (const pat of mlmPatterns) {
+    if (pat.test(combined)) {
+      return { isSpam: true, reason: `Commission/MLM exploit detected: ${pat}` };
+    }
+  }
+
+  // 2. Off-platform contact redirection scams (Telegram, WhatsApp recruitment lures)
+  const contactScamPatterns = [
+    /(reach\s*out|contact\s*me|message\s*us)\s*(on|via)\s*telegram/i,
+    /t\.me\/[a-z0-9_]+/i,
+    /(message|chat)\s*(on|via)\s*whatsapp/i,
+    /send\s*dm\s*to\s*whatsapp/i,
+    /crypto\s*(pump|airdrop|arbitrage)\s*trader/i
+  ];
+  for (const pat of contactScamPatterns) {
+    if (pat.test(combined)) {
+      return { isSpam: true, reason: 'Off-platform redirect / scam lure detected' };
+    }
+  }
+
+  // 3. Unpaid exploitative "spec work" or illegal labor
+  if (/\bunpaid\s*(trial|internship|project|spec\s*task)\b/i.test(combined) && !/volunteer/i.test(job.title || '')) {
+    return { isSpam: true, reason: 'Unpaid speculative labor exploit' };
+  }
+
+  return { isSpam: false, reason: null };
+}
+
+/**
+ * Filter, sanitize, and deduplicate a high-volume batch of raw job objects.
+ * @param {Array<Object>} rawJobs - List of incoming jobs
+ * @param {Object} [options]
+ * @param {number} [options.maxAgeDays=45] - Maximum age in days for active status
+ * @param {boolean} [options.allowGhostWarnings=false] - Whether to allow minor ghost risk through
+ * @returns {{ cleanJobs: Array<Object>, stats: Object }}
+ */
+export function filterCleanActiveJobs(rawJobs = [], options = {}) {
+  const maxAgeDays = options.maxAgeDays || MAX_ACTIVE_AGE_DAYS;
+  const allowGhostWarnings = !!options.allowGhostWarnings;
+
+  const cleanJobs = [];
+  const seenKeys = new Set();
+  const seenSignatures = new Set();
+
+  let droppedInactive = 0;
+  let droppedGhost = 0;
+  let droppedSpam = 0;
+  let droppedDuplicates = 0;
+
+  for (const job of rawJobs) {
+    if (!job || typeof job !== 'object') continue;
+
+    // 1. Active Check
+    if (!isActiveJob(job, maxAgeDays)) {
+      droppedInactive++;
+      continue;
+    }
+
+    // 2. Spam & Scam Check
+    const spamEval = evaluateSpamRisk(job);
+    if (spamEval.isSpam) {
+      droppedSpam++;
+      continue;
+    }
+
+    // 3. Ghost Job Check
+    const ghostEval = evaluateGhostRisk(job);
+    if (ghostEval.isGhost && !allowGhostWarnings) {
+      droppedGhost++;
+      continue;
+    }
+
+    // 4. Canonical Deduplication Check
+    const dedupKey = getJobDedupKey(job);
+    const signature = `${(job.company || '').toLowerCase().trim()}:::${(job.title || '').toLowerCase().trim()}`;
+
+    if (seenKeys.has(dedupKey) || seenSignatures.has(signature)) {
+      droppedDuplicates++;
+      continue;
+    }
+
+    seenKeys.add(dedupKey);
+    seenSignatures.add(signature);
+    cleanJobs.push(job);
+  }
+
+  return {
+    cleanJobs,
+    stats: {
+      totalRaw: rawJobs.length,
+      cleanCount: cleanJobs.length,
+      droppedInactive,
+      droppedGhost,
+      droppedSpam,
+      droppedDuplicates
+    }
+  };
+}
+
+/**
+ * Partitions clean jobs into 25,000-item chunks, compresses them with zlib,
+ * and writes jobs_manifest.json + metadata.json into output directory.
+ *
+ * @param {Array<Object>} jobs - Cleaned and deduplicated active jobs
+ * @param {string} outputDir - Directory where chunks and metadata should be written
+ * @param {Object} [metadataConfig] - Custom metadata tags
+ * @returns {{ chunksWritten: number, manifestPath: string, metadataPath: string }}
+ */
+export function chunkAndCompressJobs(jobs, outputDir, metadataConfig = {}) {
+  const chunksDir = path.join(outputDir, 'chunks');
+  if (!fs.existsSync(chunksDir)) {
+    fs.mkdirSync(chunksDir, { recursive: true });
+  }
+
+  // Clean old chunks
+  try {
+    const existingFiles = fs.readdirSync(chunksDir);
+    for (const f of existingFiles) {
+      if (f.startsWith('jobs_chunk_') && f.endsWith('.json.gz')) {
+        fs.unlinkSync(path.join(chunksDir, f));
+      }
+    }
+  } catch {}
+
+  // Sort predictably: primary by newest timestamp, secondary by company/title
+  const sortedJobs = [...jobs].sort((a, b) => {
+    const tA = new Date(a.scraped_at || a.posted_at || 0).getTime();
+    const tB = new Date(b.scraped_at || b.posted_at || 0).getTime();
+    if (tB !== tA) return tB - tA;
+    const cCompare = (a.company || '').localeCompare(b.company || '');
+    if (cCompare !== 0) return cCompare;
+    return (a.title || '').localeCompare(b.title || '');
+  });
+
+  const distinctCompanies = new Set();
+  for (const j of sortedJobs) {
+    if (j.company) distinctCompanies.add(j.company.toLowerCase().trim());
+  }
+
+  // Partition into CHUNK_SIZE slices
+  const chunkFilenames = [];
+  let chunkIndex = 0;
+
+  for (let i = 0; i < sortedJobs.length; i += CHUNK_SIZE) {
+    const chunk = sortedJobs.slice(i, i + CHUNK_SIZE);
+    const filename = `jobs_chunk_${chunkIndex}.json.gz`;
+    const chunkPath = path.join(chunksDir, filename);
+
+    const jsonText = JSON.stringify(chunk);
+    const gzipped = zlib.gzipSync(Buffer.from(jsonText, 'utf-8'));
+    fs.writeFileSync(chunkPath, gzipped);
+
+    chunkFilenames.push(filename);
+    chunkIndex++;
+  }
+
+  const timestamp = new Date().toISOString();
+
+  // 1. Write jobs_manifest.json inside chunks/
+  const manifest = {
+    chunks: chunkFilenames,
+    totalJobs: sortedJobs.length,
+    chunkSize: CHUNK_SIZE,
+    totalChunks: chunkFilenames.length,
+    distinctCompanies: distinctCompanies.size,
+    last_updated: timestamp,
+    version: '4.0.0-sovereign'
+  };
+  const manifestPath = path.join(chunksDir, 'jobs_manifest.json');
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+
+  // 2. Write standard metadata.json in outputDir (compatible with Feashliaa standard and SPrav)
+  const metadata = {
+    last_updated: timestamp,
+    total_companies: distinctCompanies.size,
+    active_companies: distinctCompanies.size,
+    total_jobs: sortedJobs.length,
+    recruiter_jobs: 0,
+    source_type: 'sprav_sovereign_universe',
+    platforms: metadataConfig.platforms || 'Greenhouse, Ashby, Lever, Workday, SmartRecruiters, Himalayas, Remotive, Jobicy, Arbeitnow, HN',
+    quality_metrics: {
+      active_only: true,
+      ghost_filtered: true,
+      spam_filtered: true,
+      max_age_days: metadataConfig.maxAgeDays || MAX_ACTIVE_AGE_DAYS
+    }
+  };
+
+  const metadataPath = path.join(outputDir, 'metadata.json');
+  fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
+
+  // Also write a copy into chunks/ for reverse-proxy CDN routing flexibility
+  fs.writeFileSync(path.join(chunksDir, 'metadata.json'), JSON.stringify(metadata, null, 2));
+
+  return {
+    chunksWritten: chunkFilenames.length,
+    manifestPath,
+    metadataPath,
+    totalJobs: sortedJobs.length,
+    distinctCompanies: distinctCompanies.size
+  };
+}
