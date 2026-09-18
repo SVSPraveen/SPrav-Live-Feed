@@ -458,18 +458,14 @@ export function checkRuntimeIntegrity() {
  */
 export function armorPrototypes() {
   try {
-    const targets = [Object.prototype, Array.prototype, Function.prototype];
-    for (const proto of targets) {
-      if (!proto) continue;
-      const descriptors = Object.getOwnPropertyDescriptors(proto);
-      for (const [prop, desc] of Object.entries(descriptors)) {
-        if (desc.configurable) {
-          try {
-            Object.defineProperty(proto, prop, { configurable: false });
-          } catch {
-            // Non-configurable in strict or sealed environments
-          }
-        }
+    if (typeof Object !== 'undefined' && Object.prototype) {
+      try {
+        // Protect __proto__ against prototype pollution attacks
+        Object.defineProperty(Object.prototype, '__proto__', {
+          configurable: false
+        });
+      } catch {
+        // Already non-configurable in strict or protected engine
       }
     }
   } catch (e) {

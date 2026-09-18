@@ -625,9 +625,15 @@ class BrowserStorageVault {
       request.onsuccess = (event) => {
         this.db = event.target.result;
         this._autoRequestPersistence();
-        setTimeout(() => {
-          this.purgeLegacyDiscoveryJobs().catch(() => {});
-        }, 120);
+        // Defer legacy discovery cleanup to idle period so initial mount renders at 60fps
+        const schedulePurge = () => {
+          if (typeof window !== 'undefined' && window.requestIdleCallback) {
+            window.requestIdleCallback(() => this.purgeLegacyDiscoveryJobs().catch(() => {}), { timeout: 8000 });
+          } else {
+            setTimeout(() => this.purgeLegacyDiscoveryJobs().catch(() => {}), 4000);
+          }
+        };
+        schedulePurge();
         resolve(this.db);
       };
 
@@ -647,11 +653,21 @@ class BrowserStorageVault {
    */
   async purgeLegacyDiscoveryJobs() {
     try {
+      if (typeof localStorage !== 'undefined' && localStorage.getItem('sprav_legacy_jobs_cleaned_v4') === 'true') {
+        return 0;
+      }
+
       const allJobs = await this.getAll(STORES.JOBS);
-      if (!Array.isArray(allJobs) || allJobs.length === 0) return 0;
+      if (!Array.isArray(allJobs) || allJobs.length === 0) {
+        if (typeof localStorage !== 'undefined') localStorage.setItem('sprav_legacy_jobs_cleaned_v4', 'true');
+        return 0;
+      }
 
       const unActioned = allJobs.filter(j => !isPersistentJob(j));
-      if (unActioned.length === 0) return 0;
+      if (unActioned.length === 0) {
+        if (typeof localStorage !== 'undefined') localStorage.setItem('sprav_legacy_jobs_cleaned_v4', 'true');
+        return 0;
+      }
 
       const db = await this.initDB();
       const tx = db.transaction([STORES.JOBS], 'readwrite');
@@ -666,6 +682,9 @@ class BrowserStorageVault {
         tx.oncomplete = () => resolve();
         tx.onerror = () => reject(tx.error);
       });
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('sprav_legacy_jobs_cleaned_v4', 'true');
+      }
       console.info(`[StorageVault] Cleaned up ${unActioned.length} legacy un-actioned discovery listings from IndexedDB.`);
       return unActioned.length;
     } catch (err) {
@@ -1790,10 +1809,12 @@ class BrowserStorageVault {
 
   async saveJobs(jobs) {
     if (!Array.isArray(jobs) || jobs.length === 0) return true;
+    // Cap ingestion batch to top 400 jobs to maintain 60fps UI responsiveness
+    const boundedJobs = jobs.length > 400 ? jobs.slice(0, 400) : jobs;
     const persistentBatch = [];
     const now = new Date().toISOString();
 
-    for (const raw of jobs) {
+    for (const raw of boundedJobs) {
       if (!raw) continue;
       const targetId = raw.id || `job_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
       const strId = String(targetId);
@@ -1811,6 +1832,11 @@ class BrowserStorageVault {
       } else {
         // Ephemeral in-memory only (zero disk footprint)
         this._sessionDiscoveryJobs.set(strId, job);
+        // Evict oldest ephemeral jobs if discovery cache exceeds 500 to keep main thread fast
+        if (this._sessionDiscoveryJobs.size > 500) {
+          const oldestKey = this._sessionDiscoveryJobs.keys().next().value;
+          if (oldestKey) this._sessionDiscoveryJobs.delete(oldestKey);
+        }
       }
     }
 
