@@ -191,9 +191,7 @@ class ClientDataBridge {
       try {
         const cloudJobs = await fetchDailyMirrorJobs(null, { lite: true });
         if (Array.isArray(cloudJobs) && cloudJobs.length > 0) {
-          // Ingest top high-signal jobs to keep the UI buttery smooth at 60fps
-          const highSignal = cloudJobs.slice(0, 250);
-          await storageVault.saveJobs(highSignal);
+          await storageVault.saveJobs(cloudJobs);
           vaultJobs = await storageVault.getJobs();
         }
       } catch (err) {
@@ -213,10 +211,8 @@ class ClientDataBridge {
     try {
       const cloudJobs = await fetchDailyMirrorJobs(null, options);
       if (Array.isArray(cloudJobs) && cloudJobs.length > 0) {
-        // Ingest top high-signal jobs to keep the UI buttery smooth at 60fps
-        const highSignal = cloudJobs.slice(0, 250);
-        await storageVault.saveJobs(highSignal);
-        return highSignal.length;
+        await storageVault.saveJobs(cloudJobs);
+        return cloudJobs.length;
       }
       return 0;
     } catch (err) {

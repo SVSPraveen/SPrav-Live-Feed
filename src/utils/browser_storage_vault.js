@@ -1809,18 +1809,18 @@ class BrowserStorageVault {
 
   async saveJobs(jobs) {
     if (!Array.isArray(jobs) || jobs.length === 0) return true;
-    // Cap ingestion batch to top 400 jobs to maintain 60fps UI responsiveness
-    const boundedJobs = jobs.length > 400 ? jobs.slice(0, 400) : jobs;
     const persistentBatch = [];
     const now = new Date().toISOString();
 
-    for (const raw of boundedJobs) {
+    for (const raw of jobs) {
       if (!raw) continue;
       const targetId = raw.id || `job_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
       const strId = String(targetId);
+      const d = raw.first_published_at || raw.posted_at || raw.published_at || raw.created_at;
       const job = {
         ...raw,
         id: targetId,
+        _postTime: d ? (Date.parse(d) || 0) : 0,
         created_at: raw.created_at || now,
         updated_at: now
       };
@@ -1830,13 +1830,8 @@ class BrowserStorageVault {
         this._sessionDiscoveryJobs.delete(strId);
         _cacheDelete(`${STORES.JOBS}::${targetId}`);
       } else {
-        // Ephemeral in-memory only (zero disk footprint)
+        // Ephemeral in-memory only (zero disk footprint, instant sub-millisecond access)
         this._sessionDiscoveryJobs.set(strId, job);
-        // Evict oldest ephemeral jobs if discovery cache exceeds 500 to keep main thread fast
-        if (this._sessionDiscoveryJobs.size > 500) {
-          const oldestKey = this._sessionDiscoveryJobs.keys().next().value;
-          if (oldestKey) this._sessionDiscoveryJobs.delete(oldestKey);
-        }
       }
     }
 
