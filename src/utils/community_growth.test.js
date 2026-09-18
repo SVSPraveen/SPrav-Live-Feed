@@ -53,8 +53,8 @@ test('community_growth: MANIFESTO_PILLARS and SUBREDDIT_PRESETS constants integr
 
   assert.strictEqual(MANIFESTO_PILLARS[2].title, 'Direct-to-Source ATS Ingestion');
   assert.strictEqual(MANIFESTO_PILLARS[2].icon, 'Globe');
-  assert.strictEqual(MANIFESTO_PILLARS[2].badge, '14 Verified Channels');
-  assert.ok(MANIFESTO_PILLARS[2].description.includes('Queries first-party'));
+  assert.strictEqual(MANIFESTO_PILLARS[2].badge, '16 Verified Channels');
+  assert.ok(MANIFESTO_PILLARS[2].description.includes('first-party'));
 
   assert.strictEqual(MANIFESTO_PILLARS[3].title, 'Client-Side & Free Cloud AI');
   assert.strictEqual(MANIFESTO_PILLARS[3].icon, 'Cpu');
@@ -141,7 +141,7 @@ test('community_growth: buildShowHnPost generates comprehensive markdown with cu
   const defaultPost = buildShowHnPost();
   assert.ok(defaultPost.includes('# Show HN: SPrav Job AI'));
   assert.ok(defaultPost.includes('SVS Praveen'));
-  assert.ok(defaultPost.includes('14 verified channels'));
+  assert.ok(defaultPost.includes('16 verified channels'));
   assert.ok(defaultPost.includes('https://github.com/SVSPraveen/SPrav-Job-AI'));
 
   // Custom options
@@ -244,7 +244,7 @@ test('community_growth: generateEmbedBadgeMarkdown produces valid shields.io lin
 test('community_growth: exportLaunchKit produces structured bundle with all presets', () => {
   const kit = exportLaunchKit({ author: 'Custom Author' });
   assert.strictEqual(kit.appName, 'SPrav Job AI');
-  assert.strictEqual(kit.version, '2.4.0 Pro Edition');
+  assert.strictEqual(kit.version, '2.5.0 Pro Edition');
   assert.ok(Array.isArray(kit.manifesto));
   assert.strictEqual(kit.manifesto.length, 5);
   assert.ok(kit.showHn.includes('Custom Author'));
