@@ -1,0 +1,9 @@
+{
+  "name": "sprav-sovereign-job-feed",
+  "private": true,
+  "version": "1.0.0",
+  "description": "SPrav Sovereign Daily Jobs Mirror Data Feed",
+  "scripts": {
+    "build": "echo 'Sovereign job feed data branch - skipping compilation'"
+  }
+}

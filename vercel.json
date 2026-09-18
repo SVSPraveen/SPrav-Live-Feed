@@ -1,0 +1,6 @@
+{
+  "version": 2,
+  "buildCommand": "echo 'Sovereign job feed data branch - skipping compilation'",
+  "outputDirectory": ".",
+  "ignoreCommand": "exit 0"
+}
