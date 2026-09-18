@@ -145,4 +145,22 @@ describe('job_grabber_bookmarklet', () => {
     assert.ok(code.includes('metaEl.textContent ='));
     assert.ok(code.includes('salaryEl.textContent ='));
   });
+
+  it('prevents user-controlled string breakout via quotes and JSON.stringify serialization', () => {
+    const quoteBreakout = 'https://app.sprav.ai/path"\';alert(document.domain)//';
+    const code = buildJobGrabberBookmarkletCode(quoteBreakout);
+    assert.ok(code.startsWith('javascript:'));
+    // Origin parser normalizes or falls back, and JSON.stringify prevents any code breakout
+    assert.ok(!code.includes('alert(document.domain)'));
+    assert.ok(code.includes('var cleanOrigin = "https://app.sprav.ai"'));
+  });
+
+  it('isolates floating HUD with Shadow DOM and programmatic element creation to prevent DOM clobbering', () => {
+    const code = buildJobGrabberBookmarkletCode('https://sprav-jobai.vercel.app');
+    assert.ok(code.includes('attachShadow'));
+    assert.ok(code.includes('container.appendChild(titleEl)'));
+    assert.ok(code.includes('root.appendChild(container)'));
+    // Does not use dangerous innerHTML with dynamic unescaped text
+    assert.ok(!code.includes('hud.innerHTML = html'));
+  });
 });

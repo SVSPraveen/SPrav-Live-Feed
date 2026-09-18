@@ -743,7 +743,7 @@ class HybridLLMClient {
           })
         });
       } else if (service === 'groq') {
-        const targetModel = model || 'openai/gpt-oss-120b';
+        const targetModel = model || 'llama-3.3-70b-versatile';
         res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -757,7 +757,7 @@ class HybridLLMClient {
           })
         });
         if (!res.ok && !model) {
-          // Fallback to low GPT model (openai/gpt-oss-20b) or low Qwen model (qwen-2.5-32b)
+          // Fallback to qwen-2.5-32b, llama-3.1-8b-instant, or openai/gpt-oss-120b
           res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -765,7 +765,7 @@ class HybridLLMClient {
               'Authorization': `Bearer ${key}`
             },
             body: JSON.stringify({
-              model: 'openai/gpt-oss-20b',
+              model: 'qwen-2.5-32b',
               messages: [{ role: 'user', content: 'ping' }],
               max_tokens: 5
             })
@@ -778,7 +778,7 @@ class HybridLLMClient {
                 'Authorization': `Bearer ${key}`
               },
               body: JSON.stringify({
-                model: 'qwen-2.5-32b',
+                model: 'llama-3.1-8b-instant',
                 messages: [{ role: 'user', content: 'ping' }],
                 max_tokens: 5
               })
@@ -791,7 +791,7 @@ class HybridLLMClient {
                   'Authorization': `Bearer ${key}`
                 },
                 body: JSON.stringify({
-                  model: 'gpt-oss-120b',
+                  model: 'openai/gpt-oss-120b',
                   messages: [{ role: 'user', content: 'ping' }],
                   max_tokens: 5
                 })
@@ -877,7 +877,7 @@ class HybridLLMClient {
     const isJsonRequested = !!(options?.schema || options?.json || options?.response_format);
 
     if (service === 'groq') {
-      const targetModel = options?.model || 'openai/gpt-oss-120b';
+      const targetModel = options?.model || 'llama-3.3-70b-versatile';
       const payload = { model: targetModel, messages, temperature };
       if (frequencyPenalty !== undefined) payload.frequency_penalty = frequencyPenalty;
       if (presencePenalty !== undefined) payload.presence_penalty = presencePenalty;
@@ -888,22 +888,22 @@ class HybridLLMClient {
         body: JSON.stringify(payload)
       });
       if (!res.ok && !options?.model) {
-        // Fallback to low GPT model (openai/gpt-oss-20b) or low Qwen model (qwen-2.5-32b)
-        payload.model = 'openai/gpt-oss-20b';
+        // Fallback to qwen-2.5-32b, llama-3.1-8b-instant, or openai/gpt-oss-120b
+        payload.model = 'qwen-2.5-32b';
         res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
           body: JSON.stringify(payload)
         });
         if (!res.ok) {
-          payload.model = 'qwen-2.5-32b';
+          payload.model = 'llama-3.1-8b-instant';
           res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
             body: JSON.stringify(payload)
           });
           if (!res.ok) {
-            payload.model = 'gpt-oss-120b';
+            payload.model = 'openai/gpt-oss-120b';
             res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },

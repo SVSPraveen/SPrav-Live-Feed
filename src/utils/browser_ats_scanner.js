@@ -50,7 +50,7 @@ import {
 } from './regional_ats_registries.js';
 import { fetchHwowCompanies } from './hiring_without_whiteboards_service.js';
 import { sanitizeObject, formatSafeWebUrl } from './security_guard.js';
-import { TOP_100_TECH_COMPANIES } from './top_tech_companies_catalog.js';
+import { TOP_100_TECH_COMPANIES, WORKDAY_ENTERPRISE_TENANTS, FAANG_ENTERPRISE_PORTALS } from './top_tech_companies_catalog.js';
 import { 
   searchHighVolumeStream, 
   fetchSimplifyJobs, 
@@ -63,7 +63,13 @@ import {
 
 import { fetchAtsViaExtension, isExtensionInstalled } from './extension_companion.js';
 
-export { VERIFIED_WORKDAY_TENANTS, detectCandidateRegionFromScope, TOP_100_TECH_COMPANIES };
+export { 
+  VERIFIED_WORKDAY_TENANTS, 
+  detectCandidateRegionFromScope, 
+  TOP_100_TECH_COMPANIES, 
+  WORKDAY_ENTERPRISE_TENANTS, 
+  FAANG_ENTERPRISE_PORTALS 
+};
 
 /**
  * Executes a network fetch with an individual deadline timeout, preventing slow
@@ -1409,11 +1415,13 @@ export class BrowserAtsScanner {
     const targetRoles = rawRoles
       .filter(r => r && (typeof r === 'string' || (r.preference !== 'exclude' && r.preference !== 'never')))
       .map(r => (typeof r === 'string' ? r : r.keyword || '').toLowerCase().trim())
+      .map(r => r.replace(/\b(roles|jobs|openings|positions)\b/gi, '').trim())
       .filter(Boolean);
 
     const excludedRoles = rawRoles
       .filter(r => r && typeof r === 'object' && (r.preference === 'exclude' || r.preference === 'never'))
       .map(r => (typeof r === 'string' ? r : r.keyword || '').toLowerCase().trim())
+      .map(r => r.replace(/\b(roles|jobs|openings|positions)\b/gi, '').trim())
       .filter(Boolean);
 
     // Check explicit excludes
@@ -1716,6 +1724,9 @@ export class BrowserAtsScanner {
         url: j.absolute_url || '',
         source: 'Greenhouse',
         portal: 'Greenhouse',
+        provenance_tier: 'live_direct_ats',
+        provenance_label: 'Live Direct ATS (0s Freshness)',
+        freshness_guarantee: 'Live 0s Direct First-Party Scan',
         description: j.content || j.title || '',
         is_remote: (j.location?.name || '').toLowerCase().includes('remote'),
         posted_at: j.first_published || j.updated_at || new Date().toISOString(),
@@ -1764,6 +1775,9 @@ export class BrowserAtsScanner {
         url: j.jobUrl || `https://jobs.ashbyhq.com/${slug}/${j.id}`,
         source: 'Ashby',
         portal: 'Ashby',
+        provenance_tier: 'live_direct_ats',
+        provenance_label: 'Live Direct ATS (0s Freshness)',
+        freshness_guarantee: 'Live 0s Direct First-Party Scan',
         description: j.descriptionPlain || j.title || '',
         is_remote: !!j.isRemote || (j.location || '').toLowerCase().includes('remote'),
         posted_at: j.publishedAt || j.firstPublishedAt || j.updatedAt || new Date().toISOString(),
@@ -1817,6 +1831,9 @@ export class BrowserAtsScanner {
         url: j.hostedUrl || j.applyUrl || '',
         source: 'Lever',
         portal: 'Lever',
+        provenance_tier: 'live_direct_ats',
+        provenance_label: 'Live Direct ATS (0s Freshness)',
+        freshness_guarantee: 'Live 0s Direct First-Party Scan',
         description: j.descriptionPlain || j.description || j.text || '',
         is_remote: j.workplaceType === 'remote' || (j.categories?.location || '').toLowerCase().includes('remote'),
         posted_at: j.createdAt ? new Date(j.createdAt).toISOString() : new Date().toISOString(),
@@ -2666,23 +2683,72 @@ export class BrowserAtsScanner {
       if (!company || !subdomain || !site) return [];
 
       const endpoint = `https://${subdomain}.myworkdayjobs.com/wday/cxs/${company}/${site}/jobs`;
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          appliedFacets: {},
-          limit: 20,
-          offset: 0,
-          searchText: searchText || ''
-        }),
-        signal
-      });
+      const postPayload = {
+        appliedFacets: {},
+        limit: 20,
+        offset: 0,
+        searchText: searchText || ''
+      };
 
-      if (!res.ok) return [];
-      const data = await res.json();
+      let data = null;
+
+      // 1. Companion Extension bridge (cross-origin elevated permissions)
+      if (typeof isExtensionInstalled === 'function' && isExtensionInstalled()) {
+        try {
+          const extRes = await fetchAtsViaExtension(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: postPayload
+          }, 5000);
+          if (extRes && extRes.ok && extRes.data) {
+            data = extRes.data;
+          }
+        } catch {}
+      }
+
+      // 2. Direct browser fetch (for CORS-unrestricted environments or local proxies)
+      if (!data) {
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify(postPayload),
+            signal
+          });
+          if (res.ok) {
+            data = await res.json();
+          }
+        } catch {}
+      }
+
+      // 3. Fallback: query 1.5M Global Index for this Workday company's indexed snapshot listings
+      if (!data) {
+        try {
+          const streamRes = await searchHighVolumeStream(company, {
+            targetMatches: 20,
+            maxChunksToScan: 2,
+            signal
+          });
+          if (streamRes?.jobs && streamRes.jobs.length > 0) {
+            return streamRes.jobs.map(j => ({
+              ...j,
+              source: 'Workday',
+              portal: 'Workday (Global Index)',
+              provenance_tier: 'global_index',
+              provenance_label: 'Workday (Global Index Snapshot)',
+              freshness_guarantee: 'Aggregated Daily Mirror Index Snapshot'
+            }));
+          }
+        } catch {}
+        return [];
+      }
+
       const postings = Array.isArray(data?.jobPostings) ? data.jobPostings : [];
       const companyName = company.charAt(0).toUpperCase() + company.slice(1);
       const siteBase = `https://${subdomain}.myworkdayjobs.com/en-US/${site}`;
@@ -2700,6 +2766,9 @@ export class BrowserAtsScanner {
           url: jobUrl,
           source: 'Workday',
           portal: 'Workday',
+          provenance_tier: 'enterprise_workday',
+          provenance_label: 'Workday Enterprise CXS',
+          freshness_guarantee: 'Live Workday Enterprise CXS (Extension Assisted)',
           description: `${p.title} • Requisition ID: ${reqId}${p.postedOn ? ` • ${p.postedOn}` : ''}`,
           is_remote: isRemote,
           posted_at: new Date().toISOString(),
@@ -4224,6 +4293,39 @@ export class BrowserAtsScanner {
 
     // Parallelize all live keyword discovery engines concurrently
     await Promise.allSettled([
+      // 0. Direct Targeted Company ATS Probes (Ashby, Greenhouse, Lever, Workday)
+      (async () => {
+        try {
+          const compSlug = cleanQ.toLowerCase().replace(/[^a-z0-9_-]/g, '');
+          if (compSlug.length >= 2) {
+            const isKnownCompany = Boolean(
+              VERIFIED_WORKDAY_TENANTS?.[compSlug] ||
+              WORKDAY_ENTERPRISE_TENANTS?.some(t => t.name.toLowerCase() === compSlug || t.tenant?.toLowerCase() === compSlug) ||
+              TOP_100_TECH_COMPANIES?.some(c => (c.slug && c.slug.toLowerCase() === compSlug) || (c.name && c.name.toLowerCase() === compSlug)) ||
+              REGIONAL_ATS_COMPANIES?.some(c => (c.slug && c.slug.toLowerCase() === compSlug) || (c.name && c.name.toLowerCase() === compSlug)) ||
+              options.isCompanyScan
+            );
+
+            if (isKnownCompany) {
+              // Check Workday tenants
+              if (VERIFIED_WORKDAY_TENANTS?.[compSlug] || WORKDAY_ENTERPRISE_TENANTS?.some(t => t.name.toLowerCase() === compSlug || t.tenant?.toLowerCase() === compSlug)) {
+                const wdJobs = await this.scanWorkdayCompany(compSlug, options.signal, 'engineer');
+                if (wdJobs && wdJobs.length > 0) await ingestBatch(wdJobs);
+              }
+              // Check Greenhouse/Ashby/Lever
+              const ghJobs = await this.scanGreenhouseCompany(compSlug, options.signal);
+              if (ghJobs && ghJobs.length > 0) await ingestBatch(ghJobs);
+
+              const ashbyJobs = await this.scanAshbyCompany(compSlug, options.signal);
+              if (ashbyJobs && ashbyJobs.length > 0) await ingestBatch(ashbyJobs);
+
+              const leverJobs = await this.scanLeverCompany(compSlug, options.signal);
+              if (leverJobs && leverJobs.length > 0) await ingestBatch(leverJobs);
+            }
+          }
+        } catch {}
+      })(),
+
       // 1. Algolia HN query search scoped strictly to latest "Ask HN: Who is hiring?" story
       (async () => {
         try {

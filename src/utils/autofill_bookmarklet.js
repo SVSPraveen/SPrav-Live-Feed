@@ -1084,45 +1084,61 @@ export function generateAutofillBookmarkletCode(payload = {}) {
     hud.id = 'sprav-autofill-hud';
     hud.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999999;background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 100%);color:#fff;border:1px solid rgba(56,189,248,0.5);box-shadow:0 12px 35px rgba(0,0,0,0.6),0 0 15px rgba(56,189,248,0.25);border-radius:14px;padding:12px 16px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;font-size:12px;line-height:1.4;max-width:340px;user-select:none;transition:all 0.3s ease;';
 
-    var esc = function(s){
-      return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    };
-
-    var html = '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:6px;">' +
-      '<div style="display:flex;align-items:center;gap:6px;font-weight:800;color:#38bdf8;font-size:13px;">' +
-      '<span>⚡ SPrav Co-Pilot Assist</span>' +
-      '</div>' +
-      '<button id="sprav-hud-close" style="background:transparent;border:none;color:#94a3b8;cursor:pointer;font-size:14px;padding:0 4px;">✕</button>' +
-      '</div>' +
-      '<div id="sprav-hud-status" style="color:#e2e8f0;margin-bottom:8px;font-size:12px;"></div>' +
-      '<div style="background:rgba(0,0,0,0.3);padding:6px 8px;border-radius:8px;margin-bottom:6px;">' +
-      '<div style="font-size:10px;color:#94a3b8;text-transform:uppercase;font-weight:700;margin-bottom:4px;">📋 1-Click Quick-Copy Tray</div>' +
-      '<div id="sprav-copy-tray" style="display:flex;flex-wrap:wrap;gap:2px;"></div>' +
-      '</div>' +
-      '<div style="font-size:10px;color:#64748b;display:flex;align-items:center;justify-content:space-between;">' +
-      '<span>🛡️ Zero Telemetry • 100% Private</span>' +
-      '</div>';
+    // Header
+    var header = document.createElement('div');
+    header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:6px;';
     
-    hud.innerHTML = html;
+    var titleBox = document.createElement('div');
+    titleBox.style.cssText = 'display:flex;align-items:center;gap:6px;font-weight:800;color:#38bdf8;font-size:13px;';
+    titleBox.textContent = '⚡ SPrav Co-Pilot Assist';
+    header.appendChild(titleBox);
 
-    var statusEl = hud.querySelector('#sprav-hud-status');
-    if (statusEl) {
-      if (filled > 0) {
-        statusEl.innerHTML = '<strong style="color:#34d399;">✓ ' + Number(filled) + ' fields</strong> filled with React/Angular event bypass.';
-      } else {
-        statusEl.textContent = 'Form analyzed. Use Quick-Copy below for custom inputs:';
-      }
+    var closeBtn = document.createElement('button');
+    closeBtn.id = 'sprav-hud-close';
+    closeBtn.style.cssText = 'background:transparent;border:none;color:#94a3b8;cursor:pointer;font-size:14px;padding:0 4px;';
+    closeBtn.textContent = '✕';
+    closeBtn.onclick = function() {
+      var h = document.getElementById('sprav-autofill-hud');
+      if (h && h.parentNode) h.parentNode.removeChild(h);
+    };
+    header.appendChild(closeBtn);
+    hud.appendChild(header);
+
+    // Status
+    var statusEl = document.createElement('div');
+    statusEl.id = 'sprav-hud-status';
+    statusEl.style.cssText = 'color:#e2e8f0;margin-bottom:8px;font-size:12px;';
+    if (filled > 0) {
+      var strong = document.createElement('strong');
+      strong.style.color = '#34d399';
+      strong.textContent = '✓ ' + Number(filled) + ' fields ';
+      statusEl.appendChild(strong);
+      statusEl.appendChild(document.createTextNode('filled with React/Angular event bypass.'));
+    } else {
+      statusEl.textContent = 'Form analyzed. Use Quick-Copy below for custom inputs:';
     }
+    hud.appendChild(statusEl);
 
-    var closeBtn = hud.querySelector('#sprav-hud-close');
-    if (closeBtn) {
-      closeBtn.onclick = function() {
-        var h = document.getElementById('sprav-autofill-hud');
-        if (h && h.parentNode) h.parentNode.removeChild(h);
-      };
-    }
+    // Quick-copy tray container
+    var trayContainer = document.createElement('div');
+    trayContainer.style.cssText = 'background:rgba(0,0,0,0.3);padding:6px 8px;border-radius:8px;margin-bottom:6px;';
+    
+    var trayLabel = document.createElement('div');
+    trayLabel.style.cssText = 'font-size:10px;color:#94a3b8;text-transform:uppercase;font-weight:700;margin-bottom:4px;';
+    trayLabel.textContent = '📋 1-Click Quick-Copy Tray';
+    trayContainer.appendChild(trayLabel);
 
-    var tray = hud.querySelector('#sprav-copy-tray');
+    var tray = document.createElement('div');
+    tray.id = 'sprav-copy-tray';
+    tray.style.cssText = 'display:flex;flex-wrap:wrap;gap:2px;';
+    trayContainer.appendChild(tray);
+    hud.appendChild(trayContainer);
+
+    // Footer
+    var footer = document.createElement('div');
+    footer.style.cssText = 'font-size:10px;color:#64748b;display:flex;align-items:center;justify-content:space-between;';
+    footer.textContent = '🛡️ Zero Telemetry • 100% Private';
+    hud.appendChild(footer);
     if (tray) {
       var addCopyBtn = function(label, text) {
         if (!text) return;

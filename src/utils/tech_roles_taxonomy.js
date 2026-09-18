@@ -65,7 +65,10 @@ export const ROLE_DOMAINS = {
       "Quantum Computing Intern",
       "Associate FinOps Engineer",
       "Associate UX Researcher",
-      "UX Research Intern"
+      "UX Research Intern",
+      "Junior Full Stack AI Engineer",
+      "Junior Agentic AI Developer",
+      "Junior Cloud / GPU Infrastructure Engineer"
     ]
   },
   "mid_level": {
@@ -76,12 +79,18 @@ export const ROLE_DOMAINS = {
       "Software Engineer",
       "Software Development Engineer (SDE II)",
       "Full Stack Developer",
+      "Full Stack AI Engineer",
+      "Local-First Software Engineer",
       "Backend Developer",
       "Frontend Developer",
       "AI Engineer",
+      "Agentic AI Developer",
       "Machine Learning Engineer",
       "AI Safety Engineer",
       "AI Red Teaming Engineer",
+      "Forward Deployed Engineer (FDE)",
+      "GPU Cloud Infrastructure Engineer",
+      "Spatial Computing Developer",
       "Quantum Computing Engineer",
       "Quantum Software Engineer",
       "FinOps Engineer",
@@ -113,9 +122,14 @@ export const ROLE_DOMAINS = {
     aliases: ["senior", "sr", "sr.", "lead", "team lead", "tech lead", "sde 3", "sde iii"],
     roles: [
       "Senior AI Engineer",
+      "Senior Agentic AI Developer",
       "Senior Machine Learning Engineer",
       "Senior AI Safety Engineer",
       "Lead AI Red Teaming Engineer",
+      "Senior Full Stack AI Engineer",
+      "Senior Forward Deployed Engineer (FDE)",
+      "Senior GPU Infrastructure Engineer",
+      "Senior LLM Inference Engineer",
       "Senior Quantum Computing Engineer",
       "Senior Quantum Software Engineer",
       "Senior FinOps Engineer",
@@ -169,8 +183,12 @@ export const ROLE_DOMAINS = {
       "Staff Data Engineer",
       "Staff Platform Engineer",
       "Staff Infrastructure Engineer",
+      "Staff Forward Deployed Engineer",
       "Senior Staff Engineer",
       "Principal AI Scientist",
+      "Principal AI Systems Architect",
+      "Principal GPU Infrastructure Architect",
+      "Principal Distributed Systems Architect",
       "Principal AI Safety & Alignment Architect",
       "Principal Quantum Architect",
       "Principal Cloud FinOps Architect",
@@ -200,12 +218,22 @@ export const ROLE_DOMAINS = {
   "ai_ml": {
     domainName: "Artificial Intelligence, LLM & Machine Learning",
     badge: "🤖",
-    aliases: ["ai", "ml", "artificial intelligence", "machine learning", "genai", "generative ai", "llm", "rag", "nlp", "deep learning", "computer vision", "mlops", "ai safety", "red teaming", "red team", "ai red team", "model safety", "ai alignment"],
+    aliases: [
+      "ai", "ml", "artificial intelligence", "machine learning", "genai", "generative ai", "llm", "rag", "nlp", "deep learning",
+      "computer vision", "mlops", "agentic ai", "ai agent", "ai agents", "agentic", "inference", "llmops", "ai safety",
+      "red teaming", "red team", "ai red team", "model safety", "ai alignment"
+    ],
     roles: [
       "AI Engineer",
+      "Machine Learning Engineer",
       "Generative AI Engineer",
       "LLM Engineer",
-      "Machine Learning Engineer",
+      "Agentic AI Developer",
+      "AI Agent Systems Engineer",
+      "LLM Inference Optimization Engineer",
+      "Foundation Model Post-Training Engineer",
+      "Forward Deployed AI Engineer",
+      "AI Gateway & LLMOps Architect",
       "AI Safety Engineer",
       "AI Red Teaming Engineer",
       "AI Alignment & Safety Researcher",
@@ -223,8 +251,12 @@ export const ROLE_DOMAINS = {
       "RAG Specialist",
       "Autonomous Systems Engineer",
       "Robotics Engineer",
+      "Physical AI / Embodied Robotics Engineer",
       "Speech & Audio AI Engineer",
       "Multimodal AI Engineer",
+      "Synthetic Data Engineer",
+      "Small Language Model (SLM) & Edge AI Engineer",
+      "Generative AI Solutions Architect",
       "Foundation Model Researcher",
       "AI Ethics & Safety Researcher"
     ]
@@ -232,11 +264,13 @@ export const ROLE_DOMAINS = {
   "full_stack": {
     domainName: "Full Stack & Core Software Engineering",
     badge: "💻",
-    aliases: ["full stack", "fullstack", "software engineer", "sde", "swe", "developer", "software developer"],
+    aliases: ["full stack", "fullstack", "software engineer", "sde", "swe", "developer", "software developer", "local-first", "local first"],
     roles: [
       "Full Stack Developer",
       "Full Stack Engineer",
+      "Full Stack AI Engineer",
       "Full Stack AI Developer",
+      "Local-First Software Engineer",
       "Software Development Engineer (SDE I)",
       "Software Development Engineer (SDE II)",
       "Software Development Engineer (SDE III)",
@@ -253,10 +287,12 @@ export const ROLE_DOMAINS = {
   "backend": {
     domainName: "Backend & Systems Development",
     badge: "⚙️",
-    aliases: ["backend", "back end", "back-end", "python", "java", "golang", "go", "node", "nodejs", "c++", "rust", "c#", ".net", "api", "microservices"],
+    aliases: ["backend", "back end", "back-end", "python", "java", "golang", "go", "node", "nodejs", "c++", "rust", "zig", "c#", ".net", "api", "microservices"],
     roles: [
       "Backend Engineer",
       "Backend Developer",
+      "Systems Software Engineer (Rust / Go / Zig)",
+      "Low-Latency C++ Systems Engineer",
       "Python Backend Engineer",
       "Java Backend Engineer",
       "Spring Boot Developer",
@@ -270,6 +306,8 @@ export const ROLE_DOMAINS = {
       "API & Microservices Engineer",
       "Distributed Systems Engineer",
       "High Performance Computing (HPC) Engineer",
+      "High-Performance Distributed Systems Engineer",
+      "Async & Event-Driven Systems Engineer",
       "Linux Kernel Engineer",
       "Database Kernel Developer",
       "Distributed Database Engineer"
@@ -328,13 +366,21 @@ export const ROLE_DOMAINS = {
   "devops_cloud": {
     domainName: "Cloud, DevOps, Platform & SRE",
     badge: "☁️",
-    aliases: ["devops", "cloud", "sre", "site reliability", "platform", "infrastructure", "aws", "azure", "gcp", "kubernetes", "k8s", "docker", "terraform", "finops", "cloud cost", "cost optimization", "cloud economics"],
+    aliases: [
+      "devops", "cloud", "sre", "site reliability", "platform", "infrastructure", "aws", "azure", "gcp",
+      "kubernetes", "k8s", "docker", "terraform", "finops", "cloud cost", "cost optimization", "cloud economics",
+      "gpu infra", "gpu infrastructure", "ai cluster", "idp", "internal developer platform", "platform engineering"
+    ],
     roles: [
       "DevOps Engineer",
       "Cloud Engineer",
       "Site Reliability Engineer (SRE)",
       "Platform Engineer",
       "Infrastructure Engineer",
+      "GPU Cloud Infrastructure Engineer",
+      "AI Cluster Reliability Engineer",
+      "Internal Developer Platform (IDP) Engineer",
+      "Kubernetes Control Plane Engineer",
       "FinOps Engineer",
       "Senior FinOps Engineer",
       "Cloud FinOps Architect",
@@ -358,13 +404,18 @@ export const ROLE_DOMAINS = {
     aliases: [
       "security", "cyber", "cybersecurity", "infosec", "soc", "penetration", "pentest",
       "devsecops", "threat", "appsec", "siem", "splunk", "wireshark", "owasp", "firewall",
-      "incident response", "vulnerability", "iam", "zero trust", "ai red teaming", "red team", "red teaming"
+      "incident response", "vulnerability", "iam", "zero trust", "ai red teaming", "red team", "red teaming",
+      "post-quantum", "pqc", "hardware security", "icam", "detection and response"
     ],
     roles: [
       "Security Engineer",
       "Cybersecurity Analyst",
       "DevSecOps Engineer",
       "Application Security (AppSec) Engineer",
+      "Cloud Security Detection & Response Engineer",
+      "Identity Credential & Access Management (ICAM) Engineer",
+      "Hardware Security & Post-Quantum Cryptography Engineer",
+      "Zero Trust Security Architect",
       "AI Security & Red Teaming Engineer",
       "Adversarial AI Security Analyst",
       "Penetration Tester / Ethical Hacker",
@@ -402,7 +453,8 @@ export const ROLE_DOMAINS = {
     aliases: [
       "product manager", "pm", "tpm", "program manager", "project manager", "scrum", "agile", "engineering manager",
       "customer success", "tcse", "tam", "customer solutions", "implementation", "technical account manager", "client solutions",
-      "ux research", "uxr", "user research", "design research", "ux researcher"
+      "ux research", "uxr", "user research", "design research", "ux researcher",
+      "fde", "forward deployed", "forward deployed engineer", "ai product engineer"
     ],
     roles: [
       "Technical Customer Success Engineer (TCSE)",
@@ -412,6 +464,9 @@ export const ROLE_DOMAINS = {
       "Technical Account Manager (TAM)",
       "Senior Technical Account Manager",
       "Implementation Engineer",
+      "Forward Deployed Engineer (FDE)",
+      "Forward Deployed AI Engineer",
+      "AI Product Engineer",
       "Product Manager",
       "Technical Product Manager (TPM)",
       "Technical Program Manager",
@@ -440,7 +495,8 @@ export const ROLE_DOMAINS = {
       "embedded", "firmware", "iot", "hardware", "fpga", "asic", "robotics", "rtos",
       "vlsi", "rtl", "silicon", "semiconductor", "verilog", "systemverilog", "physical design",
       "dft", "soc", "eda", "board design", "pcb", "microelectronics", "analog", "mixed signal",
-      "quantum", "quantum computing", "qiskit", "quantum algorithm"
+      "quantum", "quantum computing", "qiskit", "quantum algorithm",
+      "npu", "tpu", "accelerator", "ai accelerator", "chiplet", "advanced packaging", "risc-v", "serdes", "adas"
     ],
     roles: [
       "VLSI Design Engineer",
@@ -450,6 +506,11 @@ export const ROLE_DOMAINS = {
       "ASIC Verification Engineer (UVM / SystemVerilog)",
       "Physical Design Engineer (PD)",
       "Silicon Validation & Bring-Up Engineer",
+      "AI Accelerator Hardware Architect (NPU / TPU)",
+      "Chiplet & Advanced Packaging Design Engineer",
+      "RISC-V Architecture Engineer",
+      "High-Speed SerDes & Interconnect Engineer",
+      "Automotive Embedded & ADAS Systems Engineer",
       "Design for Testability (DFT) Engineer",
       "SoC Architecture Engineer",
       "Analog & Mixed-Signal IC Design Engineer",
@@ -476,11 +537,16 @@ export const ROLE_DOMAINS = {
     badge: "🎮",
     aliases: [
       "game", "games", "gaming", "game dev", "gamedev", "unity", "unity3d", "unreal", "unreal engine",
-      "ue4", "ue5", "graphics", "shader", "shaders", "rendering", "gameplay", "xr", "ar", "vr", "directx", "opengl", "vulkan"
+      "ue4", "ue5", "graphics", "shader", "shaders", "rendering", "gameplay", "xr", "ar", "vr", "directx", "opengl", "vulkan",
+      "spatial", "spatial computing", "visionos", "realitykit", "webgpu", "nanite", "lumen", "game physics"
     ],
     roles: [
       "Game Developer",
       "Gameplay Programmer",
+      "Spatial Computing Developer (visionOS / RealityKit)",
+      "WebGPU Engine Programmer",
+      "Unreal Engine 5 Nanite & Lumen Technical Artist",
+      "Physics & Collision Engine Programmer",
       "Unity Developer",
       "Unity 3D Game Engineer",
       "Unreal Engine Developer",
@@ -633,6 +699,10 @@ export function normalizeRoleSearchTerm(term = '') {
     .replace(/\bsoftare\b/g, 'software')
     .replace(/\baiml\b/g, 'ai machine learning')
     .replace(/\bai\/ml\b/g, 'ai machine learning')
+    .replace(/\bspatial dev(eloper)?\b/g, 'spatial computing developer')
+    .replace(/\bagentic ai (dev(eloper)?|engg?|engineer)?\b/g, 'agentic ai developer')
+    .replace(/\bgpu infra\b/g, 'gpu infrastructure')
+    .replace(/\bfde\b/g, 'forward deployed engineer')
     .replace(/\bengg?\b/g, 'engineer')
     .replace(/\bdevs?\b/g, 'developer')
     .replace(/\bsec\b/g, 'security')
@@ -869,6 +939,36 @@ export function expandRoleSearchVariants(role = '') {
     variants.add('technical content engineer');
   }
 
+  if (/\b(agentic|ai agent|agent systems)\b/i.test(raw) || /\b(agentic|ai agent|agent systems)\b/i.test(normalized)) {
+    variants.add('agentic ai developer');
+    variants.add('ai agent systems engineer');
+    variants.add('ai agent developer');
+    variants.add('generative ai engineer');
+    variants.add('ai engineer');
+  }
+
+  if (/\b(fde|forward deployed)\b/i.test(raw) || /\b(fde|forward deployed)\b/i.test(normalized)) {
+    variants.add('forward deployed engineer');
+    variants.add('forward deployed ai engineer');
+    variants.add('fde');
+    variants.add('customer solutions engineer');
+    variants.add('solutions engineer');
+  }
+
+  if (/\b(gpu infra|gpu infrastructure|ai cluster)\b/i.test(raw) || /\b(gpu infra|gpu infrastructure|ai cluster)\b/i.test(normalized)) {
+    variants.add('gpu cloud infrastructure engineer');
+    variants.add('ai cluster reliability engineer');
+    variants.add('gpu infrastructure architect');
+    variants.add('cloud infrastructure engineer');
+  }
+
+  if (/\b(spatial|visionos|realitykit|webgpu)\b/i.test(raw) || /\b(spatial|visionos|realitykit|webgpu)\b/i.test(normalized)) {
+    variants.add('spatial computing developer');
+    variants.add('webgpu engine programmer');
+    variants.add('ar / vr / xr developer');
+    variants.add('graphics programmer');
+  }
+
   return Array.from(variants).filter(Boolean);
 }
 
@@ -1041,6 +1141,9 @@ export function matchesTargetRoleWithSeniority(jobTitle = '', targetRoles = [], 
     if ((rawRole.includes('sec') || rawRole.includes('cyber')) && /\b(security|cyber|appsec|infosec)\b/i.test(lowerTitle)) {
       return true;
     }
+    if ((rawRole.includes('react') || rawRole.includes('frontend') || rawRole.includes('ui')) && /\b(react|frontend|front end|front-end|ui|web)\b/i.test(lowerTitle) && /\b(engineer|developer|architect|lead|specialist)\b/i.test(lowerTitle)) {
+      return true;
+    }
     if ((rawRole.includes('ios') || rawRole.includes('mobile') || rawRole.includes('android')) && /\b(ios|mobile|swift|android|react native|flutter)\b/i.test(lowerTitle) && /\b(engineer|developer)\b/i.test(lowerTitle)) {
       return true;
     }
@@ -1060,6 +1163,21 @@ export function matchesTargetRoleWithSeniority(jobTitle = '', targetRoles = [], 
       return true;
     }
     if ((rawRole.includes('writer') || rawRole.includes('documentation')) && /\b(technical writer|documentation engineer|api documentation)\b/i.test(lowerTitle)) {
+      return true;
+    }
+    if ((rawRole.includes('agent') || rawRole.includes('agentic')) && /\b(agent|agentic)\b/i.test(lowerTitle) && /\b(engineer|developer|architect|specialist)\b/i.test(lowerTitle)) {
+      return true;
+    }
+    if ((rawRole.includes('forward deployed') || rawRole.includes('fde')) && (/\bforward deployed\b/i.test(lowerTitle) || /\bfde\b/i.test(lowerTitle))) {
+      return true;
+    }
+    if ((rawRole.includes('gpu') || rawRole.includes('cluster')) && (/\bgpu\b/i.test(lowerTitle) || /\bcluster\b/i.test(lowerTitle)) && /\b(engineer|infrastructure|architect|sre)\b/i.test(lowerTitle)) {
+      return true;
+    }
+    if ((rawRole.includes('spatial') || rawRole.includes('visionos') || rawRole.includes('realitykit')) && (/\b(spatial|visionos|realitykit|webgpu)\b/i.test(lowerTitle))) {
+      return true;
+    }
+    if ((rawRole.includes('quantum') || rawRole.includes('post-quantum') || rawRole.includes('pqc')) && /\b(quantum|post-quantum|pqc)\b/i.test(lowerTitle)) {
       return true;
     }
 

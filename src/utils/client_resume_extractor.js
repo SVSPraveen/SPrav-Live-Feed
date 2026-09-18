@@ -174,6 +174,16 @@ export function scoreTextQuality(text) {
  * @returns {Promise<string>}
  */
 async function extractWithPdfJs(arrayBuffer) {
+  if (!arrayBuffer || !(arrayBuffer instanceof ArrayBuffer) || arrayBuffer.byteLength === 0) {
+    return '';
+  }
+
+  // OWASP A06 / DoS Defense: Enforce hard 15MB file size limit to prevent memory exhaustion
+  const MAX_PDF_BYTE_SIZE = 15 * 1024 * 1024;
+  if (arrayBuffer.byteLength > MAX_PDF_BYTE_SIZE) {
+    throw new Error(`PDF file size (${Math.round(arrayBuffer.byteLength / 1024 / 1024)}MB) exceeds the maximum allowed limit of 15MB.`);
+  }
+
   const pdfjsLib = await import('pdfjs-dist/build/pdf.mjs');
   if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
     try {
@@ -192,82 +202,104 @@ async function extractWithPdfJs(arrayBuffer) {
     }
   }
 
+  // Hardened PDF document loading parameters (CVE-2024-4367, XFA scripting, and SSRF/stream defenses)
   const loadingTask = pdfjsLib.getDocument({
     data: new Uint8Array(arrayBuffer),
     useWorkerFetch: false,
     isEvalSupported: false,
     useSystemFonts: true,
     disableFontFace: true,
+    enableXfa: false,
+    disableAutoFetch: true,
+    disableStream: true,
+    disableRange: true,
+    stopAtErrors: false
   });
 
-  const pdf = await loadingTask.promise;
+  let timeoutId;
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => {
+      try { loadingTask.destroy(); } catch {}
+      reject(new Error('PDF extraction timed out after 10 seconds.'));
+    }, 10000);
+  });
+
+  let pdf;
+  try {
+    pdf = await Promise.race([loadingTask.promise, timeoutPromise]);
+  } finally {
+    clearTimeout(timeoutId);
+  }
+
   const pageTexts = [];
+  const maxPages = Math.min(pdf.numPages, 50);
 
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const textContent = await page.getTextContent({ includeMarkedContent: false });
+  try {
+    for (let i = 1; i <= maxPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent({ includeMarkedContent: false });
 
-    if (!textContent.items.length) {
-      pageTexts.push('');
-      continue;
-    }
+      if (!textContent.items.length) {
+        pageTexts.push('');
+        continue;
+      }
 
-    // ── Column-aware reconstruction ───────────────────────────────
-    // Group items into "lines" by similar Y coordinate (within 3pt tolerance).
-    const Y_TOLERANCE = 3;
-    const lines = [];
+      // ── Column-aware reconstruction ───────────────────────────────
+      // Group items into "lines" by similar Y coordinate (within 3pt tolerance).
+      const Y_TOLERANCE = 3;
+      const lines = [];
 
-    for (const item of textContent.items) {
-      if (!('str' in item) || !item.str) continue;
-      const x = item.transform[4];
-      const y = item.transform[5];
-      const str = item.str;
-      const width = item.width || 0;
-      const hasEOL = item.hasEOL || false;
+      for (const item of textContent.items) {
+        if (!('str' in item) || !item.str) continue;
+        const x = item.transform[4];
+        const y = item.transform[5];
+        const str = item.str;
+        const width = item.width || 0;
+        const hasEOL = item.hasEOL || false;
 
-      let matched = false;
-      for (const line of lines) {
-        if (Math.abs(line.y - y) <= Y_TOLERANCE) {
-          line.items.push({ x, str, width, hasEOL });
-          matched = true;
-          break;
+        let matched = false;
+        for (const line of lines) {
+          if (Math.abs(line.y - y) <= Y_TOLERANCE) {
+            line.items.push({ x, str, width, hasEOL });
+            matched = true;
+            break;
+          }
+        }
+        if (!matched) {
+          lines.push({ y, items: [{ x, str, width, hasEOL }] });
         }
       }
-      if (!matched) {
-        lines.push({ y, items: [{ x, str, width, hasEOL }] });
-      }
-    }
 
-    // Sort lines top-to-bottom (descending Y in PDF coords)
-    lines.sort((a, b) => b.y - a.y);
+      // Sort lines top-to-bottom (Y descending in PDF coordinate space)
+      lines.sort((a, b) => b.y - a.y);
 
-    const reconstructed = [];
-    for (const line of lines) {
-      // Sort items left-to-right within each line
-      line.items.sort((a, b) => a.x - b.x);
+      // Reconstruct lines: detect multi-column pages vs single-column
+      const reconstructed = [];
+      for (const line of lines) {
+        line.items.sort((a, b) => a.x - b.x);
 
-      let lineStr = '';
-      for (let j = 0; j < line.items.length; j++) {
-        const item = line.items[j];
-        const next = line.items[j + 1];
-
-        lineStr += item.str;
-
-        if (next) {
-          const gap = next.x - (item.x + item.width);
-          if (gap > (item.width / line.items.length) * 0.33 || item.str.slice(-1) !== ' ') {
-            if (!lineStr.endsWith(' ') && !next.str.startsWith(' ')) {
+        let lineStr = '';
+        for (let j = 0; j < line.items.length; j++) {
+          const itm = line.items[j];
+          if (j > 0) {
+            const prev = line.items[j - 1];
+            const gap = itm.x - (prev.x + prev.width);
+            if (gap > 18) {
+              lineStr += '   ';
+            } else if (gap > 2) {
               lineStr += ' ';
             }
           }
+          lineStr += itm.str;
         }
 
-        if (item.hasEOL) lineStr += '\n';
+        if (lineStr.trim()) reconstructed.push(lineStr.trim());
       }
-      reconstructed.push(lineStr.trim());
-    }
 
-    pageTexts.push(reconstructed.filter(Boolean).join('\n'));
+      pageTexts.push(reconstructed.filter(Boolean).join('\n'));
+    }
+  } finally {
+    try { loadingTask.destroy(); } catch {}
   }
 
   return pageTexts.join('\n\n');
@@ -342,6 +374,13 @@ function extractWithStreamParser(arrayBuffer) {
  */
 export async function extractTextFromPdf(arrayBuffer) {
   if (!arrayBuffer || arrayBuffer.byteLength === 0) return '';
+  
+  // OWASP A06 / DoS Defense: Enforce hard 15MB file size limit before entering any parser
+  const MAX_PDF_BYTE_SIZE = 15 * 1024 * 1024;
+  if (arrayBuffer.byteLength > MAX_PDF_BYTE_SIZE) {
+    throw new Error(`PDF file size (${Math.round(arrayBuffer.byteLength / 1024 / 1024)}MB) exceeds the maximum allowed limit of 15MB.`);
+  }
+
   const candidates = [];
 
   // Engine 1: pdfjs column-aware

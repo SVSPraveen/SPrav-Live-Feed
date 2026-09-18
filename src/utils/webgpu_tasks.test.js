@@ -11,6 +11,8 @@ import {
   buildScreeningAnswerPrompt,
   buildMockQuestionPrompt,
   buildInterviewFeedbackPrompt,
+  buildSalaryNegotiationPrompt,
+  buildOutreachPrompt,
   verifyBulletAntiHallucination,
   auditAntiAiBuzzwords,
   RECRUITER_AI_BUZZWORDS,
@@ -469,6 +471,73 @@ test('SAMPLING_PROFILES: defines calibrated profiles for interview generation an
   assert.equal(SAMPLING_PROFILES.INTERVIEW_QUESTION.temperature, 0.4);
   assert.ok(SAMPLING_PROFILES.INTERVIEW_EVALUATION);
   assert.equal(SAMPLING_PROFILES.INTERVIEW_EVALUATION.temperature, 0.2);
+  assert.ok(SAMPLING_PROFILES.SALARY_NEGOTIATION);
+  assert.equal(SAMPLING_PROFILES.SALARY_NEGOTIATION.temperature, 0.3);
 });
+
+test('buildSalaryNegotiationPrompt: constructs 3-tier negotiation package with Voss collaborative framing', () => {
+  const offer = {
+    roleTitle: 'Staff Infrastructure Architect',
+    companyName: 'Stripe',
+    jobLocation: 'San Francisco, CA',
+    baseSalary: 210000,
+    primaryAnnualTotal: 340000,
+    effectiveCounterTarget: 395000,
+    currentSalary: 290000,
+    yoe: 8,
+    currency: 'USD',
+    hasCompetingOffer: true,
+    competingCompany: 'Databricks',
+    benchmarkMedian: 350000
+  };
+
+  const { system, user } = buildSalaryNegotiationPrompt(offer);
+  assert.ok(system.includes('executive compensation strategist'), 'System establishes executive persona');
+  assert.ok(system.includes('Diplomatic Counter-Offer Email'), 'Specifies email asset');
+  assert.ok(system.includes('Verbal / Phone Talking Points'), 'Specifies talking points asset');
+  assert.ok(system.includes('High-Leverage Secondary Levers'), 'Specifies secondary levers asset');
+  assert.ok(system.includes('Chris Voss calibrated'), 'Incorporates negotiation psychology');
+
+  assert.ok(user.includes('Staff Infrastructure Architect'), 'Includes role title');
+  assert.ok(user.includes('Stripe'), 'Includes company name');
+  assert.ok(user.includes('395,000'), 'Includes target counter');
+  assert.ok(user.includes('Databricks'), 'Includes competing offer leverage');
+  assert.ok(user.includes('FEW-SHOT COMPLETE EXEMPLAR:'), 'Includes few-shot exemplar');
+});
+
+test('buildOutreachPrompt: generates calibrated messages across connection_note, inmail, and cold_email formats', () => {
+  const params = {
+    recruiterName: 'Sarah Jenkins',
+    company: 'Figma',
+    role: 'Staff Frontend Engineer',
+    candidateName: 'David Kim',
+    candidateTitle: 'Lead UI Engineer',
+    topSkills: 'TypeScript, WebAssembly, WebGL',
+    verifiedAchievements: 'Reduced canvas rendering time by 52% across 10k users'
+  };
+
+  // 1. Connection Note (<280 chars)
+  const connNote = buildOutreachPrompt({ ...params, format: 'connection_note' });
+  assert.ok(connNote.system.includes('STRICT HARD CEILING: Absolutely under 280 characters total.'));
+  assert.ok(connNote.system.includes('ZERO AI clichés or hollow buzzwords'));
+  assert.ok(connNote.user.includes('Sarah'));
+  assert.ok(connNote.user.includes('Figma'));
+  assert.ok(connNote.user.includes('David Kim'));
+
+  // 2. InMail (600-1000 chars)
+  const inmail = buildOutreachPrompt({ ...params, format: 'inmail' });
+  assert.ok(inmail.system.includes('600 to 1,000 characters total'));
+  assert.ok(inmail.system.includes('Beat 1 (Clear Hook)'));
+  assert.ok(inmail.system.includes('Beat 2 (Proof of Work)'));
+  assert.ok(inmail.system.includes('Beat 3 (Single Low-Friction Call-to-Action)'));
+  assert.ok(inmail.user.includes('Open to a brief 10-minute sync this Thursday?'));
+
+  // 3. Cold Email (<110 words)
+  const coldEmail = buildOutreachPrompt({ ...params, format: 'email' });
+  assert.ok(coldEmail.system.includes('Under 110 words total.'));
+  assert.ok(coldEmail.system.includes('0 fluff or hollow clichés'));
+  assert.ok(coldEmail.user.includes('Figma'));
+});
+
 
 

@@ -339,5 +339,15 @@ describe('SPrav Companion Browser Extension Integrity & Utility', () => {
     assert.equal(res.ok, false);
     assert.match(res.error, /Companion extension not active/);
   });
+
+  it('fetchAtsViaExtension accepts POST method, headers, and body options for Workday CXS payloads', async () => {
+    const postRes = await fetchAtsViaExtension('https://nvidia.wd5.myworkdayjobs.com/wday/cxs/nvidia/NVIDIAExternalCareerSite/jobs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: { limit: 20, searchText: 'engineer' }
+    });
+    assert.equal(postRes.ok, false);
+    assert.match(postRes.error, /Companion extension not active/);
+  });
 });
 

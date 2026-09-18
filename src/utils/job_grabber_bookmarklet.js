@@ -169,15 +169,23 @@ export function extractJobFromDom(doc = document, win = window) {
     }
   }
 
+  // Defensive Sanitization (OWASP A03 / Anti-XSS)
+  const sanitizeField = (s) => String(s || '').replace(/<[^>]+>/g, '').replace(/[\r\n\t]+/g, ' ').trim();
+  const safeJobUrl = (u) => {
+    const trimmed = String(u || '').trim();
+    if (/^(javascript|data|vbscript):/i.test(trimmed)) return '#';
+    return trimmed;
+  };
+
   return {
     id: `grabbed_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-    title: title.slice(0, 120),
-    company: company.slice(0, 80),
-    location: location.slice(0, 100),
-    salary: salary || 'Unlisted',
-    description: description || 'No job description captured.',
-    url,
-    portal: hostname || 'Direct Career Site',
+    title: sanitizeField(title).slice(0, 120),
+    company: sanitizeField(company).slice(0, 80),
+    location: sanitizeField(location).slice(0, 100),
+    salary: sanitizeField(salary) || 'Unlisted',
+    description: sanitizeField(description) || 'No job description captured.',
+    url: safeJobUrl(url),
+    portal: sanitizeField(hostname) || 'Direct Career Site',
     source: 'SPrav Universal Job Grabber',
     posted_at: new Date().toISOString(),
     status: 'new',
@@ -193,8 +201,9 @@ export function extractJobFromDom(doc = document, win = window) {
 export function buildJobGrabberBookmarkletCode(spravAppUrl = 'http://localhost:5173') {
   let cleanOrigin = 'http://localhost:5173';
   try {
-    const u = new URL(spravAppUrl || 'http://localhost:5173');
-    if (u.protocol === 'http:' || u.protocol === 'https:') {
+    const raw = String(spravAppUrl || '').trim();
+    const u = new URL(raw || 'http://localhost:5173');
+    if ((u.protocol === 'http:' || u.protocol === 'https:') && /^https?:\/\/[a-zA-Z0-9.-]+(?::\d+)?$/i.test(u.origin)) {
       cleanOrigin = u.origin;
     }
   } catch (_) {
@@ -216,69 +225,105 @@ javascript:(function(){
       }
     } catch(e){}
 
-    // 2. Prepare Direct Launch URL with payload
+    // 2. Prepare Direct Launch URL with payload (JSON.stringify guarantees zero string injection)
+    var cleanOrigin = ${JSON.stringify(cleanOrigin)};
+    var baseUrl = ${JSON.stringify(cleanOrigin + '/#portal?import=')};
     var payloadBase64 = '';
     try {
       payloadBase64 = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(job)))));
     } catch(e){}
-    var launchUrl = '${cleanOrigin}/#portal?import=' + payloadBase64;
+    var launchUrl = baseUrl + payloadBase64;
 
-    // 3. Inject Floating HUD overlay
+    // 3. Inject Floating HUD overlay with Shadow DOM isolation (OWASP A03 / DOM Clobbering Defense)
     var oldHud = document.getElementById('sprav-grabber-hud');
-    if (oldHud) oldHud.remove();
+    if (oldHud && typeof oldHud.remove === 'function') oldHud.remove();
 
     var hud = document.createElement('div');
     hud.id = 'sprav-grabber-hud';
-    hud.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999999;width:340px;padding:16px;background:#0f172a;color:#ffffff;border:1px solid #10b981;border-radius:14px;box-shadow:0 20px 40px rgba(0,0,0,0.6);font-family:system-ui,-apple-system,sans-serif;font-size:13px;line-height:1.4;animation:spravFadeIn 0.2s ease-out;';
+    hud.style.cssText = 'position:fixed;top:20px;right:20px;z-index:2147483647;pointer-events:auto;';
 
-    var html = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">' +
-      '<div style="display:flex;align-items:center;gap:6px;"><span style="background:#10b981;color:#fff;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;text-transform:uppercase;">SPrav AI</span><span style="font-weight:700;color:#34d399;">Job Captured!</span></div>' +
-      '<button id="sprav-hud-close" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;line-height:1;">&times;</button>' +
-      '</div>' +
-      '<div id="sprav-hud-title" style="font-weight:700;font-size:14px;color:#f8fafc;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>' +
-      '<div id="sprav-hud-meta" style="color:#38bdf8;font-weight:600;margin-bottom:6px;"></div>' +
-      '<div id="sprav-hud-salary" style="color:#fbbf24;font-size:12px;margin-bottom:8px;display:none;"></div>' +
-      '<div style="display:flex;gap:8px;margin-top:10px;">' +
-      '<a id="sprav-hud-launch" target="_blank" rel="noopener noreferrer" style="flex:1;text-align:center;background:#10b981;color:#ffffff;text-decoration:none;font-weight:700;padding:8px 12px;border-radius:8px;font-size:12px;">Open in SPrav &rarr;</a>' +
-      '<button id="sprav-hud-copy" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px;">Copy JSON</button>' +
-      '</div>';
+    // Use Shadow DOM if supported to isolate styles and prevent host DOM clobbering
+    var root = hud.attachShadow ? hud.attachShadow({ mode: 'open' }) : hud;
 
-    hud.innerHTML = html;
+    var container = document.createElement('div');
+    container.style.cssText = 'width:340px;padding:16px;background:#0f172a;color:#ffffff;border:1px solid #10b981;border-radius:14px;box-shadow:0 20px 40px rgba(0,0,0,0.6);font-family:system-ui,-apple-system,sans-serif;font-size:13px;line-height:1.4;box-sizing:border-box;';
 
-    var titleEl = hud.querySelector('#sprav-hud-title');
-    if (titleEl) {
-      titleEl.textContent = job.title || 'Job';
-      titleEl.title = job.title || 'Job';
-    }
-    var metaEl = hud.querySelector('#sprav-hud-meta');
-    if (metaEl) {
-      metaEl.textContent = (job.company || 'Company') + ' \u2022 ' + (job.location || 'Location');
-    }
+    var headerRow = document.createElement('div');
+    headerRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;';
+
+    var badgeGroup = document.createElement('div');
+    badgeGroup.style.cssText = 'display:flex;align-items:center;gap:6px;';
+    var badge = document.createElement('span');
+    badge.style.cssText = 'background:#10b981;color:#fff;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;text-transform:uppercase;';
+    badge.textContent = 'SPrav AI';
+    var badgeText = document.createElement('span');
+    badgeText.style.cssText = 'font-weight:700;color:#34d399;';
+    badgeText.textContent = 'Job Captured!';
+    badgeGroup.appendChild(badge);
+    badgeGroup.appendChild(badgeText);
+
+    var closeBtn = document.createElement('button');
+    closeBtn.id = 'sprav-hud-close';
+    closeBtn.style.cssText = 'background:none;border:none;color:#94a3b8;cursor:pointer;font-size:18px;line-height:1;padding:0 4px;';
+    closeBtn.innerHTML = '&times;';
+    closeBtn.onclick = function(){ hud.remove(); };
+
+    headerRow.appendChild(badgeGroup);
+    headerRow.appendChild(closeBtn);
+    container.appendChild(headerRow);
+
+    var titleEl = document.createElement('div');
+    titleEl.id = 'sprav-hud-title';
+    titleEl.style.cssText = 'font-weight:700;font-size:14px;color:#f8fafc;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+    titleEl.textContent = job.title || 'Job';
+    titleEl.title = job.title || 'Job';
+    container.appendChild(titleEl);
+
+    var metaEl = document.createElement('div');
+    metaEl.id = 'sprav-hud-meta';
+    metaEl.style.cssText = 'color:#38bdf8;font-weight:600;margin-bottom:6px;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+    metaEl.textContent = (job.company || 'Company') + ' \\u2022 ' + (job.location || 'Location');
+    container.appendChild(metaEl);
+
+    var salaryEl = document.createElement('div');
+    salaryEl.id = 'sprav-hud-salary';
+    salaryEl.style.cssText = 'color:#fbbf24;font-size:12px;margin-bottom:8px;display:none;';
     if (job.salary && job.salary !== 'Unlisted') {
-      var salaryEl = hud.querySelector('#sprav-hud-salary');
-      if (salaryEl) {
-        salaryEl.textContent = '\uD83D\uDCB0 ' + job.salary;
-        salaryEl.style.display = 'block';
-      }
+      salaryEl.textContent = '\\uD83D\\uDCB0 ' + job.salary;
+      salaryEl.style.display = 'block';
     }
-    var launchLink = hud.querySelector('#sprav-hud-launch');
-    if (launchLink) {
-      launchLink.href = /^https?:\/\//i.test(launchUrl) ? launchUrl : '#';
-    }
+    container.appendChild(salaryEl);
 
-    document.body.appendChild(hud);
+    var btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:8px;margin-top:10px;';
 
-    var closeBtn = document.getElementById('sprav-hud-close');
-    if (closeBtn) closeBtn.onclick = function(){ hud.remove(); };
-    var copyBtn = document.getElementById('sprav-hud-copy');
-    if (copyBtn) copyBtn.onclick = function(){
+    var launchLink = document.createElement('a');
+    launchLink.id = 'sprav-hud-launch';
+    launchLink.target = '_blank';
+    launchLink.rel = 'noopener noreferrer';
+    launchLink.style.cssText = 'flex:1;text-align:center;background:#10b981;color:#ffffff;text-decoration:none;font-weight:700;padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer;';
+    launchLink.textContent = 'Open in SPrav \\u2192';
+    launchLink.href = /^https?:\\/\\//i.test(launchUrl) ? launchUrl : '#';
+
+    var copyBtn = document.createElement('button');
+    copyBtn.id = 'sprav-hud-copy';
+    copyBtn.style.cssText = 'background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px;';
+    copyBtn.textContent = 'Copy JSON';
+    copyBtn.onclick = function(){
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(JSON.stringify(job, null, 2)).then(function(){
-          copyBtn.innerText = 'Copied!';
-          setTimeout(function(){ copyBtn.innerText = 'Copy JSON'; }, 2000);
+          copyBtn.textContent = 'Copied!';
+          setTimeout(function(){ copyBtn.textContent = 'Copy JSON'; }, 2000);
         });
       }
     };
+
+    btnRow.appendChild(launchLink);
+    btnRow.appendChild(copyBtn);
+    container.appendChild(btnRow);
+
+    root.appendChild(container);
+    document.body.appendChild(hud);
 
     setTimeout(function(){ if (hud && hud.parentNode) hud.remove(); }, 12000);
   } catch(err) {

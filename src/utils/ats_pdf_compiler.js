@@ -434,10 +434,16 @@ export function generateAtsResumePdf(tailoredData, options = {}) {
 
     const skillRows = [];
     if (matched.length > 0) {
-      skillRows.push({ label: 'Core / Matched Competencies: ', value: matched.join(', ') });
+      skillRows.push({
+        label: isJakes ? 'Languages & Core Competencies: ' : 'Core / Matched Competencies: ',
+        value: matched.join(', ')
+      });
     }
     if (others.length > 0) {
-      skillRows.push({ label: 'Technical Proficiencies: ', value: others.slice(0, 20).join(', ') });
+      skillRows.push({
+        label: isJakes ? 'Frameworks & Developer Tools: ' : 'Technical Proficiencies: ',
+        value: others.slice(0, 20).join(', ')
+      });
     }
     if (skillRows.length === 0) {
       skillRows.push({ label: 'Skills: ', value: tailoredData.skills.join(', ') });
@@ -521,7 +527,7 @@ export function generateAtsResumePdf(tailoredData, options = {}) {
       doc.ensureSpace(24);
       const projName = sanitizePdfText(proj.name || 'Project');
       const rawTech = proj.tech_stack || proj.tech || '';
-      const techStack = rawTech ? sanitizePdfText(`(${rawTech})`) : '';
+      const techStack = rawTech ? sanitizePdfText(isJakes ? ` | ${rawTech}` : ` (${rawTech})`) : '';
       const projLinks = [proj.url, proj.github_url, proj.live_url].filter(Boolean)
         .map(u => u.replace(/^https?:\/\/(www\.)?/i, ''))
         .join('  ');
@@ -529,7 +535,7 @@ export function generateAtsResumePdf(tailoredData, options = {}) {
       doc.addText(projName, ml, doc.currentY, '/F2', 9.5, 0.08, 0.12, 0.2);
       if (techStack) {
         const nameW = getTextWidth(projName, 9.5);
-        doc.addText(techStack, ml + nameW, doc.currentY, '/F1', 8.5, 0.35, 0.4, 0.48);
+        doc.addText(techStack, ml + nameW + (isJakes ? 2 : 0), doc.currentY, '/F1', 8.5, 0.35, 0.4, 0.48);
       }
       if (projLinks) {
         const linksW = getTextWidth(projLinks, subSize - 0.5);
@@ -569,21 +575,29 @@ export function generateAtsResumePdf(tailoredData, options = {}) {
       const year = rawYear ? sanitizePdfText(String(rawYear)) : '';
       const school = sanitizePdfText(edu.institution || edu.school || 'University');
 
-      doc.addText(degreeStr, ml, doc.currentY, '/F2', 9.5, 0.08, 0.12, 0.2);
-      if (year) {
-        const yw = getTextWidth(year, 9);
-        doc.addText(year, pageW - mr - yw, doc.currentY, '/F1', 9, 0.35, 0.4, 0.48);
-      }
-      doc.currentY -= 10.5;
+      if (isJakes || variant === 'latex') {
+        // Jake's Resume / LaTeX 2-Tier Education: School top, Degree sub-line
+        doc.addText(school, ml, doc.currentY, '/F2', 9.5, 0.08, 0.12, 0.2);
+        if (year) {
+          const yw = getTextWidth(year, 9);
+          doc.addText(year, pageW - mr - yw, doc.currentY, '/F1', 9, 0.35, 0.4, 0.48);
+        }
+        doc.currentY -= 10.5;
 
-      if (isJakes) {
-        doc.addText(school, ml, doc.currentY, '/F1', 8.8, 0.25, 0.3, 0.38);
+        doc.addText(degreeStr, ml, doc.currentY, '/F1', 8.8, 0.25, 0.3, 0.38);
         const eduRight = [edu.location, edu.gpa ? `GPA: ${edu.gpa}` : null].filter(Boolean).join(' | ');
         if (eduRight) {
           const ew = getTextWidth(eduRight, 8.8);
           doc.addText(eduRight, pageW - mr - ew, doc.currentY, '/F1', 8.8, 0.35, 0.4, 0.48);
         }
       } else {
+        doc.addText(degreeStr, ml, doc.currentY, '/F2', 9.5, 0.08, 0.12, 0.2);
+        if (year) {
+          const yw = getTextWidth(year, 9);
+          doc.addText(year, pageW - mr - yw, doc.currentY, '/F1', 9, 0.35, 0.4, 0.48);
+        }
+        doc.currentY -= 10.5;
+
         const schoolLine = school + (edu.gpa ? ` | GPA: ${edu.gpa}` : '');
         doc.addText(schoolLine, ml, doc.currentY, '/F1', 8.8, 0.25, 0.3, 0.38);
       }

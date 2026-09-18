@@ -592,5 +592,172 @@ test('auditGhostAndSpamRisk: unified verdict rejects both ghost jobs and fraud s
   assert.equal(cleanAudit.primaryVerdict, '🟢 Verified Active');
 });
 
+test('evaluateGhostProbability: detects 2025/2026 multi-vector ghost job patterns', () => {
+  const ref = new Date('2026-09-17T00:00:00Z');
 
+  // 1. DOL PERM Labor Certification Compliance Shell
+  const permJob = {
+    title: 'Senior Software Engineer',
+    company: 'Fintech Systems Corp',
+    posted_at: '2026-09-10T00:00:00Z',
+    description: 'Notice of Filing of Application for Permanent Employment Certification under 20 CFR. Mail resume to Attn: Immigration Legal Dept.'
+  };
+  const permRes = evaluateGhostProbability(permJob, ref);
+  assert.equal(permRes.isGhostReject, true);
+  assert.ok(permRes.ghostScore >= 50);
+  assert.ok(permRes.vectors.permCompliance.score >= 50);
+  assert.ok(permRes.indicators.some(i => i.includes('DOL PERM')));
 
+  // 2. Junior Title Demanding 5+ Years Senior Experience (Credibility Mismatch)
+  const jrUnrealJob = {
+    title: 'Junior Frontend Developer',
+    company: 'AppCo',
+    posted_at: '2026-09-10T00:00:00Z',
+    description: 'Seeking an enthusiastic junior developer. Must have 5+ years of experience in production React and TypeScript.'
+  };
+  const jrRes = evaluateGhostProbability(jrUnrealJob, ref);
+  assert.ok(jrRes.ghostScore >= 30);
+  assert.ok(jrRes.vectors.specIntegrity.score >= 30);
+  assert.ok(jrRes.indicators.some(i => i.includes('Credibility Mismatch')));
+
+  // 3. Sham Salary Range Evasion ($30,000 - $350,000)
+  const shamSalaryJob = {
+    title: 'Cloud Architect',
+    company: 'Enterprise MegaCorp',
+    posted_at: '2026-09-10T00:00:00Z',
+    salary_min: 30000,
+    salary_max: 350000,
+    description: 'Lead enterprise multi-cloud migrations and Kubernetes governance.'
+  };
+  const shamRes = evaluateGhostProbability(shamSalaryJob, ref);
+  assert.ok(shamRes.vectors.compensation.score >= 25);
+  assert.ok(shamRes.indicators.some(i => i.includes('Sham Salary Range')));
+
+  // 4. Performative Growth & Unbudgeted Requisition Phrasing
+  const unbudgetedJob = {
+    title: 'Machine Learning Scientist',
+    company: 'AI Research Inc',
+    posted_at: '2026-09-10T00:00:00Z',
+    description: 'We are always looking for top talent. This requisition is subject to headcount confirmation for future needs.'
+  };
+  const unbudgetedRes = evaluateGhostProbability(unbudgetedJob, ref);
+  assert.ok(unbudgetedRes.vectors.evergreen.score >= 35);
+  assert.ok(unbudgetedRes.indicators.some(i => i.includes('Performative growth') || i.includes('Unbudgeted')));
+});
+
+test('evaluateSpamScamRisk: detects 2025/2026 emerging recruitment fraud vectors', () => {
+  // 1. Recruiter Free Webmail Impersonation (@gmail.com for corporate company)
+  const freeMailJob = {
+    title: 'Security Operations Lead',
+    company: 'CyberDefense Corp',
+    description: 'Join our elite SOC team. Please email us your resume at cyberdefense.recruiting.team@gmail.com for prompt review.'
+  };
+  const mailRes = evaluateSpamScamRisk(freeMailJob);
+  assert.equal(mailRes.isSpamScam, true);
+  assert.ok(mailRes.vectors.impersonation.score >= 50);
+  assert.ok(mailRes.scamIndicators.some(i => i.includes('Recruiter Impersonation')));
+
+  // 2. Pre-Offer Identity & SSN Harvesting
+  const idHarvestJob = {
+    title: 'Remote Logistics Assistant',
+    company: 'Global Supply',
+    description: 'To complete your initial screening, applicants must provide your Social Security Number and a copy of passport before interviewing.'
+  };
+  const idRes = evaluateSpamScamRisk(idHarvestJob);
+  assert.equal(idRes.isSpamScam, true);
+  assert.ok(idRes.vectors.idHarvesting.score >= 80);
+  assert.ok(idRes.scamIndicators.some(i => i.includes('Severe Identity Harvesting')));
+
+  // 3. Generic Form Hijacking (Google Forms / Typeform)
+  const formJob = {
+    title: 'Product Designer',
+    company: 'Acme SaaS',
+    description: 'We are hiring immediately! Submit your application on docs.google.com/forms/d/e/1FAIpQLScam to begin onboarding.'
+  };
+  const formRes = evaluateSpamScamRisk(formJob);
+  assert.equal(formRes.isSpamScam, true);
+  assert.ok(formRes.vectors.idHarvesting.score >= 40);
+  assert.ok(formRes.scamIndicators.some(i => i.includes('Form Hijacking')));
+
+  // 4. Instant Unconditional Hiring Without Interview
+  const instantHireJob = {
+    title: 'Data Analyst',
+    company: 'Apex Solutions',
+    description: 'Congratulations! Immediate hire without interview. You have been selected based solely on your resume. Start immediately upon equipment arrival.'
+  };
+  const hireRes = evaluateSpamScamRisk(instantHireJob);
+  assert.equal(hireRes.isSpamScam, true);
+  assert.ok(hireRes.vectors.instantHire.score >= 70);
+  assert.ok(hireRes.scamIndicators.some(i => i.includes('Predatory Hiring Trap')));
+
+  // 5. Exorbitant Remote Data Entry Phishing ($55/hr)
+  const dataEntryJob = {
+    title: 'Remote Data Entry Clerk',
+    company: 'FastHire Co',
+    description: 'Simple data entry from home. Earn $55 / hr with flexible hours and no previous experience required.'
+  };
+  const entryRes = evaluateSpamScamRisk(dataEntryJob);
+  assert.equal(entryRes.isSpamScam, true);
+  assert.ok(entryRes.vectors.unskilledTrap.score >= 70);
+  assert.ok(entryRes.scamIndicators.some(i => i.includes('Suspicious Unskilled Pay Trap')));
+
+  // 6. Package Reshipping / Money Muling Scam
+  const reshipJob = {
+    title: 'Package Quality Inspector',
+    company: 'Express Logistics',
+    description: 'Work from home as a package forwarding agent. Receive packages and re-ship them to international destinations.'
+  };
+  const reshipRes = evaluateSpamScamRisk(reshipJob);
+  assert.equal(reshipRes.isSpamScam, true);
+  assert.ok(reshipRes.vectors.unskilledTrap.score >= 80);
+  assert.ok(reshipRes.scamIndicators.some(i => i.includes('Reshipping goods')));
+});
+
+test('auditGhostAndSpamRisk: calculates composite Authenticity Score and generates dynamic strategy guidance', () => {
+  const ref = new Date('2026-09-17T00:00:00Z');
+
+  // Tier 1: Verified Authentic (Fresh drop, clean corporate JD, explicit salary)
+  const freshJob = {
+    title: 'Senior Distributed Systems Engineer',
+    company: 'Cloudflare',
+    posted_at: '2026-09-17T08:00:00Z', // 4h ago
+    salary_min: 160000,
+    salary_max: 200000,
+    description: 'Design and deploy edge compute primitives across 300+ cities globally with Go, Rust, and Linux.'
+  };
+  const freshAudit = auditGhostAndSpamRisk(freshJob, { referenceDate: ref });
+  assert.equal(freshAudit.authenticityTier, 'verified_authentic');
+  assert.ok(freshAudit.authenticityScore >= 85);
+  assert.equal(freshAudit.authenticityBadge.label, '🟢 Verified Authentic');
+  assert.equal(freshAudit.strategicAdvice.actionRecommendation, 'Apply & Follow Up');
+  assert.ok(freshAudit.strategicAdvice.hiringManagerOutreachTemplate.includes('Cloudflare'));
+
+  // Tier 2: Repost Warning Guidance
+  const firstPublished = new Date('2026-07-20T00:00:00Z');
+  const repostJob = {
+    title: 'Staff Site Reliability Engineer',
+    company: 'ScaleCo',
+    first_published_at: firstPublished.toISOString(),
+    updated_at: '2026-09-15T00:00:00Z',
+    posted_at: '2026-09-15T00:00:00Z',
+    description: 'Scale our Kubernetes platform across multiple AWS regions.'
+  };
+  const repostAudit = auditGhostAndSpamRisk(repostJob, { referenceDate: ref });
+  assert.ok(repostAudit.authenticityScore < 85);
+  assert.equal(repostAudit.strategicAdvice.actionRecommendation, 'Address Refresh in Application');
+  assert.ok(repostAudit.strategicAdvice.repostNoticeTemplate.includes('recently refreshed'));
+
+  // Tier 3: Scam Danger Guidance
+  const scamJob = {
+    title: 'Virtual Assistant',
+    company: 'Mystery Global',
+    description: 'Cashier check will be sent to purchase laptop equipment. Interview on Telegram @scam_lead.'
+  };
+  const scamAudit = auditGhostAndSpamRisk(scamJob, { referenceDate: ref });
+  assert.equal(scamAudit.authenticityTier, 'scam_danger');
+  assert.ok(scamAudit.authenticityScore < 15);
+  assert.equal(scamAudit.authenticityBadge.label, '⛔ Fraud Danger');
+  assert.equal(scamAudit.strategicAdvice.actionRecommendation, 'Block & Report');
+  assert.ok(Array.isArray(scamAudit.strategicAdvice.securityChecklist));
+  assert.ok(scamAudit.strategicAdvice.securityChecklist.length >= 3);
+});

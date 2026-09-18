@@ -303,16 +303,23 @@ export function buildJobSearchUrl(platform, query = '', location = '') {
 
 /**
  * Fetches an ATS API endpoint via the companion extension's CORS-free service worker.
- * Allows querying Greenhouse, Ashby, and Lever boards directly with zero proxy servers.
+ * Allows querying Greenhouse, Ashby, Lever, and Workday CXS boards directly with zero proxy servers.
  *
  * @param {string} url - The target ATS board endpoint URL
- * @param {number} [timeoutMs=8000] - Request deadline
+ * @param {number|{ method?: string, headers?: Record<string,string>, body?: any }} [optionsOrTimeout=8000]
+ * @param {number} [maybeTimeout=8000] - Request deadline if options object was provided
  * @returns {Promise<{ ok: boolean, data?: any, rawText?: string, status?: number, error?: string }>}
  */
-export function fetchAtsViaExtension(url, timeoutMs = 8000) {
+export function fetchAtsViaExtension(url, optionsOrTimeout = 8000, maybeTimeout = 8000) {
   if (typeof window === 'undefined' || !isExtensionInstalled()) {
     return Promise.resolve({ ok: false, error: 'Companion extension not active' });
   }
+
+  const options = typeof optionsOrTimeout === 'object' && optionsOrTimeout !== null ? optionsOrTimeout : {};
+  const timeoutMs = typeof optionsOrTimeout === 'number' ? optionsOrTimeout : (typeof maybeTimeout === 'number' ? maybeTimeout : 8000);
+  const method = options.method || 'GET';
+  const headers = options.headers || null;
+  const body = options.body || null;
 
   return new Promise((resolve) => {
     const reqId = `req_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -342,7 +349,10 @@ export function fetchAtsViaExtension(url, timeoutMs = 8000) {
     window.postMessage({
       type: 'SPRAV_EXT_FETCH_ATS',
       reqId,
-      url
+      url,
+      method,
+      headers,
+      body
     }, '*');
   });
 }

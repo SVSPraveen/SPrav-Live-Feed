@@ -18,7 +18,9 @@ import {
   SecurityAuditLog,
   escapeRegExp,
   verifyClientAppIntegrity,
-  sanitizePromptInput
+  sanitizePromptInput,
+  normalizeIpAddress,
+  CLOUD_METADATA_HOSTS
 } from './security_guard.js';
 
 describe('SecurityGuard & OWASP Hardening Suite', () => {
@@ -271,30 +273,97 @@ describe('SecurityGuard & OWASP Hardening Suite', () => {
     });
   });
 
+  describe('normalizeIpAddress (OWASP A10 Multi-Notation IP Normalization)', () => {
+    it('normalizes 32-bit dword decimal integer IPs to canonical IPv4', () => {
+      assert.strictEqual(normalizeIpAddress('2852039166'), '169.254.169.254');
+      assert.strictEqual(normalizeIpAddress('2130706433'), '127.0.0.1');
+      assert.strictEqual(normalizeIpAddress('3221225664'), '192.0.0.192');
+      assert.strictEqual(normalizeIpAddress('0'), '0.0.0.0');
+    });
+
+    it('normalizes 32-bit hex and dotted hex integer IPs to canonical IPv4', () => {
+      assert.strictEqual(normalizeIpAddress('0xa9fea9fe'), '169.254.169.254');
+      assert.strictEqual(normalizeIpAddress('0x7f000001'), '127.0.0.1');
+      assert.strictEqual(normalizeIpAddress('0xc00000c0'), '192.0.0.192');
+      assert.strictEqual(normalizeIpAddress('0xa9.0xfe.0xa9.0xfe'), '169.254.169.254');
+    });
+
+    it('normalizes octal notation IPs to canonical IPv4', () => {
+      assert.strictEqual(normalizeIpAddress('0177.0.0.1'), '127.0.0.1');
+    });
+
+    it('normalizes IPv6-mapped IPv4 addresses (bracketed, dotted, and hex-mapped)', () => {
+      assert.strictEqual(normalizeIpAddress('::ffff:169.254.169.254'), '169.254.169.254');
+      assert.strictEqual(normalizeIpAddress('[::ffff:169.254.169.254]'), '169.254.169.254');
+      assert.strictEqual(normalizeIpAddress('::ffff:a9fe:a9fe'), '169.254.169.254');
+      assert.strictEqual(normalizeIpAddress('[::ffff:a9fe:a9fe]'), '169.254.169.254');
+      assert.strictEqual(normalizeIpAddress('[::ffff:7f00:1]'), '127.0.0.1');
+      assert.strictEqual(normalizeIpAddress('[::ffff:c0a8:101]'), '192.168.1.1');
+    });
+
+    it('preserves valid standard domain names and handles invalid inputs gracefully', () => {
+      assert.strictEqual(normalizeIpAddress('api.openai.com'), 'api.openai.com');
+      assert.strictEqual(normalizeIpAddress('careers.google.com'), 'careers.google.com');
+      assert.strictEqual(normalizeIpAddress(''), '');
+      assert.strictEqual(normalizeIpAddress(null), '');
+      assert.strictEqual(normalizeIpAddress(undefined), '');
+    });
+  });
+
   describe('SSRF & Cloud Metadata Defense (OWASP A10)', () => {
-    it('detects and blocks AWS/GCP/Azure cloud metadata IPs and internal names', () => {
+    it('detects and blocks AWS/GCP/Azure/Oracle cloud metadata IPs and internal names', () => {
       assert.strictEqual(isCloudMetadataUrl('http://169.254.169.254/latest/meta-data/'), true);
       assert.strictEqual(isCloudMetadataUrl('http://metadata.google.internal/computeMetadata/v1/'), true);
       assert.strictEqual(isCloudMetadataUrl('http://100.100.100.200/latest/meta-data/'), true);
+      assert.strictEqual(isCloudMetadataUrl('http://192.0.0.192/opc/v1/instance/'), true); // Oracle Cloud IMDS
+      assert.strictEqual(isCloudMetadataUrl('http://168.63.129.16/machine/plugins/'), true); // Azure WireServer
       assert.strictEqual(isCloudMetadataUrl('http://[fd00:ec2::254]/latest/api'), true);
       assert.strictEqual(isCloudMetadataUrl('http://169.254.1.20/service'), true);
       assert.strictEqual(isCloudMetadataUrl('https://api.openai.com/v1/chat'), false);
     });
 
-    it('detects private subnet hostnames and IPs', () => {
+    it('detects and blocks alternative notation SSRF bypasses to cloud metadata', () => {
+      assert.strictEqual(isCloudMetadataUrl('http://2852039166/latest/meta-data/'), true); // Decimal AWS IMDS
+      assert.strictEqual(isCloudMetadataUrl('http://0xa9fea9fe/latest/meta-data/'), true); // Hex AWS IMDS
+      assert.strictEqual(isCloudMetadataUrl('http://0xa9.0xfe.0xa9.0xfe/latest/meta-data/'), true); // Dotted hex AWS IMDS
+      assert.strictEqual(isCloudMetadataUrl('http://[::ffff:169.254.169.254]/latest/meta-data/'), true); // IPv6-mapped AWS IMDS
+      assert.strictEqual(isCloudMetadataUrl('http://[::ffff:a9fe:a9fe]/latest/meta-data/'), true); // IPv6-mapped hex AWS IMDS
+      assert.strictEqual(isCloudMetadataUrl('http://3221225664/opc/v1/instance/'), true); // Decimal Oracle IMDS
+      assert.strictEqual(isCloudMetadataUrl('http://0xc00000c0/opc/v1/instance/'), true); // Hex Oracle IMDS
+    });
+
+    it('detects private subnet hostnames and IPs across standard and alternative encodings', () => {
       assert.strictEqual(isPrivateSubnetUrl('http://127.0.0.1:8000/api'), true);
       assert.strictEqual(isPrivateSubnetUrl('http://localhost:11434/api/tags'), true);
       assert.strictEqual(isPrivateSubnetUrl('http://192.168.1.50:8080'), true);
       assert.strictEqual(isPrivateSubnetUrl('http://10.0.0.1/admin'), true);
+      assert.strictEqual(isPrivateSubnetUrl('http://172.16.0.1:5000'), true);
+      assert.strictEqual(isPrivateSubnetUrl('http://172.31.255.254:5000'), true);
+      assert.strictEqual(isPrivateSubnetUrl('http://2130706433:8000'), true); // Decimal 127.0.0.1
+      assert.strictEqual(isPrivateSubnetUrl('http://0x7f000001:8000'), true); // Hex 127.0.0.1
+      assert.strictEqual(isPrivateSubnetUrl('http://0177.0.0.1:8000'), true); // Octal 127.0.0.1
+      assert.strictEqual(isPrivateSubnetUrl('http://[::1]:8000'), true); // IPv6 loopback
+      assert.strictEqual(isPrivateSubnetUrl('http://[::]:8000'), true); // IPv6 unspecified
       assert.strictEqual(isPrivateSubnetUrl('https://generativelanguage.googleapis.com'), false);
     });
   });
 
   describe('checkRuntimeIntegrity (Anti-Tamper Guard)', () => {
-    it('verifies that clean Object and Array prototypes have no enumerable pollution', () => {
+    it('verifies that clean Object, Array, String, Function, and Promise prototypes have no enumerable pollution', () => {
       const integrity = checkRuntimeIntegrity();
       assert.strictEqual(integrity.intact, true);
       assert.strictEqual(integrity.violations.length, 0);
+    });
+
+    it('detects and flags runtime prototype tampering when introduced', () => {
+      Object.prototype._securityTestTaint = 'danger';
+      const tainted = checkRuntimeIntegrity();
+      assert.strictEqual(tainted.intact, false);
+      assert.ok(tainted.violations.includes('Object.prototype._securityTestTaint'));
+      delete Object.prototype._securityTestTaint;
+
+      const restored = checkRuntimeIntegrity();
+      assert.strictEqual(restored.intact, true);
     });
   });
 
@@ -332,6 +401,23 @@ describe('SecurityGuard & OWASP Hardening Suite', () => {
       assert.throws(() => {
         frozen.api.endpoint = 'https://malicious-proxy.com';
       }, TypeError);
+    });
+
+    it('freezes Sets and Maps against mutative operations (OWASP A04)', () => {
+      const testSet = deepFreeze(new Set(['a', 'b']));
+      assert.throws(() => testSet.add('c'), TypeError);
+      assert.throws(() => testSet.delete('a'), TypeError);
+      assert.throws(() => testSet.clear(), TypeError);
+      assert.strictEqual(testSet.has('a'), true);
+
+      const testMap = deepFreeze(new Map([['k', 'v']]));
+      assert.throws(() => testMap.set('k2', 'v2'), TypeError);
+      assert.throws(() => testMap.delete('k'), TypeError);
+      assert.throws(() => testMap.clear(), TypeError);
+      assert.strictEqual(testMap.get('k'), 'v');
+
+      // Verify CLOUD_METADATA_HOSTS is frozen and immune to tampering
+      assert.throws(() => CLOUD_METADATA_HOSTS.add('attacker-domain.com'), TypeError);
     });
 
     it('handles cyclical references and primitive inputs gracefully', () => {

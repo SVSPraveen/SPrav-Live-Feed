@@ -518,8 +518,10 @@ export const COUNTRY_CITY_MAP = {
     aliases: ["singapore", "sg", "sin"],
     cities: [
       "Singapore",
+      "One-North",
       "Jurong",
-      "Changi"
+      "Changi",
+      "Woodlands"
     ]
   },
   "japan": {
@@ -613,8 +615,12 @@ export const COUNTRY_CITY_MAP = {
       "Malaysia",
       "Kuala Lumpur",
       "Penang",
+      "George Town",
       "Cyberjaya",
-      "Johor Bahru"
+      "Petaling Jaya",
+      "Shah Alam",
+      "Johor Bahru",
+      "Subang Jaya"
     ]
   },
   "indonesia": {
@@ -625,10 +631,15 @@ export const COUNTRY_CITY_MAP = {
     cities: [
       "Indonesia",
       "Jakarta",
+      "BSD City",
       "Bandung",
       "Bali",
       "Surabaya",
-      "Yogyakarta"
+      "Yogyakarta",
+      "Tangerang",
+      "Medan",
+      "Semarang",
+      "Batam"
     ]
   },
   "philippines": {
@@ -642,7 +653,12 @@ export const COUNTRY_CITY_MAP = {
       "Makati",
       "Taguig/BGC",
       "Cebu City",
-      "Quezon City"
+      "Quezon City",
+      "Pasig/Ortigas",
+      "Davao City",
+      "Iloilo City",
+      "Clark/Angeles",
+      "Bacolod"
     ]
   },
   "thailand": {
@@ -654,7 +670,11 @@ export const COUNTRY_CITY_MAP = {
       "Thailand",
       "Bangkok",
       "Chiang Mai",
-      "Phuket"
+      "Phuket",
+      "Nonthaburi",
+      "Pattaya",
+      "Khon Kaen",
+      "Rayong"
     ]
   },
   "vietnam": {
@@ -666,7 +686,32 @@ export const COUNTRY_CITY_MAP = {
       "Vietnam",
       "Ho Chi Minh City",
       "Hanoi",
-      "Da Nang"
+      "Da Nang",
+      "Can Tho",
+      "Hai Phong",
+      "Nha Trang",
+      "Binh Duong"
+    ]
+  },
+  "cambodia": {
+    countryName: "Cambodia",
+    flag: "🇰🇭",
+    code: "kh",
+    aliases: ["cambodia", "kh", "khm", "phnom penh"],
+    cities: [
+      "Cambodia",
+      "Phnom Penh",
+      "Siem Reap"
+    ]
+  },
+  "myanmar": {
+    countryName: "Myanmar",
+    flag: "🇲🇲",
+    code: "mm",
+    aliases: ["myanmar", "mm", "mmr", "burma", "yangon"],
+    cities: [
+      "Myanmar",
+      "Yangon"
     ]
   },
   "bangladesh": {
@@ -769,7 +814,10 @@ export const COUNTRY_CITY_MAP = {
       "Cape Town",
       "Johannesburg",
       "Durban",
-      "Pretoria"
+      "Pretoria",
+      "Stellenbosch",
+      "Centurion",
+      "Gqeberha"
     ]
   },
   "nigeria": {
@@ -780,7 +828,12 @@ export const COUNTRY_CITY_MAP = {
     cities: [
       "Nigeria",
       "Lagos",
-      "Abuja"
+      "Abuja",
+      "Ibadan",
+      "Port Harcourt",
+      "Enugu",
+      "Lekki",
+      "Yaba"
     ]
   },
   "kenya": {
@@ -790,7 +843,11 @@ export const COUNTRY_CITY_MAP = {
     aliases: ["kenya", "ke", "ken", "nairobi"],
     cities: [
       "Kenya",
-      "Nairobi"
+      "Nairobi",
+      "Mombasa",
+      "Kisumu",
+      "Nakuru",
+      "Eldoret"
     ]
   },
   "egypt": {
@@ -801,7 +858,11 @@ export const COUNTRY_CITY_MAP = {
     cities: [
       "Egypt",
       "Cairo",
-      "Alexandria"
+      "Alexandria",
+      "Giza",
+      "New Cairo",
+      "Smart Village",
+      "Mansoura"
     ]
   },
   "ghana": {
@@ -811,7 +872,98 @@ export const COUNTRY_CITY_MAP = {
     aliases: ["ghana", "gh", "gha", "accra"],
     cities: [
       "Ghana",
-      "Accra"
+      "Accra",
+      "Kumasi",
+      "Takoradi",
+      "Tema"
+    ]
+  },
+  "rwanda": {
+    countryName: "Rwanda",
+    flag: "🇷🇼",
+    code: "rw",
+    aliases: ["rwanda", "rw", "rwa", "kigali"],
+    cities: [
+      "Rwanda",
+      "Kigali"
+    ]
+  },
+  "morocco": {
+    countryName: "Morocco",
+    flag: "🇲🇦",
+    code: "ma",
+    aliases: ["morocco", "ma", "mar", "maroc", "casablanca"],
+    cities: [
+      "Morocco",
+      "Casablanca",
+      "Rabat",
+      "Tangier",
+      "Marrakech"
+    ]
+  },
+  "tunisia": {
+    countryName: "Tunisia",
+    flag: "🇹🇳",
+    code: "tn",
+    aliases: ["tunisia", "tn", "tun", "tunis"],
+    cities: [
+      "Tunisia",
+      "Tunis",
+      "Sousse",
+      "Sfax"
+    ]
+  },
+  "uganda": {
+    countryName: "Uganda",
+    flag: "🇺🇬",
+    code: "ug",
+    aliases: ["uganda", "ug", "uga", "kampala"],
+    cities: [
+      "Uganda",
+      "Kampala",
+      "Entebbe"
+    ]
+  },
+  "senegal": {
+    countryName: "Senegal",
+    flag: "🇸🇳",
+    code: "sn",
+    aliases: ["senegal", "sn", "sen", "dakar"],
+    cities: [
+      "Senegal",
+      "Dakar"
+    ]
+  },
+  "ivory coast": {
+    countryName: "Ivory Coast",
+    flag: "🇨🇮",
+    code: "ci",
+    aliases: ["ivory coast", "côte d'ivoire", "cote d'ivoire", "ci", "abidjan"],
+    cities: [
+      "Ivory Coast",
+      "Abidjan"
+    ]
+  },
+  "cameroon": {
+    countryName: "Cameroon",
+    flag: "🇨🇲",
+    code: "cm",
+    aliases: ["cameroon", "cm", "cmr", "douala"],
+    cities: [
+      "Cameroon",
+      "Douala",
+      "Yaoundé",
+      "Buea"
+    ]
+  },
+  "ethiopia": {
+    countryName: "Ethiopia",
+    flag: "🇪🇹",
+    code: "et",
+    aliases: ["ethiopia", "et", "eth", "addis ababa"],
+    cities: [
+      "Ethiopia",
+      "Addis Ababa"
     ]
   },
   "brazil": {
@@ -829,7 +981,12 @@ export const COUNTRY_CITY_MAP = {
       "Porto Alegre",
       "Campinas",
       "Brasília",
-      "Recife"
+      "Recife",
+      "Fortaleza",
+      "Salvador",
+      "Joinville",
+      "São José dos Campos",
+      "Campina Grande"
     ]
   },
   "mexico": {
@@ -844,7 +1001,12 @@ export const COUNTRY_CITY_MAP = {
       "Monterrey",
       "Querétaro",
       "Puebla",
-      "Mérida"
+      "Mérida",
+      "Tijuana",
+      "Ciudad Juárez",
+      "León",
+      "Cancún",
+      "Zapopan"
     ]
   },
   "argentina": {
@@ -857,7 +1019,10 @@ export const COUNTRY_CITY_MAP = {
       "Buenos Aires",
       "Córdoba",
       "Rosario",
-      "Mendoza"
+      "Mendoza",
+      "La Plata",
+      "Mar del Plata",
+      "Tandil"
     ]
   },
   "colombia": {
@@ -870,7 +1035,10 @@ export const COUNTRY_CITY_MAP = {
       "Bogotá",
       "Medellín",
       "Cali",
-      "Barranquilla"
+      "Barranquilla",
+      "Bucaramanga",
+      "Cartagena",
+      "Manizales"
     ]
   },
   "chile": {
@@ -882,7 +1050,9 @@ export const COUNTRY_CITY_MAP = {
       "Chile",
       "Santiago",
       "Valparaíso",
-      "Concepción"
+      "Concepción",
+      "Viña del Mar",
+      "Antofagasta"
     ]
   },
   "costa rica": {
@@ -894,7 +1064,9 @@ export const COUNTRY_CITY_MAP = {
       "Costa Rica",
       "San José",
       "Heredia",
-      "Alajuela"
+      "Alajuela",
+      "Cartago",
+      "Belén"
     ]
   },
   "peru": {
@@ -905,7 +1077,64 @@ export const COUNTRY_CITY_MAP = {
     cities: [
       "Peru",
       "Lima",
-      "Arequipa"
+      "Arequipa",
+      "Cusco",
+      "Trujillo"
+    ]
+  },
+  "uruguay": {
+    countryName: "Uruguay",
+    flag: "🇺🇾",
+    code: "uy",
+    aliases: ["uruguay", "uy", "ury", "montevideo"],
+    cities: [
+      "Uruguay",
+      "Montevideo",
+      "Punta del Este"
+    ]
+  },
+  "panama": {
+    countryName: "Panama",
+    flag: "🇵🇦",
+    code: "pa",
+    aliases: ["panama", "pa", "pan", "panama city"],
+    cities: [
+      "Panama",
+      "Panama City",
+      "Ciudad del Saber"
+    ]
+  },
+  "ecuador": {
+    countryName: "Ecuador",
+    flag: "🇪🇨",
+    code: "ec",
+    aliases: ["ecuador", "ec", "ecu", "quito"],
+    cities: [
+      "Ecuador",
+      "Quito",
+      "Guayaquil",
+      "Cuenca"
+    ]
+  },
+  "dominican republic": {
+    countryName: "Dominican Republic",
+    flag: "🇩🇴",
+    code: "do",
+    aliases: ["dominican republic", "do", "dom", "santo domingo"],
+    cities: [
+      "Dominican Republic",
+      "Santo Domingo",
+      "Santiago de los Caballeros"
+    ]
+  },
+  "guatemala": {
+    countryName: "Guatemala",
+    flag: "🇬🇹",
+    code: "gt",
+    aliases: ["guatemala", "gt", "gtm", "guatemala city"],
+    cities: [
+      "Guatemala",
+      "Guatemala City"
     ]
   },
   "remote": {
@@ -941,7 +1170,7 @@ export const REGIONAL_MARKET_MAP = {
   asia_pacific: [
     'india', 'singapore', 'japan', 'south korea', 'australia', 'new zealand',
     'taiwan', 'hong kong', 'malaysia', 'indonesia', 'philippines', 'thailand', 'vietnam',
-    'bangladesh', 'sri lanka', 'pakistan'
+    'bangladesh', 'sri lanka', 'pakistan', 'cambodia', 'myanmar'
   ],
   europe: [
     'united kingdom', 'germany', 'france', 'netherlands', 'ireland', 'switzerland',
@@ -950,18 +1179,21 @@ export const REGIONAL_MARKET_MAP = {
     'turkey', 'ukraine', 'bulgaria', 'croatia', 'serbia', 'slovakia', 'lithuania', 'latvia'
   ],
   americas: [
-    'united states', 'canada', 'brazil', 'mexico', 'argentina', 'colombia', 'chile', 'costa rica', 'peru'
+    'united states', 'canada', 'brazil', 'mexico', 'argentina', 'colombia', 'chile', 'costa rica', 'peru',
+    'uruguay', 'panama', 'ecuador', 'dominican republic', 'guatemala'
   ],
   middle_east_africa: [
-    'uae', 'saudi arabia', 'qatar', 'israel', 'south africa', 'nigeria', 'kenya', 'egypt', 'ghana'
+    'uae', 'saudi arabia', 'qatar', 'israel', 'south africa', 'nigeria', 'kenya', 'egypt', 'ghana',
+    'rwanda', 'morocco', 'tunisia', 'uganda', 'senegal', 'ivory coast', 'cameroon', 'ethiopia'
   ],
   latin_america: [
-    'brazil', 'mexico', 'argentina', 'colombia', 'chile', 'costa rica', 'peru'
+    'brazil', 'mexico', 'argentina', 'colombia', 'chile', 'costa rica', 'peru',
+    'uruguay', 'panama', 'ecuador', 'dominican republic', 'guatemala'
   ]
 };
 
 /**
- * Compiles a rich bidirectional alias lookup map covering all 54 countries and cities.
+ * Compiles a rich bidirectional alias lookup map covering all global tech hubs and cities.
  */
 export function getGlobalLocationAliases() {
   const aliases = {
@@ -998,8 +1230,24 @@ export function getGlobalLocationAliases() {
     'bratislava': ['bratislava', 'slovakia'],
     'vilnius': ['vilnius', 'lithuania'],
     'riga': ['riga', 'latvia'],
-    'lagos': ['lagos', 'nigeria'],
-    'cairo': ['cairo', 'egypt'],
+    'lagos': ['lagos', 'nigeria', 'yaba', 'lekki'],
+    'cairo': ['cairo', 'egypt', 'giza'],
+    'kigali': ['kigali', 'rwanda'],
+    'casablanca': ['casablanca', 'morocco'],
+    'tunis': ['tunis', 'tunisia'],
+    'nairobi': ['nairobi', 'kenya'],
+    'dakar': ['dakar', 'senegal'],
+    'abidjan': ['abidjan', 'ivory coast', "côte d'ivoire"],
+    'montevideo': ['montevideo', 'uruguay'],
+    'medellin': ['medellín', 'medellin', 'colombia'],
+    'medellín': ['medellin', 'medellín', 'colombia'],
+    'guadalajara': ['guadalajara', 'mexico'],
+    'tijuana': ['tijuana', 'mexico'],
+    'curitiba': ['curitiba', 'brazil'],
+    'penang': ['penang', 'george town', 'malaysia'],
+    'da nang': ['da nang', 'danang', 'vietnam'],
+    'danang': ['da nang', 'danang', 'vietnam'],
+    'bsd city': ['bsd city', 'bsd', 'tangerang', 'indonesia'],
     'tallinn': ['tallinn', 'estonia'],
     'remote': ['worldwide', 'anywhere', 'global', 'distributed', 'telecommute', 'wfh'],
     'worldwide': ['remote', 'anywhere', 'global'],

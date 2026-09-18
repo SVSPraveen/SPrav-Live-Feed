@@ -549,12 +549,12 @@ class BrowserStorageVault {
    */
   async initDB() {
     if (this.db) return this.db;
+    if (typeof window === 'undefined' || !window.indexedDB) {
+      throw new Error('IndexedDB is not supported in this environment.');
+    }
     if (this.initPromise) return this.initPromise;
 
     this.initPromise = new Promise((resolve, reject) => {
-      if (typeof window === 'undefined' || !window.indexedDB) {
-        return reject(new Error('IndexedDB is not supported in this environment.'));
-      }
 
       const request = window.indexedDB.open(DB_NAME, DB_VERSION);
 

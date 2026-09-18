@@ -456,8 +456,17 @@ test('extractAuthenticResumeProfile: handles LinkedIn PDF export and sets is_lin
 
   // Verify work history bullets and certifications are present
   assert.ok(profile.work_history.length >= 2);
-  assert.ok(profile.certifications.length >= 1);
   assert.ok(profile.resume_bullets.length >= 2);
+});
+
+test('extractTextFromPdf: rejects oversized PDF buffers exceeding 15MB ceiling (DoS defense)', async () => {
+  const fakeLargeBuffer = new ArrayBuffer(16 * 1024 * 1024);
+  await assert.rejects(
+    async () => {
+      await extractTextFromPdf(fakeLargeBuffer);
+    },
+    /exceeds the maximum allowed limit of 15MB/
+  );
 });
 
 

@@ -22,7 +22,8 @@ export const SAMPLING_PROFILES = {
   SCREENING: { temperature: 0.1, frequency_penalty: 0.0, presence_penalty: 0.0, repeat_penalty: 1.0 },
   LEARNING: { temperature: 0.2, frequency_penalty: 0.1, presence_penalty: 0.0, repeat_penalty: 1.05 },
   INTERVIEW_QUESTION: { temperature: 0.4, frequency_penalty: 0.2, presence_penalty: 0.1, repeat_penalty: 1.1 },
-  INTERVIEW_EVALUATION: { temperature: 0.2, frequency_penalty: 0.0, presence_penalty: 0.0, repeat_penalty: 1.0 }
+  INTERVIEW_EVALUATION: { temperature: 0.2, frequency_penalty: 0.0, presence_penalty: 0.0, repeat_penalty: 1.0 },
+  SALARY_NEGOTIATION: { temperature: 0.3, frequency_penalty: 0.2, presence_penalty: 0.1, repeat_penalty: 1.1 }
 };
 
 /**
@@ -514,6 +515,86 @@ RULES:
 }
 
 /**
+ * Constructs prompt for Executive Salary Negotiation & Counter-Offer Generator.
+ * Implements collaborative negotiation psychology (Chris Voss calibrated approach),
+ * 2026 tech compensation benchmarks, and provides 3-tier actionable assets:
+ * 1. Diplomatic Counter-Offer Email
+ * 2. Verbal / Phone Talking Points
+ * 3. Strategic Non-Salary Levers (signing bonus, equity, remote flexibility)
+ *
+ * @param {Object} offerDetails
+ * @param {Object} options
+ * @returns {{ systemPrompt: string, userPrompt: string, prompt: string, system: string, user: string }}
+ */
+export function buildSalaryNegotiationPrompt(offerDetails = {}, options = {}) {
+  const role = sanitizePromptInput(String(offerDetails.roleTitle || offerDetails.role || 'Senior Software Engineer'), { wrapBoundary: false, maxLength: 80 });
+  const company = sanitizePromptInput(String(offerDetails.companyName || offerDetails.company || 'Target Company'), { wrapBoundary: false, maxLength: 80 });
+  const location = sanitizePromptInput(String(offerDetails.jobLocation || offerDetails.location || 'Remote / Major Tech Hub'), { wrapBoundary: false, maxLength: 80 });
+  const base = Number(offerDetails.baseSalary || offerDetails.base || 0);
+  const total = Number(offerDetails.primaryAnnualTotal || offerDetails.totalComp || base);
+  const counter = Number(offerDetails.effectiveCounterTarget || offerDetails.counterTarget || Math.round(base * 1.15));
+  const current = Number(offerDetails.currentSalary || offerDetails.current || 0);
+  const yoe = Number(offerDetails.yoe || 5);
+  const currency = offerDetails.currency || 'USD';
+  const leverageNotes = offerDetails.leverageNotes || (offerDetails.hasCompetingOffer ? `Competing offer from ${offerDetails.competingCompany || 'another tech firm'}` : 'Strong specialized engineering track record');
+  const benchmarkContext = offerDetails.benchmarkContext || (offerDetails.benchmarkMedian ? `2026 Market Median: $${Math.round(offerDetails.benchmarkMedian / 1000)}k` : 'Market-calibrated 75th percentile band');
+
+  const systemPrompt = `[CHAIN-OF-THOUGHT PROTOCOL] Think step-by-step: 1. Review offer vs 2026 market benchmarks and candidate leverage, 2. Formulate collaborative negotiation framing (Chris Voss calibrated questions), 3. Structure into Email Counter, Verbal Talking Points, and Secondary Levers.
+CRITICAL ANTI-HALLUCINATION GUARD: Only reference verified candidate achievements, actual numbers, and real companies provided. Never invent phantom leverage or ungrounded statistics.
+You are an elite executive compensation strategist and negotiation coach specializing in technology roles.
+Write persuasive, authoritative, highly diplomatic negotiation scripts. Zero fluff.
+Structure output strictly into 3 cohesive sections:
+1. Diplomatic Counter-Offer Email
+2. Verbal / Phone Talking Points
+3. High-Leverage Secondary Levers (Signing bonus, equity refresh, remote stipend)`;
+
+  const userPrompt = `Generate a complete salary negotiation package for the following candidate:
+Role: ${role}
+Company: ${company}
+Location: ${location}
+Candidate Experience: ${yoe} YOE
+Current Offer: ${currency} ${base.toLocaleString('en-US')} base (${total > base ? `${currency} ${total.toLocaleString('en-US')} total annual comp` : 'base'})
+Target Counter: ${currency} ${counter.toLocaleString('en-US')}
+Current Compensation: ${current > 0 ? `${currency} ${current.toLocaleString('en-US')}` : 'Not disclosed'}
+Leverage Points: ${leverageNotes}
+Market Data: ${benchmarkContext}
+
+FEW-SHOT COMPLETE EXEMPLAR:
+### 1. Diplomatic Counter-Offer Email
+Subject: Offer Discussion - ${role} - [Candidate Name]
+
+Dear [Hiring Lead / Recruiter],
+
+Thank you sincerely for extending the offer to join ${company} as ${role}. After speaking with the team and understanding your roadmap, I am genuinely excited about the impact I can deliver here.
+
+Based on current market data for ${role} positions in ${location} and my track record of leading high-scale technical deliverables, I was expecting compensation closer to ${currency} ${counter.toLocaleString('en-US')}.
+
+I want to make joining ${company} an easy decision. If we can align on this target—or structure a package combining base with an adjusted signing bonus or equity grant—I am ready to sign immediately.
+
+Thank you again for your partnership throughout this process. I look forward to your thoughts.
+
+### 2. Live Conversation Talking Points
+- Opening Framing: "I'm genuinely excited about the role and team chemistry. I reviewed the numbers, and to make this an immediate yes, I'm hoping we can bridge the gap toward ${currency} ${counter.toLocaleString('en-US')}."
+- Voss Calibrated Pivot: "How much flexibility does the compensation team have within this salary band or in adjusting the signing bonus?"
+- Trade-Off Flexibility: "If base salary is strictly constrained by internal band equity, could we explore a one-time signing bonus of [X] or an accelerated 6-month equity vesting review?"
+
+### 3. High-Leverage Secondary Levers
+- Lever 1: Signing Bonus (Bridge the Year-1 cash delta without permanently impacting internal band benchmarks).
+- Lever 2: Equity Grant / Accelerated Cliff (Request additional RSUs or early performance-based refresher).
+- Lever 3: Professional Stipend & Review Timeline (Contractually committed 6-month compensation review cadence).
+
+Generate the customized negotiation package for ${company} now. Respond with only the 3 sections.`;
+
+  return {
+    systemPrompt,
+    userPrompt,
+    prompt: `${systemPrompt}\n\n${userPrompt}`,
+    system: systemPrompt,
+    user: userPrompt
+  };
+}
+
+/**
  * Constructs prompt for Targeted Resume Bullet Optimizer.
  * Grounded in verified publication-grade exemplar bullets to imitate quantified density.
  * Tight rules prevent hallucination of metrics or technologies.
@@ -544,19 +625,19 @@ export function buildBulletOptimizerPrompt(candidateBullet, targetJD, options = 
 
   const cleanBullet = sanitizePromptInput(String(candidateBullet || ''), { wrapBoundary: false, maxLength: 300 });
 
-  // 3. Compact surgical prompt (<250 tokens) with two concrete positive exemplars
+  // 3. Compact surgical prompt (<220 tokens) with Chain-of-Thought and concrete positive exemplars
   return `CRITICAL: NEVER invent numbers or technologies. No first person.
+[CHAIN-OF-THOUGHT] Step 1: Identify skill. Step 2: Formulate bullet.
 Think step by step, then output JSON.
-Every bullet must follow: Accomplished X as measured by Y by doing Z.
-Start with strong past-tense action verb. Quantified metric (%, $, count).
+Every bullet must follow: Accomplished X as measured by Y by doing Z. Strong past-tense verb.
 
 Exemplar 1 (Backend/Kafka):
-Input: "Built python script" | Target: "Kafka" | Metric: "saved 15h/wk"
-{"action_verb":"Automated","polished_bullet":"Automated data pipeline using Python and Kafka, saving 15h/wk."}
+Input: "Built script" | Target: "Kafka" | Metric: "saved 15h"
+{"action_verb":"Automated","polished_bullet":"Automated data pipeline using Kafka, saving 15h/wk."}
 
 Exemplar 2 (Frontend/TypeScript):
-Input: "Maintained UI frontend" | Target: "TypeScript" | Metric: "cut LCP to 1.1s"
-{"action_verb":"Architected","polished_bullet":"Architected TypeScript UI components, cutting Core Web Vitals LCP to 1.1s."}
+Input: "Built UI" | Target: "TypeScript" | Metric: "cut LCP 1s"
+{"action_verb":"Architected","polished_bullet":"Architected TypeScript UI components, cutting LCP to 1.1s."}
 
 Original: "${cleanBullet}"
 Target Requirement: ${targetSkill}${starContext ? `\n${starContext}` : ''}
@@ -874,6 +955,12 @@ STEP 4: Score Action (A) 1-5: Were technical actions specific and non-vague?
 STEP 5: Score Result (R) 1-5: Was impact quantified or clearly stated?
 STEP 6: Set overall score 1-5. Identify strongest_point and critical_improvement.${topStoryMatch ? ' Use the candidate verified STAR story facts to suggest tailored, grounded improvements instead of generic advice.' : ''} Provide a high-impact rewritten_result_sentence.
 
+FEW-SHOT EVALUATION BENCHMARK:
+[Weak Answer Example]:
+Answer: "I helped with an incident where the database was slow. I worked with the team to fix it and it got better."
+Feedback: Flagged weak verbs ("helped with", "worked on"). Situation lacks operational scale; action lacks individual architectural ownership; result lacks quantifiable latency or error-rate metrics.
+Rubric: {"scores":{"S":2,"T":2,"A":2,"R":1},"overall":2,"strongest_point":"Identified the database as the core bottleneck.","critical_improvement":"Flagged weak verb(s) 'helped with', 'worked on'. Replace passive phrasing with specific architectural ownership and quantified latency/throughput impact.","rewritten_result_sentence":"Diagnosed connection pool exhaustion under 12k req/sec peak load and tuned PostgreSQL max_connections with PgBouncer, cutting p99 latency from 850ms to 42ms with zero dropped transactions."}
+
 Output ONLY valid JSON:
 {"scores":{"S":4,"T":3,"A":4,"R":2},"overall":3,"strongest_point":"...","critical_improvement":"...","rewritten_result_sentence":"..."}
 No markdown. No text before or after the JSON.`;
@@ -882,6 +969,136 @@ No markdown. No text before or after the JSON.`;
     systemPrompt,
     userPrompt,
     prompt: userPrompt,
+    system: systemPrompt,
+    user: userPrompt
+  };
+}
+
+/**
+ * Constructs prompt for Recruiter Outreach & LinkedIn Messaging.
+ * Generates calibrated messages across 3 core modalities:
+ * - connection_note: Strict <280 chars LinkedIn Connection Request
+ * - inmail: 600-1000 chars Hook + Proof of Work + 10-min Sync Ask
+ * - cold_email: <110 words punchy cold outreach pitch
+ *
+ * @param {Object} params
+ * @returns {{ systemPrompt: string, userPrompt: string, prompt: string, system: string, user: string }}
+ */
+export function buildOutreachPrompt({
+  recruiterName = '',
+  company = '',
+  role = '',
+  candidateName = '',
+  candidateTitle = '',
+  topSkills = '',
+  verifiedAchievements = '',
+  customNotes = '',
+  format = 'connection_note'
+} = {}) {
+  const cleanRecruiter = sanitizePromptInput(String(recruiterName || 'the recruiter').split(' ')[0], { wrapBoundary: false, maxLength: 50 });
+  const cleanCompany = sanitizePromptInput(String(company || 'your team'), { wrapBoundary: false, maxLength: 80 });
+  const cleanRole = sanitizePromptInput(String(role || candidateTitle || 'Software Engineer'), { wrapBoundary: false, maxLength: 80 });
+  const safeName = sanitizePromptInput(String(candidateName || 'Candidate'), { wrapBoundary: false, maxLength: 60 });
+  const safeTitle = sanitizePromptInput(String(candidateTitle || 'Software Engineer'), { wrapBoundary: false, maxLength: 60 });
+  const safeSkills = sanitizePromptInput(String(topSkills || 'Distributed Systems, Cloud Architecture'), { wrapBoundary: false, maxLength: 120 });
+  const safeMetrics = sanitizePromptInput(String(verifiedAchievements || ''), { wrapBoundary: false, maxLength: 200 });
+
+  let systemPrompt = '';
+  let userPrompt = '';
+
+  if (format === 'connection_note') {
+    systemPrompt = `You are an elite talent strategist specializing in high-response LinkedIn recruiter networking.
+Write a personalized LinkedIn Connection Request Note from the candidate to the recruiter or hiring manager.
+CRITICAL RULES:
+1. STRICT HARD CEILING: Absolutely under 280 characters total. (LinkedIn enforces a strict 300-character limit).
+2. ZERO AI clichés or hollow buzzwords (STRICTLY FORBIDDEN: passionate, synergy, thrilled, delve, tapestry, rockstar, guru, hit the ground running, dynamic, spearhead).
+3. Focus on a specific technical observation, mutual engineering domain, or mutual background.
+4. Professional, polite, peer-to-peer invitation to connect.
+5. Never include email subjects, greetings like "Dear Sir/Madam", or multi-line email signoffs. Sign off concisely with candidate's first name.`;
+
+    userPrompt = `Draft a high-converting LinkedIn Connection Request Note (STRICT MAXIMUM 280 CHARACTERS) to ${cleanRecruiter} at ${cleanCompany}.
+Candidate: ${safeName} (${safeTitle})
+Technical Focus: ${safeSkills}
+${safeMetrics ? `Proven Metrics: ${safeMetrics}` : ''}
+${customNotes ? `Context: ${customNotes}` : ''}
+
+FEW-SHOT EXEMPLAR:
+Hi ${cleanRecruiter}, followed ${cleanCompany}'s migration to distributed consensus with great interest. As a systems engineer specializing in ${safeSkills}, would value connecting to exchange insights on high-scale infrastructure. Best, ${safeName}
+
+Return ONLY the connection note text under 280 characters.`;
+  } else if (format === 'inmail') {
+    systemPrompt = `You are an elite talent strategist specializing in high-response LinkedIn InMails and Direct Messages.
+Write a crisp, high-converting LinkedIn InMail/DM from the candidate directly to the recruiter or hiring manager.
+RULES:
+1. Target length: 600 to 1,000 characters total (concise, high-impact readability for LinkedIn inboxes).
+2. Structure in 3 clear beats:
+   - Beat 1 (Clear Hook): Specific technical observation about ${cleanCompany}'s engineering domain, scale challenges, or team growth.
+   - Beat 2 (Proof of Work): 1-2 concrete candidate achievements with quantified metrics (e.g. latency, throughput, scale, cost efficiency).
+   - Beat 3 (Single Low-Friction Call-to-Action): Close with a single, low-friction ask: "Open to a brief 10-minute sync this Thursday?".
+3. ZERO clichés or hollow buzzwords (STRICTLY FORBIDDEN: passionate, synergy, thrilled, delve, tapestry, rockstar, guru, hit the ground running, dynamic, spearhead).
+4. Direct, authentic peer-to-peer tone.
+5. Sign off concisely: Best,\n${safeName}`;
+
+    userPrompt = `Draft a LinkedIn InMail (600–1,000 characters) to ${cleanRecruiter} at ${cleanCompany}.
+Candidate: ${safeName} (${safeTitle})
+Target Role: ${cleanRole}
+Core Skills: ${safeSkills}
+${safeMetrics ? `Proven Metrics: ${safeMetrics}` : ''}
+${customNotes ? `Additional Context: ${customNotes}` : ''}
+
+FEW-SHOT EXEMPLAR:
+Hi ${cleanRecruiter},
+
+I noticed ${cleanCompany}'s recent engineering expansion tackling high-throughput data processing. Scaling real-time pipelines while containing compute costs is an architectural hurdle I've spent considerable time solving.
+
+At my previous role, I re-architected our event stream processing with ${safeSkills}, reducing p99 delivery latency by 45% while handling 2.5x traffic surges with zero dropped events.
+
+I would welcome the opportunity to share how my platform background can contribute directly to your team's upcoming reliability milestones.
+
+Open to a brief 10-minute sync this Thursday?
+
+Best,
+${safeName}
+
+Return ONLY the InMail text.`;
+  } else {
+    systemPrompt = `You are an elite executive talent strategist and recruiter outreach expert.
+Write a crisp, high-converting cold email pitch from the candidate directly to the recruiter or hiring manager.
+RULES:
+1. Under 110 words total.
+2. 0 fluff or hollow clichés (FORBIDDEN: passionate, thrilled, synergy, rockstar, guru, hit the ground running, delve, tapestry).
+3. Directly reference 1-2 concrete technical skills or metrics.
+4. Professional, respectful, peer-to-peer tone that ends with a low-friction call to action (10-minute introductory conversation).
+5. Always sign off with: Best regards,\n${safeName}`;
+
+    userPrompt = `Draft a direct cold outreach email to ${cleanRecruiter} at ${cleanCompany}.
+Candidate: ${safeName} (${safeTitle})
+Target Focus / Role: ${cleanRole}
+Core Skills: ${safeSkills}
+${safeMetrics ? `Proven Metrics: ${safeMetrics}` : ''}
+${customNotes ? `Additional Context: ${customNotes}` : ''}
+
+FEW-SHOT EXEMPLAR:
+Subject: ${cleanRole} Systems Engineering - ${safeName}
+
+Hi ${cleanRecruiter},
+
+I have been following ${cleanCompany}'s infrastructure initiatives and noticed your team is expanding its platform capabilities.
+
+Over the past five years specializing in ${safeSkills}, I have engineered distributed architectures that scaled throughput while reducing latency by 40% in production. I'm keen to bring this background to ${cleanCompany}'s current engineering priorities.
+
+Would you be open to a brief 10-minute introductory chat next week?
+
+Best regards,
+${safeName}
+
+Return ONLY the cold email text.`;
+  }
+
+  return {
+    systemPrompt,
+    userPrompt,
+    prompt: `${systemPrompt}\n\n${userPrompt}`,
     system: systemPrompt,
     user: userPrompt
   };

@@ -728,12 +728,20 @@ test('generateAtsResumePdf: renders all 6 template variants with distinctive sty
     },
     summary: 'Seasoned architect with deep expertise in distributed systems.',
     skills: ['Rust', 'Go', 'Kubernetes'],
+    matched_skills: ['Rust', 'Go'],
+    other_skills: ['Kubernetes'],
     work_history: [{
       role: 'Principal Architect',
       company: 'AWS Cloud',
       start_date: '2020',
       end_date: 'Present',
       bullets: ['Scaled high-availability infrastructure across 12 availability zones.']
+    }],
+    education: [{
+      institution: 'Stanford University',
+      degree: 'B.S.',
+      field_of_study: 'Computer Science',
+      graduation_year: '2018'
     }]
   };
 
@@ -777,5 +785,9 @@ test('generateAtsResumePdf: renders all 6 template variants with distinctive sty
   assert.ok(jakesStr.includes('(2020 - Present) Tj')); // Right-aligned date
   assert.ok(jakesStr.includes('(AWS Cloud) Tj'));
   assert.ok(jakesStr.includes('(\\225) Tj')); // Standard WinAnsi bullet
+  assert.ok(jakesStr.includes('(Languages & Core Competencies:) Tj')); // Jake's skills label
+  assert.ok(jakesStr.includes('(Frameworks & Developer Tools:) Tj'));
+  assert.ok(jakesStr.includes('(Stanford University) Tj')); // Jake's 2-tier education school
+  assert.ok(jakesStr.includes('(B.S. in Computer Science) Tj')); // Jake's 2-tier degree sub-line
 });
 

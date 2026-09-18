@@ -258,7 +258,7 @@ export function checkTemplateCompatibility(atsPlatform, templateId = 'ivy_classi
       isCompatible: false,
       level: 'critical',
       reason: `${platform.name} (${platform.parserEngine}) mandates strict single-column layouts. The Creative Two-Column multi-column layout causes severe text scramble and parsing errors in ${platform.name}.`,
-      recommendation: 'Switch to Ivy Classic Serif, Silicon Valley Modern, or High-Density 1-Page.'
+      recommendation: "Switch to Jake's Resume, Ivy Classic Serif, Silicon Valley Modern, or High-Density 1-Page."
     };
   }
 

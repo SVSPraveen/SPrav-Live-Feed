@@ -512,4 +512,97 @@ test('detectCandidateDomain: correctly detects Technical Writer and Documentatio
   assert.ok(twResult.canonicalRoles.includes('Developer Documentation Engineer'));
 });
 
+test('tech_roles_taxonomy: covers 2025/2026 roles across Agentic AI, GPU infra, FDE, Spatial & Silicon', () => {
+  // AI / ML
+  assert.ok(ROLE_DOMAINS.ai_ml.roles.includes('Agentic AI Developer'));
+  assert.ok(ROLE_DOMAINS.ai_ml.roles.includes('LLM Inference Optimization Engineer'));
+  assert.ok(ROLE_DOMAINS.ai_ml.roles.includes('Foundation Model Post-Training Engineer'));
+  assert.ok(ROLE_DOMAINS.ai_ml.roles.includes('AI Gateway & LLMOps Architect'));
+
+  // DevOps / Cloud / GPU Infra
+  assert.ok(ROLE_DOMAINS.devops_cloud.roles.includes('GPU Cloud Infrastructure Engineer'));
+  assert.ok(ROLE_DOMAINS.devops_cloud.roles.includes('AI Cluster Reliability Engineer'));
+  assert.ok(ROLE_DOMAINS.devops_cloud.roles.includes('Internal Developer Platform (IDP) Engineer'));
+
+  // Product & Field Engineering (Technical Only)
+  assert.ok(ROLE_DOMAINS.product_management.roles.includes('Forward Deployed Engineer (FDE)'));
+  assert.ok(ROLE_DOMAINS.product_management.roles.includes('Forward Deployed AI Engineer'));
+  assert.ok(ROLE_DOMAINS.product_management.roles.includes('AI Product Engineer'));
+
+  // Cybersecurity
+  assert.ok(ROLE_DOMAINS.cybersecurity.roles.includes('Hardware Security & Post-Quantum Cryptography Engineer'));
+  assert.ok(ROLE_DOMAINS.cybersecurity.roles.includes('Zero Trust Security Architect'));
+
+  // Embedded & Hardware
+  assert.ok(ROLE_DOMAINS.embedded_hardware.roles.includes('AI Accelerator Hardware Architect (NPU / TPU)'));
+  assert.ok(ROLE_DOMAINS.embedded_hardware.roles.includes('Chiplet & Advanced Packaging Design Engineer'));
+  assert.ok(ROLE_DOMAINS.embedded_hardware.roles.includes('RISC-V Architecture Engineer'));
+
+  // Spatial & Game Dev
+  assert.ok(ROLE_DOMAINS.game_development.roles.includes('Spatial Computing Developer (visionOS / RealityKit)'));
+  assert.ok(ROLE_DOMAINS.game_development.roles.includes('WebGPU Engine Programmer'));
+
+  // ALL_TECH_ROLES threshold
+  assert.ok(ALL_TECH_ROLES.length >= 350, `Expected at least 350 roles, got ${ALL_TECH_ROLES.length}`);
+});
+
+test('normalizeRoleSearchTerm & expandRoleSearchVariants: handles 2025/2026 shorthand (fde, gpu infra, agentic ai, spatial dev, llmops)', () => {
+  // Normalization
+  assert.equal(normalizeRoleSearchTerm('Senior FDE'), 'senior forward deployed engineer');
+  assert.equal(normalizeRoleSearchTerm('Lead GPU Infra Engg'), 'lead gpu infrastructure engineer');
+  assert.equal(normalizeRoleSearchTerm('Agentic AI Dev'), 'agentic ai developer');
+  assert.equal(normalizeRoleSearchTerm('Spatial Dev'), 'spatial computing developer');
+  assert.equal(normalizeRoleSearchTerm('LLMOps Engg'), 'llmops engineer');
+
+  // Expansion
+  const fdeVariants = expandRoleSearchVariants('fde');
+  assert.ok(fdeVariants.includes('forward deployed engineer'));
+
+  const gpuVariants = expandRoleSearchVariants('gpu infra');
+  assert.ok(gpuVariants.includes('gpu cloud infrastructure engineer'));
+
+  const agenticVariants = expandRoleSearchVariants('agentic ai');
+  assert.ok(agenticVariants.includes('agentic ai developer'));
+
+  const spatialVariants = expandRoleSearchVariants('spatial dev');
+  assert.ok(spatialVariants.includes('spatial computing developer'));
+});
+
+test('matchesTargetRoleWithSeniority: matches 2025/2026 target roles accurately without seniority violation', () => {
+  // Agentic AI Developer
+  assert.equal(
+    matchesTargetRoleWithSeniority('Staff Agentic AI Developer', ['agentic ai'], 'staff_exec'),
+    true,
+    'Staff Agentic AI Developer must match "agentic ai"'
+  );
+
+  // FDE
+  assert.equal(
+    matchesTargetRoleWithSeniority('Forward Deployed Engineer - Enterprise AI', ['fde'], 'any'),
+    true,
+    'Forward Deployed Engineer must match "fde"'
+  );
+
+  // GPU Infrastructure
+  assert.equal(
+    matchesTargetRoleWithSeniority('Senior GPU Cluster Reliability Engineer', ['gpu infra'], 'senior'),
+    true,
+    'Senior GPU Cluster Reliability Engineer must match "gpu infra"'
+  );
+
+  // Spatial Computing
+  assert.equal(
+    matchesTargetRoleWithSeniority('visionOS Spatial Computing Developer', ['spatial dev'], 'any'),
+    true,
+    'visionOS Spatial Computing Developer must match "spatial dev"'
+  );
+
+  // Guardrail: Freshers must not match Staff Agentic AI Developer
+  assert.equal(
+    matchesTargetRoleWithSeniority('Staff Agentic AI Developer', ['agentic ai'], 'fresher'),
+    false,
+    'Fresher candidate must NOT match Staff Agentic AI Developer'
+  );
+});
+
 

@@ -1547,6 +1547,60 @@ export const WORKDAY_ENTERPRISE_TENANTS = Object.freeze([
 ]);
 
 /**
+ * FAANG & Global Big Tech Career Portals (Protected by Enterprise CORS Firewalls)
+ */
+export const FAANG_ENTERPRISE_PORTALS = Object.freeze([
+  {
+    name: 'Google',
+    slug: 'google',
+    portalUrl: 'https://careers.google.com/jobs/results/',
+    ats: 'Internal Portal',
+    headquarters: 'Mountain View, CA',
+    searchDomain: 'careers.google.com'
+  },
+  {
+    name: 'Amazon',
+    slug: 'amazon',
+    portalUrl: 'https://www.amazon.jobs/en/search',
+    ats: 'Internal Portal',
+    headquarters: 'Seattle, WA',
+    searchDomain: 'amazon.jobs'
+  },
+  {
+    name: 'Meta',
+    slug: 'meta',
+    portalUrl: 'https://www.metacareers.com/jobs',
+    ats: 'Internal Portal',
+    headquarters: 'Menlo Park, CA',
+    searchDomain: 'metacareers.com'
+  },
+  {
+    name: 'Microsoft',
+    slug: 'microsoft',
+    portalUrl: 'https://jobs.careers.microsoft.com/global/en/search',
+    ats: 'Internal Portal',
+    headquarters: 'Redmond, WA',
+    searchDomain: 'jobs.careers.microsoft.com'
+  },
+  {
+    name: 'Apple',
+    slug: 'apple',
+    portalUrl: 'https://jobs.apple.com/en-us/search',
+    ats: 'Internal Portal',
+    headquarters: 'Cupertino, CA',
+    searchDomain: 'jobs.apple.com'
+  },
+  {
+    name: 'Netflix',
+    slug: 'netflix',
+    portalUrl: 'https://jobs.netflix.com/search',
+    ats: 'Workday / Custom',
+    headquarters: 'Los Gatos, CA',
+    searchDomain: 'jobs.netflix.com'
+  }
+]);
+
+/**
  * Returns companies matching a target tech domain or category keyword.
  * @param {string} domain
  * @returns {Array<typeof ALL_SOVEREIGN_TECH_COMPANIES[0]>}
@@ -1561,4 +1615,5 @@ export function getCompaniesByDomain(domain = '') {
            (c.name && c.name.toLowerCase().includes(clean));
   });
 }
+
 

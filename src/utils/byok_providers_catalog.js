@@ -12,7 +12,7 @@ export const BYOK_PROVIDERS = {
     name: 'Groq Cloud',
     heroBadge: '100% Free • No CC Required',
     speedBadge: 'Ultra-Fast (~500 tok/sec)',
-    model: 'OpenAI GPT-OSS 120B / 20B & Qwen 2.5 32B (Active on Groq)',
+    model: 'Llama 3.3 70B & Qwen 2.5 32B (Groq LPU)',
     cost: '$0.00 — Free Developer Tier',
     keyUrl: 'https://console.groq.com/keys',
     keyUrlLabel: 'console.groq.com/keys',

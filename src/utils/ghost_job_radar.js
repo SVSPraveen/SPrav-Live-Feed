@@ -490,78 +490,180 @@ export function calculateCallbackLikelihood({ atsScore = 50, freshnessMultiplier
 }
 
 /**
- * Tightened Ghost Job Probability Evaluator
- * Evaluates listing age, repost cycles, evergreen descriptions, and hiring freeze signals.
+ * Multi-Vector Ghost Job Probability Evaluator (2025/2026 Telemetry)
+ * Evaluates listing age velocity, repost loops, performative growth patterns,
+ * DOL PERM labor certification compliance shells, impossible credentials, and compensation evasion.
+ * 
  * @param {Object} job - Job object
  * @param {Date|number} [referenceDate=new Date()]
- * @returns {{ ghostScore: number, isGhostReject: boolean, riskLevel: string, indicators: Array<string>, recommendation: string, telemetry: Object }}
+ * @returns {{ ghostScore: number, isGhostReject: boolean, riskLevel: string, indicators: Array<string>, recommendation: string, telemetry: Object, vectors: Object }}
  */
 export function evaluateGhostProbability(job = {}, referenceDate = new Date()) {
   const telemetry = job.freshness || calculateFreshnessTelemetry(job, referenceDate);
   const desc = (job.description || job.snippet || job.raw_text || '').toLowerCase();
   const company = (job.company || '').toLowerCase();
+  const title = (job.title || '').toLowerCase();
 
   let ghostScore = 0;
   const indicators = [];
 
-  // 1. Age thresholds
+  const vectorBreakdown = {
+    temporal: { score: 0, indicators: [] },
+    evergreen: { score: 0, indicators: [] },
+    permCompliance: { score: 0, indicators: [] },
+    specIntegrity: { score: 0, indicators: [] },
+    compensation: { score: 0, indicators: [] }
+  };
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // VECTOR 1: Temporal Velocity & Decay Thresholds
+  // ──────────────────────────────────────────────────────────────────────────
   const ageDays = telemetry.ageDays ?? 0;
   if (ageDays > 90) {
-    ghostScore += 45;
-    indicators.push(`Extreme Listing Age: Open for ${ageDays} days (>90d threshold)`);
+    const pts = 45;
+    ghostScore += pts;
+    vectorBreakdown.temporal.score += pts;
+    const msg = `Extreme Listing Age: Open for ${ageDays} days (>90d threshold)`;
+    indicators.push(msg);
+    vectorBreakdown.temporal.indicators.push(msg);
   } else if (ageDays > 60) {
-    ghostScore += 35;
-    indicators.push(`Severe Stale Age: Open for ${ageDays} days (>60d threshold)`);
+    const pts = 35;
+    ghostScore += pts;
+    vectorBreakdown.temporal.score += pts;
+    const msg = `Severe Stale Age: Open for ${ageDays} days (>60d threshold)`;
+    indicators.push(msg);
+    vectorBreakdown.temporal.indicators.push(msg);
   } else if (ageDays > 45) {
-    ghostScore += 25;
-    indicators.push(`Stale Pipeline: Open for ${ageDays} days (>45d threshold)`);
+    const pts = 25;
+    ghostScore += pts;
+    vectorBreakdown.temporal.score += pts;
+    const msg = `Stale Pipeline: Open for ${ageDays} days (>45d threshold)`;
+    indicators.push(msg);
+    vectorBreakdown.temporal.indicators.push(msg);
   } else if (ageDays > 30) {
-    ghostScore += 10;
-    indicators.push(`Mid-Cycle Aging: Open for ${ageDays} days`);
+    const pts = 10;
+    ghostScore += pts;
+    vectorBreakdown.temporal.score += pts;
+    const msg = `Mid-Cycle Aging: Open for ${ageDays} days`;
+    indicators.push(msg);
+    vectorBreakdown.temporal.indicators.push(msg);
   }
 
-  // 2. Repost Loop / Bump Detection
+  // Repost Loop / Recruiter Bump Detection
   if (telemetry.code === FRESHNESS_CODES.REPOST_WARNING) {
-    ghostScore += 35;
-    indicators.push('Repost Loop: Posting periodically bumped by recruiters without closing');
+    const pts = 35;
+    ghostScore += pts;
+    vectorBreakdown.temporal.score += pts;
+    const msg = 'Repost Loop: Posting periodically bumped by recruiters without closing';
+    indicators.push(msg);
+    vectorBreakdown.temporal.indicators.push(msg);
   }
 
-  // 3. Evergreen / Non-Hiring Talent Pool Jargon in JD
+  // ──────────────────────────────────────────────────────────────────────────
+  // VECTOR 2: Evergreen & Performative Growth Linguistic Signatures
+  // ──────────────────────────────────────────────────────────────────────────
   const evergreenPatterns = [
     { regex: /evergreen\s+(?:requisition|posting|role|job)/i, label: 'Explicit Evergreen Requisition (Continuous pool, no immediate seat)' },
     { regex: /talent\s+(?:pool|community|pipeline)\s+only/i, label: 'Talent Pool Only (Not actively screening for open seat)' },
     { regex: /future\s+(?:opportunities|openings|needs)\s+only/i, label: 'Future Needs Only (Speculative listing)' },
     { regex: /expression\s+of\s+interest\s+only/i, label: 'Expression of Interest (No funded head count)' },
-    { regex: /not\s+actively\s+hiring|hiring\s+freeze/i, label: 'Direct disclosure: Not actively hiring / freeze' },
+    { regex: /not\s+actively\s+hiring|hiring\s+freeze|hiring\s+pause/i, label: 'Direct disclosure: Not actively hiring / freeze' },
     { regex: /keep\s+(?:your\s+resume\s+)?on\s+file\s+for\s+future/i, label: 'Resume archiving requisition' },
-    { regex: /proactive\s+(?:sourcing|pipeline)\s+only/i, label: 'Proactive sourcing pipeline' }
+    { regex: /proactive\s+(?:sourcing|pipeline)\s+only/i, label: 'Proactive sourcing pipeline' },
+    { regex: /pooling\s+requisition|continuous\s+talent\s+pipeline/i, label: 'Continuous candidate pooling requisition' },
+    { regex: /always\s+looking\s+for\s+(?:top\s+)?talent|speculative\s+opening/i, label: 'Performative growth: Speculative evergreen search' },
+    { regex: /general\s+application\s+pool|ongoing\s+consideration\s+pool/i, label: 'General candidate repository (Non-seat requisition)' },
+    { regex: /subject\s+to\s+headcount\s+(?:confirmation|approval)|pending\s+budget\s+approval/i, label: 'Unbudgeted requisition (Pending executive approval)' }
   ];
 
   for (const { regex, label } of evergreenPatterns) {
     if (regex.test(desc)) {
-      ghostScore += 35;
+      const pts = 35;
+      ghostScore += pts;
+      vectorBreakdown.evergreen.score += pts;
       indicators.push(label);
+      vectorBreakdown.evergreen.indicators.push(label);
       break;
     }
   }
 
-  // 4. Undisclosed / Agency Farming Shells
-  if (/confidential\s+client|undisclosed\s+(?:client|company)|stealth\s+(?:client|recruiter)/i.test(company) || 
-      /client\s+is\s+a\s+(?:leading|top|fortune)\s+(?:bank|company|retailer)\s+who\s+cannot\s+be\s+named/i.test(desc)) {
-    ghostScore += 25;
-    indicators.push('Undisclosed / Confidential Client (High resume harvesting probability)');
+  // ──────────────────────────────────────────────────────────────────────────
+  // VECTOR 3: DOL PERM / Labor Certification Shell Requisitions
+  // (Postings published strictly to satisfy US DOL immigrant labor test requirements)
+  // ──────────────────────────────────────────────────────────────────────────
+  const permPatterns = [
+    { regex: /notice\s+of\s+filing\s+(?:of\s+application\s+for\s+permanent\s+employment|perm)/i, label: 'DOL PERM Notice of Filing (Regulatory compliance shell, internal candidate already selected)' },
+    { regex: /perm\s+labor\s+certification|permanent\s+labor\s+certification\s+application/i, label: 'PERM Labor Certification Requisition (Immigration statutory advertising)' },
+    { regex: /department\s+of\s+labor\s+(?:recruitment|notice)|alien\s+labor\s+certification/i, label: 'Department of Labor Statutory Recruitment Notice' },
+    { regex: /special\s+recruitment\s+advertising\s+under\s+20\s*cfr/i, label: '20 CFR Statutory Alien Labor Certification Listing' },
+    { regex: /mail\s+resume\s+to\s+att(?:entio)?n:\s*(?:immigration|legal\s+dept|perm)/i, label: 'Mandatory Mail-In Immigration Legal Notice' }
+  ];
+
+  for (const { regex, label } of permPatterns) {
+    if (regex.test(desc)) {
+      const pts = 50;
+      ghostScore += pts;
+      vectorBreakdown.permCompliance.score += pts;
+      indicators.push(label);
+      vectorBreakdown.permCompliance.indicators.push(label);
+      break;
+    }
   }
 
-  // 5. Vague Short Requisition Aging (>30 days, <200 words, no specific tech requirements)
+  // ──────────────────────────────────────────────────────────────────────────
+  // VECTOR 4: Undisclosed Agency Farming & Vague Skeleton JDs
+  // ──────────────────────────────────────────────────────────────────────────
+  if (/confidential\s+client|undisclosed\s+(?:client|company)|stealth\s+(?:client|recruiter)/i.test(company) || 
+      /client\s+is\s+a\s+(?:leading|top|fortune)\s+(?:bank|company|retailer)\s+who\s+cannot\s+be\s+named/i.test(desc)) {
+    const pts = 25;
+    ghostScore += pts;
+    vectorBreakdown.specIntegrity.score += pts;
+    const msg = 'Undisclosed / Confidential Client (High resume harvesting probability)';
+    indicators.push(msg);
+    vectorBreakdown.specIntegrity.indicators.push(msg);
+  }
+
+  // Vague Short Requisition Aging (>30 days, <200 words, no specific tech requirements)
   const wordCount = desc.trim() ? desc.trim().split(/\s+/).length : 0;
   const commonTechAnchors = ['python', 'javascript', 'typescript', 'react', 'node', 'golang', 'go', 'java', 'c++', 'rust', 'aws', 'kubernetes', 'docker', 'sql', 'postgresql', 'graphql', 'rest', 'api', 'ci/cd', 'terraform', 'linux'];
   const matchedTechCount = commonTechAnchors.filter(k => {
     const escaped = k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     return new RegExp(`(?:^|[^a-z0-9#+.-])${escaped}(?:$|[^a-z0-9#+.-])`, 'i').test(desc);
   }).length;
+
   if (wordCount > 0 && wordCount < 200 && matchedTechCount < 2 && ageDays > 30) {
-    ghostScore += 40;
-    indicators.push(`Probable Ghost Job: Vague brief JD (${wordCount} words) without specific technical requirements open for ${ageDays} days (>30d threshold)`);
+    const pts = 40;
+    ghostScore += pts;
+    vectorBreakdown.specIntegrity.score += pts;
+    const msg = `Probable Ghost Job: Vague brief JD (${wordCount} words) without specific technical requirements open for ${ageDays} days (>30d threshold)`;
+    indicators.push(msg);
+    vectorBreakdown.specIntegrity.indicators.push(msg);
+  }
+
+  // Title vs. Seniority Incongruity (Junior/Entry title demanding 5-10+ years experience)
+  const isJuniorTitle = /\b(?:junior|jr|entry[\s-]level|associate|intern|internship|graduate|apprentice)\b/i.test(title);
+  const demandsExcessiveYoE = /(?:5\+|[6-9]\+|10\+|[5-9]\s*to\s*10)\s*years?(?:\s+of)?\s+(?:experience|production|hands-on)/i.test(desc);
+  if (isJuniorTitle && demandsExcessiveYoE) {
+    const pts = 30;
+    ghostScore += pts;
+    vectorBreakdown.specIntegrity.score += pts;
+    const msg = 'Credibility Mismatch: Junior/Entry-level title demanding 5+ years of senior experience (Unrealistic candidate screening filter)';
+    indicators.push(msg);
+    vectorBreakdown.specIntegrity.indicators.push(msg);
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // VECTOR 5: Compensation Evasion & Sham Pay Range
+  // ──────────────────────────────────────────────────────────────────────────
+  const minSal = Number(job.salary_min || job.min_salary || 0);
+  const maxSal = Number(job.salary_max || job.max_salary || 0);
+  if (minSal > 0 && maxSal > 0 && maxSal >= (minSal * 4.0) && (maxSal - minSal) >= 150000) {
+    const pts = 25;
+    ghostScore += pts;
+    vectorBreakdown.compensation.score += pts;
+    const msg = `Sham Salary Range ($${minSal.toLocaleString()} - $${maxSal.toLocaleString()}): Extreme spread designed to evade pay transparency compliance`;
+    indicators.push(msg);
+    vectorBreakdown.compensation.indicators.push(msg);
   }
 
   // Clamp score
@@ -585,60 +687,181 @@ export function evaluateGhostProbability(job = {}, referenceDate = new Date()) {
     riskLevel,
     indicators,
     recommendation,
-    telemetry
+    telemetry,
+    vectors: vectorBreakdown
   };
 }
 
 /**
- * Tightened Scam, Phishing & Fraud Evaluator
- * Identifies advance-fee scams, Telegram phishing, fake checks, unpaid trial exploitation, and MLM.
+ * Enhanced Scam, Phishing & Fraud Evaluator (2025/2026 Attack Vectors)
+ * Detects Telegram/WhatsApp phishing, free webmail impersonation, pre-offer ID harvesting,
+ * fake equipment cashier checks, instant hire traps, data entry phishing, crypto muling,
+ * and unpaid trial exploitation.
+ * 
  * @param {Object} job - Job object
- * @returns {{ scamScore: number, isSpamScam: boolean, scamIndicators: Array<string>, warning: string }}
+ * @returns {{ scamScore: number, isSpamScam: boolean, scamIndicators: Array<string>, warning: string, vectors: Object }}
  */
 export function evaluateSpamScamRisk(job = {}) {
   const desc = (job.description || job.snippet || job.raw_text || '').toLowerCase();
+  const company = (job.company || '').toLowerCase();
+  const title = (job.title || '').toLowerCase();
+  const contactEmail = (job.contact_email || job.email || '').toLowerCase();
 
   let scamScore = 0;
   const scamIndicators = [];
 
-  // 1. Phishing & Off-Platform Interview Fraud (Telegram / WhatsApp)
+  const vectorBreakdown = {
+    offPlatform: { score: 0, indicators: [] },
+    impersonation: { score: 0, indicators: [] },
+    idHarvesting: { score: 0, indicators: [] },
+    advanceFee: { score: 0, indicators: [] },
+    instantHire: { score: 0, indicators: [] },
+    unskilledTrap: { score: 0, indicators: [] },
+    cryptoMuling: { score: 0, indicators: [] },
+    unpaidLabor: { score: 0, indicators: [] },
+    mlm: { score: 0, indicators: [] }
+  };
+
+  // 1. Phishing & Off-Platform Anonymous Interview Routing (Telegram / WhatsApp / Discord / Signal)
   if (/(?:contact|reach|interview|message|connect|dm|chat)[\w\s]{0,35}\b(?:on|via)\s*telegram\b|telegram\s*(?:username|handle|app|channel|link|account)?\s*[:@-]|telegram\s+@\w+|@\w+\s+on\s+telegram/i.test(desc)) {
-    scamScore += 70;
-    scamIndicators.push('Critical: Directs interview communication to Telegram (Known recruitment phishing vector)');
+    const pts = 70;
+    scamScore += pts;
+    vectorBreakdown.offPlatform.score += pts;
+    const msg = 'Critical: Directs interview communication to Telegram (Known recruitment phishing vector)';
+    scamIndicators.push(msg);
+    vectorBreakdown.offPlatform.indicators.push(msg);
   }
 
   if ((/(?:contact|reach|interview|message|connect|dm|chat)[\w\s]{0,35}\b(?:on|via)\s*whatsapp\b|whatsapp\s*(?:number|group|link|app)?\s*[:+]/i.test(desc)) && !/official\s+business\s+whatsapp/i.test(desc)) {
-    scamScore += 45;
-    scamIndicators.push('Directs interview communication to WhatsApp');
+    const pts = 45;
+    scamScore += pts;
+    vectorBreakdown.offPlatform.score += pts;
+    const msg = 'Directs interview communication to WhatsApp';
+    scamIndicators.push(msg);
+    vectorBreakdown.offPlatform.indicators.push(msg);
   }
 
-  // 2. Advance Fee / Fake Check / Equipment Purchase Scams
+  if (/(?:contact|reach|interview|message|chat)[\w\s]{0,35}\b(?:on|via)\s*(?:signal|discord|skype|google\s+chat|wechat)\b/i.test(desc)) {
+    const pts = 40;
+    scamScore += pts;
+    vectorBreakdown.offPlatform.score += pts;
+    const msg = 'Suspicious Off-Platform Channel: Routes interview communication to unverified chat service (Signal/Discord/Skype)';
+    scamIndicators.push(msg);
+    vectorBreakdown.offPlatform.indicators.push(msg);
+  }
+
+  // 2. Recruiter Impersonation & Free Webmail Senders
+  const freeMailMatch = desc.match(/(?:send\s+resume|email\s+(?:us|me)|contact\s+(?:us|me)?)[\w\s]{0,30}\b([a-zA-Z0-9._%+-]+@(gmail|yahoo|outlook|hotmail|proton|protonmail|aol|icloud)\.com)\b/i);
+  const isDirectFreeMail = /@(gmail|yahoo|outlook|hotmail|proton|protonmail|aol|icloud)\.com$/i.test(contactEmail);
+
+  if ((freeMailMatch || isDirectFreeMail) && company && !/freelance|personal|individual/i.test(company)) {
+    const matchedAddress = freeMailMatch ? freeMailMatch[1] : contactEmail;
+    const pts = 55;
+    scamScore += pts;
+    vectorBreakdown.impersonation.score += pts;
+    const msg = `Recruiter Impersonation Risk: Corporate role directs contact to public free webmail address (${matchedAddress})`;
+    scamIndicators.push(msg);
+    vectorBreakdown.impersonation.indicators.push(msg);
+  }
+
+  // 3. Pre-Offer Sensitive Identity & Banking Information Harvesting
+  if (/(?:social\s+security\s+number|ssn\b|copy\s+of\s+passport|driver(?:'s)?\s+license\s+(?:photo|scan|front\s+and\s+back)|bank\s+routing\s+number|bank\s+account\s+details\s+(?:for\s+verification|to\s+apply))/i.test(desc)) {
+    const pts = 85;
+    scamScore += pts;
+    vectorBreakdown.idHarvesting.score += pts;
+    const msg = 'Severe Identity Harvesting: Requests SSN, government ID, or banking details prior to formal offer';
+    scamIndicators.push(msg);
+    vectorBreakdown.idHarvesting.indicators.push(msg);
+  }
+
+  // Form Hijacking (Google Forms / Typeform / Jotform / Wufoo used as primary application for corporate roles)
+  if (/(?:apply|submit\s+your\s+application|fill\s+out\s+(?:the|this)\s+form)[\w\s]{0,25}\b(?:docs\.google\.com\/forms|forms\.gle|typeform\.com|jotform\.com|wufoo\.com)\b/i.test(desc)) {
+    const pts = 45;
+    scamScore += pts;
+    vectorBreakdown.idHarvesting.score += pts;
+    const msg = 'Form Hijacking: Directs applicants to generic third-party web forms (Google Forms/Typeform) rather than secure ATS';
+    scamIndicators.push(msg);
+    vectorBreakdown.idHarvesting.indicators.push(msg);
+  }
+
+  // 4. Advance Fee / Fake Check / Equipment Purchase Reimbursement Scams
   if (/wire\s+transfer\s+for\s+(?:home\s+)?equipment|check\s+(?:will\s+be\s+sent|deposit)\s+for\s+equipment|purchase\s+(?:your\s+own\s+)?(?:laptop|equipment)\s+and\s+(?:we\s+will\s+)?reimburse|cashier(?:'s)?\s+check/i.test(desc)) {
-    scamScore += 80;
-    scamIndicators.push('Severe Scam Alert: Advance check deposit or equipment purchase reimbursement scam');
+    const pts = 80;
+    scamScore += pts;
+    vectorBreakdown.advanceFee.score += pts;
+    const msg = 'Severe Scam Alert: Advance check deposit or equipment purchase reimbursement scam';
+    scamIndicators.push(msg);
+    vectorBreakdown.advanceFee.indicators.push(msg);
   }
 
-  if (/application\s+fee|background\s+check\s+fee\s+required|pay\s+(?:to\s+)?(?:apply|start|join|train)/i.test(desc)) {
-    scamScore += 75;
-    scamIndicators.push('Illegal Fee: Requires candidate payment for application or onboarding');
+  if (/application\s+fee|background\s+check\s+fee\s+required|pay\s+(?:to\s+)?(?:apply|start|join|train)|software\s+license\s+fee\s+required/i.test(desc)) {
+    const pts = 75;
+    scamScore += pts;
+    vectorBreakdown.advanceFee.score += pts;
+    const msg = 'Illegal Fee: Requires candidate payment for application, background check, or onboarding';
+    scamIndicators.push(msg);
+    vectorBreakdown.advanceFee.indicators.push(msg);
   }
 
-  // 3. Unpaid Labor / Exploitative Assessment
-  if (/unpaid\s+(?:trial|internship|training|probation)|free\s+work\s+trial|20\+\s*hours?\s+(?:take-?home|assignment)|build\s+(?:a\s+)?production\s+(?:ready\s+)?(?:feature|app|system)\s+for\s+(?:our\s+)?review/i.test(desc)) {
-    scamScore += 50;
-    scamIndicators.push('Labor Exploitation: Demands extensive unpaid work trial or free production feature development');
+  // 5. Instant Unconditional Hiring Traps (No Interview Required)
+  if (/immediate\s+hire\s+without\s+interview|selected\s+based\s+(?:solely\s+)?on\s+(?:your\s+)?resume|no\s+(?:formal\s+)?interview\s+required|start\s+immediately\s+upon\s+(?:equipment\s+arrival|deposit)/i.test(desc)) {
+    const pts = 70;
+    scamScore += pts;
+    vectorBreakdown.instantHire.score += pts;
+    const msg = 'Predatory Hiring Trap: Claims instant unconditional hiring without technical or personal interview';
+    scamIndicators.push(msg);
+    vectorBreakdown.instantHire.indicators.push(msg);
   }
 
-  // 4. Pure Commission / MLM Pyramid
-  if (/100%\s+commission\s+only|pure\s+commission\s+only|multi-?level\s+marketing|unlimited\s+downline|pyramid/i.test(desc)) {
-    scamScore += 60;
-    scamIndicators.push('Multi-Level Marketing / 100% Commission Only Risk');
+  // 6. Fake High-Pay Remote Unskilled Traps (Data Entry & Package Reshipping / Mail Muling)
+  const isUnskilledTask = /\b(?:data\s+entry|envelope\s+stuffing|typing|package\s+(?:inspector|reshipper|forwarding)|mystery\s+shopper)\b/i.test(title + ' ' + desc);
+  const isExorbitantRate = /\$\s*(?:4[5-9]|[5-9]\d|\d{2,4})\s*(?:\/|\s*per\s*)\s*(?:hr|hour)\b/i.test(desc);
+  if (isUnskilledTask && isExorbitantRate) {
+    const pts = 75;
+    scamScore += pts;
+    vectorBreakdown.unskilledTrap.score += pts;
+    const msg = 'Suspicious Unskilled Pay Trap: Exorbitant hourly rate ($45+/hr) advertised for routine data entry or package handling';
+    scamIndicators.push(msg);
+    vectorBreakdown.unskilledTrap.indicators.push(msg);
   }
 
-  // 5. Crypto Wallet Transfer Scams
+  if (/package\s+(?:reshipping|forwarding|re-mailing)\s+agent|receive\s+packages\s+and\s+re-ship/i.test(desc)) {
+    const pts = 85;
+    scamScore += pts;
+    vectorBreakdown.unskilledTrap.score += pts;
+    const msg = 'Severe Money/Goods Muling: Reshipping goods purchased with stolen credit cards (Criminal liability risk)';
+    scamIndicators.push(msg);
+    vectorBreakdown.unskilledTrap.indicators.push(msg);
+  }
+
+  // 7. Crypto Wallet Transfer & Laundering Scams
   if (/crypto\s+wallet\s+transfer|receive\s+crypto\s+and\s+forward|bitcoin\s+atm/i.test(desc)) {
-    scamScore += 90;
-    scamIndicators.push('Critical: Crypto money laundering or unauthorized transfer scam');
+    const pts = 90;
+    scamScore += pts;
+    vectorBreakdown.cryptoMuling.score += pts;
+    const msg = 'Critical: Crypto money laundering or unauthorized transfer scam';
+    scamIndicators.push(msg);
+    vectorBreakdown.cryptoMuling.indicators.push(msg);
+  }
+
+  // 8. Unpaid Labor & Spec Work Exploitation
+  if (/unpaid\s+(?:trial|internship|training|probation)|free\s+work\s+trial|20\+\s*hours?\s+(?:take-?home|assignment)|build\s+(?:a\s+)?production\s+(?:ready\s+)?(?:feature|app|system)\s+for\s+(?:our\s+)?review/i.test(desc)) {
+    const pts = 50;
+    scamScore += pts;
+    vectorBreakdown.unpaidLabor.score += pts;
+    const msg = 'Labor Exploitation: Demands extensive unpaid work trial or free production feature development';
+    scamIndicators.push(msg);
+    vectorBreakdown.unpaidLabor.indicators.push(msg);
+  }
+
+  // 9. Pure Commission & MLM Pyramid Schemes
+  if (/100%\s+commission\s+only|pure\s+commission\s+only|multi-?level\s+marketing|unlimited\s+downline|pyramid/i.test(desc)) {
+    const pts = 60;
+    scamScore += pts;
+    vectorBreakdown.mlm.score += pts;
+    const msg = 'Multi-Level Marketing / 100% Commission Only Risk';
+    scamIndicators.push(msg);
+    vectorBreakdown.mlm.indicators.push(msg);
   }
 
   scamScore = Math.min(100, scamScore);
@@ -650,16 +873,19 @@ export function evaluateSpamScamRisk(job = {}) {
     scamIndicators,
     warning: isSpamScam 
       ? `High Risk Alert: Detected ${scamIndicators.length} suspicious recruitment fraud or exploitation vectors.`
-      : 'Clean: No predatory or phishing patterns detected.'
+      : 'Clean: No predatory or phishing patterns detected.',
+    vectors: vectorBreakdown
   };
 }
 
 /**
- * Unified Sovereign Ghost & Spam Shield Auditor
- * Combines freshness telemetry, ghost probability, and fraud analysis.
+ * Unified Sovereign Ghost & Spam Shield Auditor (2025/2026 Engine)
+ * Synthesizes freshness telemetry, multi-vector ghost probability, fraud/phishing signatures,
+ * and outputs a unified Authenticity Score (0-100) with dynamic candidate strategy advice.
+ * 
  * @param {Object} job - Job object
  * @param {Object} [options]
- * @returns {Object} Comprehensive audit verdict
+ * @returns {Object} Comprehensive audit verdict and candidate intelligence
  */
 export function auditGhostAndSpamRisk(job = {}, options = {}) {
   const ghost = evaluateGhostProbability(job, options.referenceDate);
@@ -670,15 +896,135 @@ export function auditGhostAndSpamRisk(job = {}, options = {}) {
     ? '⛔ Scam / Fraud Alert'
     : (ghost.isGhostReject ? '🟡 Ghost Job Probability' : '🟢 Verified Active');
 
+  // ──────────────────────────────────────────────────────────────────────────
+  // Composite Authenticity Score Math (0 - 100)
+  // ──────────────────────────────────────────────────────────────────────────
+  let authenticityScore = 100;
+
+  if (scam.isSpamScam) {
+    authenticityScore = Math.max(0, 100 - scam.scamScore);
+  } else {
+    // Deduct for ghost probability
+    authenticityScore -= Math.round(ghost.ghostScore * 0.70);
+
+    // Stale age penalty
+    const age = ghost.telemetry?.ageDays ?? 0;
+    if (age > 45) authenticityScore -= 12;
+    else if (age > 28) authenticityScore -= 5;
+
+    // Fresh drop bonus
+    if (ghost.telemetry?.code === FRESHNESS_CODES.ULTRA_FRESH || ghost.telemetry?.code === FRESHNESS_CODES.FRESH_DROP) {
+      authenticityScore = Math.min(100, authenticityScore + 5);
+    }
+  }
+
+  authenticityScore = Math.min(100, Math.max(0, authenticityScore));
+
+  let authenticityTier = 'verified_authentic';
+  let authenticityBadge = {
+    label: '🟢 Verified Authentic',
+    color: '#10b981',
+    bg: 'rgba(16, 185, 129, 0.12)',
+    border: 'rgba(16, 185, 129, 0.3)'
+  };
+
+  if (scam.isSpamScam || authenticityScore < 15) {
+    authenticityTier = 'scam_danger';
+    authenticityBadge = {
+      label: '⛔ Fraud Danger',
+      color: '#f87171',
+      bg: 'rgba(239, 68, 68, 0.18)',
+      border: 'rgba(239, 68, 68, 0.45)'
+    };
+  } else if (ghost.isGhostReject || authenticityScore < 40) {
+    authenticityTier = 'likely_ghost';
+    authenticityBadge = {
+      label: '🟠 Likely Ghost',
+      color: '#fb923c',
+      bg: 'rgba(251, 146, 60, 0.15)',
+      border: 'rgba(251, 146, 60, 0.35)'
+    };
+  } else if (authenticityScore < 65) {
+    authenticityTier = 'elevated_caution';
+    authenticityBadge = {
+      label: '🟡 Elevated Caution',
+      color: '#fbbf24',
+      bg: 'rgba(245, 158, 11, 0.12)',
+      border: 'rgba(245, 158, 11, 0.3)'
+    };
+  } else if (authenticityScore < 85) {
+    authenticityTier = 'standard_active';
+    authenticityBadge = {
+      label: '🔵 Standard Active',
+      color: '#38bdf8',
+      bg: 'rgba(56, 189, 248, 0.12)',
+      border: 'rgba(56, 189, 248, 0.3)'
+    };
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Strategic Decision & Outreach Guidance Generation
+  // ──────────────────────────────────────────────────────────────────────────
+  const cleanCompany = (job.company || 'the hiring team').trim();
+  const cleanTitle = (job.title || 'this role').trim();
+
+  let strategicAdvice = {
+    headline: 'High Confidence Listing: Direct Review Cadence',
+    strategy: 'Submit your tailored application immediately. This role is within the active recruitment window with verified telemetry.',
+    actionRecommendation: 'Apply & Follow Up',
+    repostNoticeTemplate: null,
+    hiringManagerOutreachTemplate: `Hi [Name], I noticed ${cleanCompany}'s opening for ${cleanTitle} and wanted to reach out directly. My background in [Core Skill 1] and [Core Skill 2] aligns closely with the team's roadmap. Would you be open to a brief conversation regarding the priorities for this position?`,
+    securityChecklist: null
+  };
+
+  if (scam.isSpamScam) {
+    strategicAdvice = {
+      headline: '⛔ DO NOT APPLY — HIGH SECURITY & FRAUD RISK',
+      strategy: 'This requisition exhibits signature patterns of recruitment phishing, identity harvesting, or financial fraud.',
+      actionRecommendation: 'Block & Report',
+      repostNoticeTemplate: null,
+      hiringManagerOutreachTemplate: null,
+      securityChecklist: [
+        'Never send funds, purchase equipment, or cash checks on behalf of a recruiter.',
+        'Never provide SSN, passport scans, or banking details prior to a verified offer letter.',
+        'Verify the opening directly by visiting the employer’s official website careers page in a new tab.',
+        'Report this listing to the platform and relevant consumer fraud authorities (e.g. IdentityTheft.gov or IC3.gov).'
+      ]
+    };
+  } else if (ghost.telemetry?.code === FRESHNESS_CODES.REPOST_WARNING) {
+    strategicAdvice = {
+      headline: '⚠️ Repost Loop Detected — Recruiter Bump Without Active Review',
+      strategy: 'Recruiters periodically bump this listing to appear under "New" while hundreds of past applicants remain unreviewed. If you apply, address the refresh in your note.',
+      actionRecommendation: 'Address Refresh in Application',
+      repostNoticeTemplate: `I noticed this ${cleanTitle} role was recently refreshed by ${cleanCompany}, and wanted to proactively confirm if your team is actively screening new applicants for this cycle.`,
+      hiringManagerOutreachTemplate: `Hi [Name], I saw ${cleanCompany}'s ${cleanTitle} posting was recently refreshed. Given how quickly applicant pools expand on bumped postings, I wanted to reach out directly with my background in [Key Skill] to see if the team is still actively scheduling interviews.`,
+      securityChecklist: null
+    };
+  } else if (ghost.isGhostReject) {
+    strategicAdvice = {
+      headline: '🟠 Ghost Risk Requisition — Stagnant Pipeline or Evergreen Shell',
+      strategy: 'Cold applications through this ATS link face an estimated callback rate under 0.3x. Bypass the ATS queue by identifying the actual Engineering Lead or Hiring Manager on LinkedIn.',
+      actionRecommendation: 'Bypass ATS / Direct Outreach Only',
+      repostNoticeTemplate: null,
+      hiringManagerOutreachTemplate: `Hi [Name], I noticed the ${cleanTitle} requisition at ${cleanCompany} has been open for several weeks. I wanted to check directly whether the headcount is currently funded and active, as my experience in [Specialty] matches the stated needs.`,
+      securityChecklist: null
+    };
+  }
+
   return {
     shouldReject,
     primaryVerdict,
+    authenticityScore,
+    authenticityTier,
+    authenticityBadge,
     ghost,
     scam,
     isGhost: ghost.isGhostReject,
     isScam: scam.isSpamScam,
-    totalIndicators: [...ghost.indicators, ...scam.scamIndicators]
+    totalIndicators: [...ghost.indicators, ...scam.scamIndicators],
+    strategicAdvice
   };
 }
+
 
 

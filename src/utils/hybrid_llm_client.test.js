@@ -1072,7 +1072,7 @@ test('hybridLLM generateChat: sends full multi-turn conversation history to clou
   }
 });
 
-test('hybridLLM Groq: routes to openai/gpt-oss-120b by default', async () => {
+test('hybridLLM Groq: routes to llama-3.3-70b-versatile by default', async () => {
   const originalFetch = globalThis.fetch;
   let sentBody = null;
 
@@ -1081,7 +1081,7 @@ test('hybridLLM Groq: routes to openai/gpt-oss-120b by default', async () => {
       sentBody = JSON.parse(opts.body);
       return {
         ok: true,
-        json: async () => ({ choices: [{ message: { content: 'Groq GPT-OSS 120B response' } }] })
+        json: async () => ({ choices: [{ message: { content: 'Groq Llama 3.3 70B response' } }] })
       };
     }
     return { ok: false, status: 500, text: async () => 'error' };
@@ -1092,15 +1092,15 @@ test('hybridLLM Groq: routes to openai/gpt-oss-120b by default', async () => {
     hybridLLM.setPreferredProvider('groq');
 
     const reply = await hybridLLM.callClientCloudLLM('Optimize this code');
-    assert.equal(reply, 'Groq GPT-OSS 120B response');
+    assert.equal(reply, 'Groq Llama 3.3 70B response');
     assert.ok(sentBody !== null);
-    assert.equal(sentBody.model, 'openai/gpt-oss-120b');
+    assert.equal(sentBody.model, 'llama-3.3-70b-versatile');
   } finally {
     globalThis.fetch = originalFetch;
   }
 });
 
-test('hybridLLM Groq: falls back to low GPT (openai/gpt-oss-20b) and low Qwen (qwen-2.5-32b) when 120b fails', async () => {
+test('hybridLLM Groq: falls back to Qwen 32B (qwen-2.5-32b) and Llama 8B when 70b fails', async () => {
   const originalFetch = globalThis.fetch;
   const attemptedModels = [];
 
@@ -1108,10 +1108,10 @@ test('hybridLLM Groq: falls back to low GPT (openai/gpt-oss-20b) and low Qwen (q
     if (String(url).includes('api.groq.com')) {
       const body = JSON.parse(opts.body);
       attemptedModels.push(body.model);
-      if (body.model === 'openai/gpt-oss-20b') {
+      if (body.model === 'qwen-2.5-32b') {
         return {
           ok: true,
-          json: async () => ({ choices: [{ message: { content: 'Groq GPT-OSS 20B fallback response' } }] })
+          json: async () => ({ choices: [{ message: { content: 'Groq Qwen 32B fallback response' } }] })
         };
       }
       return { ok: false, status: 404, text: async () => 'Model decommissioned' };
@@ -1124,10 +1124,9 @@ test('hybridLLM Groq: falls back to low GPT (openai/gpt-oss-20b) and low Qwen (q
     hybridLLM.setPreferredProvider('groq');
 
     const reply = await hybridLLM.callClientCloudLLM('Generate summary');
-    assert.equal(reply, 'Groq GPT-OSS 20B fallback response');
-    assert.ok(attemptedModels.includes('openai/gpt-oss-120b'), 'Must attempt 120b first');
-    assert.ok(attemptedModels.includes('openai/gpt-oss-20b'), 'Must fall back to low GPT model 20b');
-    assert.ok(!attemptedModels.some(m => m.includes('llama')), 'Must not use decommissioned llama models');
+    assert.equal(reply, 'Groq Qwen 32B fallback response');
+    assert.ok(attemptedModels.includes('llama-3.3-70b-versatile'), 'Must attempt 70b first');
+    assert.ok(attemptedModels.includes('qwen-2.5-32b'), 'Must fall back to Qwen 32B');
   } finally {
     globalThis.fetch = originalFetch;
   }

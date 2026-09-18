@@ -14,7 +14,7 @@
 
 import { storageVault } from './browser_storage_vault.js';
 import { hybridLLM } from './hybrid_llm_client.js';
-import { SAMPLING_PROFILES } from './webgpu_tasks.js';
+import { SAMPLING_PROFILES, buildOutreachPrompt } from './webgpu_tasks.js';
 
 export function sanitizeDomain(rawDomain) {
   if (!rawDomain || typeof rawDomain !== 'string') return '';
@@ -361,65 +361,18 @@ export class HunterApiClient {
     const cleanFirst = recruiterName ? recruiterName.split(' ')[0] : 'there';
     const companyTarget = company || 'your team';
 
-    let systemPrompt = '';
-    let userPrompt = '';
-
-    if (format === 'connection_note') {
-      systemPrompt = `You are an elite talent strategist specializing in high-response LinkedIn recruiter networking.
-Write a personalized LinkedIn Connection Request Note from the candidate to the recruiter or hiring manager.
-CRITICAL RULES:
-1. STRICT HARD CEILING: Absolutely under 280 characters total. (LinkedIn enforces a strict 300-character limit).
-2. ZERO AI clichés or hollow buzzwords (STRICTLY FORBIDDEN: passionate, synergy, thrilled, delve, tapestry, rockstar, guru, hit the ground running, dynamic, spearhead).
-3. Focus on a specific technical observation, mutual engineering domain, or mutual background.
-4. Professional, polite, peer-to-peer invitation to connect.
-5. Never include email subjects, greetings like "Dear Sir/Madam", or multi-line email signoffs. Sign off concisely with candidate's first name.`;
-
-      userPrompt = `Draft a high-converting LinkedIn Connection Request Note (STRICT MAXIMUM 280 CHARACTERS) to ${recruiterName || 'the recruiter'} at ${companyTarget}.
-Candidate: ${candidateName} (${candidateTitle})
-Technical Focus: ${topSkills}
-${styleAnchor?.matchedStory ? `Technical Proof: ${styleAnchor.matchedStory.action} (${styleAnchor.matchedStory.result})` : ''}
-${notableAchievements ? `Proven Metrics: ${notableAchievements}` : ''}
-${customNotes ? `Context: ${customNotes}` : ''}`;
-    } else if (format === 'inmail') {
-      systemPrompt = `You are an elite talent strategist specializing in high-response LinkedIn InMails and Direct Messages.
-Write a crisp, high-converting LinkedIn InMail/DM from the candidate directly to the recruiter or hiring manager.
-RULES:
-1. Target length: 600 to 1,000 characters total (concise, high-impact readability for LinkedIn inboxes).
-2. Structure in 3 clear beats:
-   - Beat 1 (Clear Hook): Specific technical observation about ${companyTarget}'s engineering domain, scale challenges, or team growth.
-   - Beat 2 (Proof of Work): 1-2 concrete candidate achievements with quantified metrics (e.g. latency, throughput, scale, cost efficiency).
-   - Beat 3 (Single Low-Friction Call-to-Action): Close with a single, low-friction ask: "Open to a brief 10-minute sync this Thursday?".
-3. ZERO clichés or hollow buzzwords (STRICTLY FORBIDDEN: passionate, synergy, thrilled, delve, tapestry, rockstar, guru, hit the ground running, dynamic, spearhead).
-4. Direct, authentic peer-to-peer tone.
-5. Sign off concisely: Best,\n${candidateName}`;
-
-      userPrompt = `Draft a LinkedIn InMail (600–1,000 characters) to ${recruiterName || 'Hiring Lead'} at ${companyTarget}.
-Candidate: ${candidateName} (${candidateTitle})
-Target Role: ${role || 'Engineering Role'}
-Core Skills: ${topSkills}
-${styleAnchor?.matchedStory ? `Story Anchor: ${styleAnchor.matchedStory.action} (${styleAnchor.matchedStory.result})` : ''}
-${notableAchievements ? `Proven Metrics: ${notableAchievements}` : ''}
-${customNotes ? `Additional Context: ${customNotes}` : ''}
-Format: InMail with Hook, Proof of Work, and Low-Friction CTA ("Open to a brief 10-minute sync this Thursday?").`;
-    } else {
-      systemPrompt = `You are an elite executive talent strategist and recruiter outreach expert.
-Write a crisp, high-converting cold email pitch from the candidate directly to the recruiter or hiring manager.
-RULES:
-1. Under 110 words total.
-2. 0 fluff or hollow clichés (FORBIDDEN: passionate, thrilled, synergy, rockstar, guru, hit the ground running, delve, tapestry).
-3. Directly reference 1-2 concrete technical skills or metrics.
-4. Professional, respectful, peer-to-peer tone that ends with a low-friction call to action (10-minute introductory conversation).
-5. Always sign off with: Best regards,\n${candidateName}`;
-
-      userPrompt = `Draft a direct cold outreach email to ${recruiterName || 'Hiring Lead'} at ${companyTarget}.
-Candidate: ${candidateName} (${candidateTitle})
-Target Focus / Role: ${role || 'Engineering Role'}
-Core Skills: ${topSkills}
-${styleAnchor?.matchedStory ? `Key Achievement Anchor: ${styleAnchor.matchedStory.action} (${styleAnchor.matchedStory.result})` : ''}
-${notableAchievements ? `Proven Metrics: ${notableAchievements}` : ''}
-${customNotes ? `Additional Context: ${customNotes}` : ''}
-Recipient Email: ${recruiterEmail || 'direct recruiter'}`;
-    }
+    const verifiedAchievements = notableAchievements || (styleAnchor?.matchedStory ? `${styleAnchor.matchedStory.action} (${styleAnchor.matchedStory.result})` : '');
+    const { systemPrompt, userPrompt } = buildOutreachPrompt({
+      recruiterName,
+      company: companyTarget,
+      role,
+      candidateName,
+      candidateTitle,
+      topSkills,
+      verifiedAchievements,
+      customNotes,
+      format
+    });
 
     try {
       if (hybridLLM && typeof hybridLLM.generateChat === 'function') {
