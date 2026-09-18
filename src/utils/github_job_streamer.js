@@ -469,7 +469,7 @@ export async function fetchDailyMirrorJobs(signal, options = {}) {
   for (const url of CANDIDATE_URLS) {
     if (signal?.aborted) break;
     try {
-      const res = await fetch(url, { signal });
+      const res = await fetch(url, { signal, cache: 'default' });
       if (res.ok) {
         const decompressed = await decompressGzipResponse(res);
         const jobs = JSON.parse(decompressed);

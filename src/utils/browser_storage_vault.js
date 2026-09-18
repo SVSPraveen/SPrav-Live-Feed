@@ -1891,6 +1891,14 @@ class BrowserStorageVault {
   }
 
   /**
+   * Returns current count of in-memory discovery jobs.
+   * @returns {number}
+   */
+  getDiscoveryJobsCount() {
+    return this._sessionDiscoveryJobs ? this._sessionDiscoveryJobs.size : 0;
+  }
+
+  /**
    * Returns only Ready to Apply / staged jobs from the persistent vault.
    * @returns {Promise<Array<Object>>}
    */
