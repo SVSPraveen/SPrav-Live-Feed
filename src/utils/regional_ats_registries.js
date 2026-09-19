@@ -30,22 +30,43 @@ export const REGIONAL_ATS_COMPANIES = {
       'scaler', 'interviewbit', 'browserstack', 'hasura', 'chargebee', 'freshworks', 
       'clevertap', 'moengage', 'whatfix', 'darwinbox', 'yellowai', 'gupshup', 
       'haptik', 'sarvam', 'krutrim', 'gnani', 'karya', 'bhashini', 'subspace', 'jio',
-      'slice', 'rapido', 'licious', 'spinny', 'khatabook'
+      'slice', 'rapido', 'licious', 'spinny', 'khatabook',
+      'cashfree', 'lendingkart', 'navi', 'atherenergy', 'coindcx', 'coinswitch',
+      'mudrex', 'jar', 'jupiter', 'fimoney', 'scripbox', 'smallcase', 'dukaan',
+      'shiprocket', 'shadowfax', 'blackbuck', 'ninjacart', 'dehaat', 'agrostar',
+      'pratilipi', 'sharechat', 'pocketfm', 'kukufm', 'stage', 'apna', 'loconav',
+      'fleetx', 'intangles', 'greyorange', 'addverb', 'curefoods', 'lenskart',
+      'nykaa', 'purplle', 'mamaearth', 'sugarcosmetics', 'boat', 'noise',
+      'wakefit', 'cars24', 'droom', 'cardekho', 'acko', 'digit', 'turtlemint',
+      'policybazaar', 'paisabazaar', 'cleartax', 'kissflow', 'facilio', 'vymo',
+      'zinier', 'mindtickle', 'highradius', 'leadsquared', 'keka', 'perfios',
+      'nobroker', 'magicbricks', 'housing', 'squareyards', 'oyo'
     ],
     ashby: [
-      'cursor', 'replit', 'togetherai', 'groq', 'glean', 'infisical', 'livekit'
+      'cursor', 'anysphere', 'replit', 'togetherai', 'groq', 'glean', 'infisical', 'livekit',
+      'decagon', 'tavily', 'axiom', 'cartesia', 'deepgram', 'fireworks', 'browserbase',
+      'langchain', 'pinecone', 'modal', 'e2b', 'sandpack', 'posthog', 'sentry', 'retool',
+      'ramp', 'vercel', 'supabase', 'clickhouse'
     ],
     lever: [
       'cred', 'meesho', 'porter', 'zeta', 'postman', 'atlassian', 'freshworks', 
-      'chargebee', 'hasura', 'browserstack', 'clevertap', 'moengage', 'whatfix', 'acceldata'
+      'chargebee', 'hasura', 'browserstack', 'clevertap', 'moengage', 'whatfix', 'acceldata',
+      'thoughtworks', 'sprinklr', 'hackerrank', 'leena-ai', 'signzy', 'verloop', 'slintel',
+      'leadsquared', 'leadiq', 'airmeet', 'hubilo', 'yellowmessenger', 'redbus', 'goibibo',
+      'makemytrip', 'cleartrip', 'yatra', 'practo'
     ],
     smartrecruiters: [
       'freshworks', 'publicissapient', 'bosch', 'visa', 'ikea', 'accenture', 'capgemini',
       'cognizant', 'infosys', 'wipro', 'tcs', 'hcltech', 'techmahindra',
-      'lntinfotech', 'mphasis', 'mindtree', 'hexaware', 'persistent'
+      'lntinfotech', 'mphasis', 'mindtree', 'hexaware', 'persistent',
+      'birlasoft', 'coforge', 'zensar', 'cyient', 'kpit', 'tataelxsi', 'ltmindtree'
     ],
     workday: [
-      'browserstack'
+      'browserstack', 'walmart', 'target', 'adobe', 'salesforce', 'servicenow', 'nvidia',
+      'autodesk', 'mastercard', 'visa', 'fidelity', 'morganstanley', 'bankofamerica',
+      'boeing', 'siemens', 'ge', 'pfizer', 'astrazeneca', 'abbott', 'intuit',
+      'vmware', 'paloaltonetworks', 'cisco', 'dell', 'intel', 'qualcomm', 'micron',
+      'nxp', 'broadcom', 'texas-instruments'
     ]
   },
 

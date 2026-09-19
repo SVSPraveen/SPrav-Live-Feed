@@ -1516,9 +1516,47 @@ export const EXPANDED_TECH_COMPANIES = [
   { name: 'Preply', slug: 'preply', platform: 'ashby', careers_url: 'https://jobs.ashbyhq.com/preply', category: 'EdTech & Learning Platforms', tier: 2 }
 ];
 
+export const INDIAN_TECH_UNICORNS_AND_GCCS = Object.freeze([
+  // Premier Indian Unicorns & High-Growth Tech
+  { name: 'Razorpay', slug: 'razorpay', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/razorpay', category: 'Fintech, Modern Commerce & Payments', tier: 1, region: 'India' },
+  { name: 'Swiggy', slug: 'swiggy', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/swiggy', category: 'Consumer Tech & Quick Commerce', tier: 1, region: 'India' },
+  { name: 'Zomato', slug: 'zomato', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/zomato', category: 'Consumer Tech & Quick Commerce', tier: 1, region: 'India' },
+  { name: 'Blinkit', slug: 'blinkit', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/blinkit', category: 'Consumer Tech & Quick Commerce', tier: 1, region: 'India' },
+  { name: 'Zepto', slug: 'zepto', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/zepto', category: 'Consumer Tech & Quick Commerce', tier: 1, region: 'India' },
+  { name: 'Groww', slug: 'groww', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/groww', category: 'Fintech, Modern Commerce & Payments', tier: 1, region: 'India' },
+  { name: 'CRED', slug: 'cred', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/cred', category: 'Fintech, Modern Commerce & Payments', tier: 1, region: 'India' },
+  { name: 'Meesho', slug: 'meesho', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/meesho', category: 'Consumer Tech & Quick Commerce', tier: 1, region: 'India' },
+  { name: 'InMobi', slug: 'inmobi', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/inmobi', category: 'Digital Media & AdTech', tier: 1, region: 'India' },
+  { name: 'PhonePe', slug: 'phonepe', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/phonepe', category: 'Fintech, Modern Commerce & Payments', tier: 1, region: 'India' },
+  { name: 'Postman', slug: 'postman', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/postman', category: 'Developer Platforms & Cloud Infrastructure', tier: 1, region: 'India' },
+  { name: 'BrowserStack', slug: 'browserstack', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/browserstack', category: 'Developer Platforms & Cloud Infrastructure', tier: 1, region: 'India' },
+  { name: 'Hasura', slug: 'hasura', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/hasura', category: 'Developer Platforms & Cloud Infrastructure', tier: 1, region: 'India' },
+  { name: 'Chargebee', slug: 'chargebee', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/chargebee', category: 'Fintech, Modern Commerce & Payments', tier: 1, region: 'India' },
+  { name: 'Freshworks', slug: 'freshworks', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/freshworks', category: 'Modern SaaS & Engineering Pioneers', tier: 1, region: 'India' },
+  { name: 'CleverTap', slug: 'clevertap', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/clevertap', category: 'Modern SaaS & Engineering Pioneers', tier: 1, region: 'India' },
+  { name: 'MoEngage', slug: 'moengage', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/moengage', category: 'Modern SaaS & Engineering Pioneers', tier: 1, region: 'India' },
+  { name: 'Whatfix', slug: 'whatfix', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/whatfix', category: 'Modern SaaS & Engineering Pioneers', tier: 1, region: 'India' },
+  { name: 'Darwinbox', slug: 'darwinbox', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/darwinbox', category: 'Modern SaaS & Engineering Pioneers', tier: 1, region: 'India' },
+  { name: 'Sarvam AI', slug: 'sarvam', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/sarvam', category: 'AI Frontier & Foundational Models', tier: 1, region: 'India' },
+  { name: 'Krutrim', slug: 'krutrim', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/krutrim', category: 'AI Frontier & Foundational Models', tier: 1, region: 'India' },
+  { name: 'Glean India', slug: 'glean', platform: 'ashby', careers_url: 'https://jobs.ashbyhq.com/glean', category: 'AI Frontier & Foundational Models', tier: 1, region: 'India' },
+  { name: 'Ather Energy', slug: 'atherenergy', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/atherenergy', category: 'Hardware, EV & CleanTech', tier: 2, region: 'India' },
+  { name: 'Cashfree Payments', slug: 'cashfree', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/cashfree', category: 'Fintech, Modern Commerce & Payments', tier: 2, region: 'India' },
+  { name: 'CoinDCX', slug: 'coindcx', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/coindcx', category: 'Fintech, Modern Commerce & Payments', tier: 2, region: 'India' },
+  { name: 'Urban Company', slug: 'urbancompany', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/urbancompany', category: 'Consumer Tech & Quick Commerce', tier: 2, region: 'India' },
+  { name: 'Delhivery', slug: 'delhivery', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/delhivery', category: 'Logistics & Supply Chain Tech', tier: 2, region: 'India' },
+  { name: 'Dream11', slug: 'dream11', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/dream11', category: 'Gaming & Interactive Entertainment', tier: 2, region: 'India' },
+  { name: 'Paytm', slug: 'paytm', platform: 'greenhouse', careers_url: 'https://boards.greenhouse.io/paytm', category: 'Fintech, Modern Commerce & Payments', tier: 2, region: 'India' },
+  { name: 'Atlassian India', slug: 'atlassian', platform: 'lever', careers_url: 'https://jobs.lever.co/atlassian', category: 'Developer Platforms & Cloud Infrastructure', tier: 1, region: 'India' },
+  { name: 'Thoughtworks India', slug: 'thoughtworks', platform: 'lever', careers_url: 'https://jobs.lever.co/thoughtworks', category: 'Modern SaaS & Engineering Pioneers', tier: 1, region: 'India' },
+  { name: 'Sprinklr India', slug: 'sprinklr', platform: 'lever', careers_url: 'https://jobs.lever.co/sprinklr', category: 'Modern SaaS & Engineering Pioneers', tier: 1, region: 'India' },
+  { name: 'HackerRank', slug: 'hackerrank', platform: 'lever', careers_url: 'https://jobs.lever.co/hackerrank', category: 'Developer Platforms & Cloud Infrastructure', tier: 2, region: 'India' },
+  { name: 'Leena AI', slug: 'leena-ai', platform: 'lever', careers_url: 'https://jobs.lever.co/leena-ai', category: 'AI Frontier & Foundational Models', tier: 2, region: 'India' }
+]);
+
 const _seenAtsKeys = new Set();
 export const ALL_SOVEREIGN_TECH_COMPANIES = Object.freeze(
-  [...TOP_100_TECH_COMPANIES, ...EXPANDED_TECH_COMPANIES].filter(c => {
+  [...TOP_100_TECH_COMPANIES, ...EXPANDED_TECH_COMPANIES, ...INDIAN_TECH_UNICORNS_AND_GCCS].filter(c => {
     const key = `${c.platform}:${c.slug.toLowerCase()}`;
     if (_seenAtsKeys.has(key)) return false;
     _seenAtsKeys.add(key);

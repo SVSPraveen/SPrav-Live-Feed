@@ -49,8 +49,7 @@ import {
   detectCandidateRegionFromScope
 } from './regional_ats_registries.js';
 import { fetchHwowCompanies } from './hiring_without_whiteboards_service.js';
-import { sanitizeObject, formatSafeWebUrl } from './security_guard.js';
-import { TOP_100_TECH_COMPANIES, WORKDAY_ENTERPRISE_TENANTS, FAANG_ENTERPRISE_PORTALS } from './top_tech_companies_catalog.js';
+import { WORKDAY_ENTERPRISE_TENANTS, FAANG_ENTERPRISE_PORTALS } from './top_tech_companies_catalog.js';
 import { 
   searchHighVolumeStream, 
   fetchSimplifyJobs, 
@@ -63,12 +62,48 @@ import {
 
 import { fetchAtsViaExtension, isExtensionInstalled } from './extension_companion.js';
 
+// Modular Sub-Modules (Decoupled for tree-shaking and fast loading)
+import {
+  computeJobDedupKey,
+  detectJdRedFlags,
+  computeJobHealthScore
+} from './ats_job_analyzer.js';
+
+import {
+  getAdzunaQuotaTelemetry,
+  incrementAdzunaQuotaTelemetry,
+  testAdzunaCredentials,
+  testUsajobsCredentials
+} from './ats_credentials.js';
+
+import {
+  detectAtsPlatform,
+  getAtsPlatform,
+  ATS_PLATFORMS,
+  GENERIC_ATS,
+  checkTemplateCompatibility,
+  getTemplateCompatibilityScore
+} from './ats_platform_detector.js';
+
 export { 
   VERIFIED_WORKDAY_TENANTS, 
   detectCandidateRegionFromScope, 
-  TOP_100_TECH_COMPANIES, 
   WORKDAY_ENTERPRISE_TENANTS, 
-  FAANG_ENTERPRISE_PORTALS 
+  FAANG_ENTERPRISE_PORTALS,
+  // Re-exported from modular sub-files for backward compatibility
+  computeJobDedupKey,
+  detectJdRedFlags,
+  computeJobHealthScore,
+  getAdzunaQuotaTelemetry,
+  incrementAdzunaQuotaTelemetry,
+  testAdzunaCredentials,
+  testUsajobsCredentials,
+  detectAtsPlatform,
+  getAtsPlatform,
+  ATS_PLATFORMS,
+  GENERIC_ATS,
+  checkTemplateCompatibility,
+  getTemplateCompatibilityScore
 };
 
 /**
@@ -392,7 +427,16 @@ export const CURATED_ATS_COMPANIES = {
     'upgrad', 'physicswallah', 'eruditus', 'lead', 'classplus', 'cuemath',
     'scaler', 'interviewbit', 'browserstack', 'hasura', 'chargebee', 'freshworks',
     'clevertap', 'moengage', 'whatfix', 'darwinbox', 'yellowai', 'gupshup',
-    'haptik', 'sarvam', 'krutrim', 'gnani', 'karya', 'bhashini', 'subspace', 'jio'
+    'haptik', 'sarvam', 'krutrim', 'gnani', 'karya', 'bhashini', 'subspace', 'jio',
+    'cashfree', 'lendingkart', 'navi', 'atherenergy', 'coindcx', 'coinswitch',
+    'mudrex', 'jar', 'jupiter', 'fimoney', 'scripbox', 'smallcase', 'dukaan',
+    'shiprocket', 'shadowfax', 'blackbuck', 'ninjacart', 'dehaat', 'agrostar',
+    'pratilipi', 'sharechat', 'pocketfm', 'kukufm', 'stage', 'apna', 'loconav',
+    'fleetx', 'intangles', 'greyorange', 'addverb', 'curefoods', 'lenskart',
+    'nykaa', 'purplle', 'mamaearth', 'sugarcosmetics', 'boat', 'noise',
+    'wakefit', 'cars24', 'droom', 'cardekho', 'acko', 'digit', 'turtlemint',
+    'policybazaar', 'paisabazaar', 'cleartax', 'kissflow', 'facilio', 'vymo',
+    'zinier', 'mindtickle', 'highradius', 'leadsquared', 'keka'
   ],
   ashby: [
     'linear', 'retool', 'ramp', 'vercel', 'supabase', 'posthog', 'sentry',
@@ -438,7 +482,11 @@ export const CURATED_ATS_COMPANIES = {
     'customerio', 'ortto', 'klaviyo', 'hubspot', 'drift', 'intercom',
     'kustomer', 'gladly', 'front', 'missive', 'zendesk', 'freshworks',
     'helpscout', 'kayako', 'groove', 'gorgias', 'tidio', 'crisp',
-    'livechat', 'chatwoot', 'papercups'
+    'livechat', 'chatwoot', 'papercups',
+    'thoughtworks', 'sprinklr', 'hackerrank', 'leena-ai', 'signzy',
+    'verloop', 'slintel', 'leadsquared', 'leadiq', 'airmeet',
+    'hubilo', 'yellowmessenger', 'redbus', 'goibibo', 'makemytrip',
+    'cleartrip', 'yatra', 'practo'
   ],
   smartrecruiters: [
     'canva', 'deliveryhero', 'skechers', 'collibra', 'glovo', 'criteo',
@@ -449,7 +497,8 @@ export const CURATED_ATS_COMPANIES = {
     'rovio', 'playtika', 'scopely', 'zynga', 'niantic', 'roblox',
     'accenture', 'capgemini', 'cognizant', 'infosys', 'wipro', 'tcs',
     'hcltech', 'techmahindra', 'lntinfotech', 'mphasis', 'mindtree',
-    'hexaware', 'persistent', 'birlasoft', 'coforge', 'zensar'
+    'hexaware', 'persistent', 'birlasoft', 'coforge', 'zensar',
+    'cyient', 'kpit', 'tataelxsi', 'ltmindtree'
   ],
   recruitee: [
     'bunq', 'ticketswap', 'transloadit', 'blendle', 'wetransfer', 'tideways',
@@ -480,41 +529,14 @@ export const CURATED_ATS_COMPANIES = {
     'planetscale', 'soundhound', 'bitly', 'udacity'
   ],
   workday: [
-    'nvidia', 'adobe', 'salesforce', 'autodesk', 'workday', 'target', 'mastercard', 'netflix', 'walmart'
+    'nvidia', 'adobe', 'salesforce', 'autodesk', 'workday', 'target', 'mastercard', 'netflix', 'walmart',
+    'fidelity', 'morganstanley', 'bankofamerica', 'boeing', 'siemens', 'ge', 'pfizer',
+    'astrazeneca', 'abbott', 'intuit', 'vmware', 'paloaltonetworks', 'cisco', 'dell', 'intel', 'qualcomm', 'micron'
   ],
   rippling: [
     'aalyria-careers', 'superhuman', 'watershed', 'scale-ai', 'anthropic'
   ]
 };
-
-/**
- * Generates a normalized semantic deduplication key for a job listing.
- * Strips common punctuation, casing, and peripheral tokens like (Remote), [Full-Time], etc.
- * @param {object} job
- * @returns {string}
- */
-export function computeJobDedupKey(job) {
-  if (!job) return '';
-  const cleanCompany = String(job.company || '')
-    .toLowerCase()
-    .replace(/\b(inc|llc|ltd|corp|corporation|technologies|tech)\b\.?/gi, '')
-    .replace(/[^a-z0-9]/g, '')
-    .trim();
-
-  const cleanTitle = String(job.title || '')
-    .toLowerCase()
-    .replace(/\(.*?\)|\[.*?\]/g, '')
-    .replace(/\b(remote|hybrid|onsite|full-time|part-time|contract)\b/gi, '')
-    .replace(/[^a-z0-9]/g, ' ')
-    .trim()
-    .replace(/\s+/g, ' ');
-
-  const loc = String(job.location || '').toLowerCase();
-  const isRemote = loc.includes('remote') || !!job.is_remote;
-  const locToken = isRemote ? 'remote' : loc.replace(/[^a-z0-9]/g, '');
-
-  return `${cleanCompany}:::${cleanTitle}:::${locToken}`;
-}
 
 /**
  * Helper to extract email and recruiter/founder name from Hacker News hiring text.
@@ -4217,6 +4239,7 @@ export class BrowserAtsScanner {
       ]);
 
       // Stage 2: Direct ATS Top 100 Tech Companies (Ashby & Greenhouse)
+      const { TOP_100_TECH_COMPANIES } = await import('./top_tech_companies_catalog.js');
       const topTargets = Array.isArray(TOP_100_TECH_COMPANIES) ? TOP_100_TECH_COMPANIES : [];
       for (let i = 0; i < topTargets.length; i += concurrency) {
         if (signal.aborted || (limit > 0 && newlyDiscovered >= limit)) break;
@@ -4572,252 +4595,4 @@ export class BrowserAtsScanner {
 }
 
 export const browserAtsScanner = new BrowserAtsScanner();
-
-/**
- * Detects common JD red flags using rule-based pattern matching (zero LLM cost).
- * Categorizes risks including burnout, lack of resources, unrealistic requirements,
- * hidden compensation, informal cultural filtering, visa restrictions,
- * commission-only/multi-level schemes, and ghost-job probability.
- *
- * @param {string} jdText - The raw or cleaned job description text
- * @param {Object} [jobMeta={}] - Optional metadata such as freshness, posted_at, or daysOld
- * @returns {Array<{label: string, color: string}>} Array of detected red flag badges
- */
-export function detectJdRedFlags(jdText = '', jobMeta = {}) {
-  const text = (typeof jdText === 'string' ? jdText : String(jdText || '')).toLowerCase();
-  const hasMeta = Boolean(jobMeta && (jobMeta.freshness || jobMeta.posted_at || jobMeta.daysOld));
-  if (!text.trim() && !hasMeta) return [];
-  const flags = [];
-  if (/fast.?paced environment/i.test(text)) flags.push({ label: 'Burnout Risk', color: '#f59e0b' });
-  if (/wear.{0,10}many hats|multiple hat/i.test(text)) flags.push({ label: 'Under-Resourced', color: '#f59e0b' });
-  if (/10\+?\s*years.{0,30}(react|next|kubernetes|docker)/i.test(text)) flags.push({ label: 'Unrealistic Requirements', color: '#ef4444' });
-  const hasMetaSalary = !!(
-    jobMeta?.salary ||
-    jobMeta?.salary_min ||
-    jobMeta?.salary_max ||
-    jobMeta?.compensation ||
-    jobMeta?.comp?.hasSalary ||
-    (typeof jobMeta?.extractedSalaryText === 'string' && jobMeta.extractedSalaryText.trim())
-  );
-  const cleanTextForSalary = text.replace(/401\s*\(?k\)?/gi, '');
-  const hasTextSalary = /salary|compensation|\$\d|[€£₹]\d|\b\d+\s*lpa\b|\b\d{2,4}\s*k\b/i.test(cleanTextForSalary);
-  if (text.trim() && !hasMetaSalary && !hasTextSalary) flags.push({ label: 'No Salary Listed', color: '#a78bfa' });
-  if (/culture fit/i.test(text) && !/diversity|inclusion/i.test(text)) flags.push({ label: 'Vague Culture Filter', color: '#a78bfa' });
-  if (/rock\s?star|ninja|wizard|guru/i.test(text)) flags.push({ label: 'Informal Tone', color: '#6b7280' });
-
-  // 7. Visa Restriction / Citizen-Only / Clearance
-  if (/(?:no\s+(?:visa\s+)?sponsorship|unable\s+to\s+sponsor|cannot\s+sponsor|no\s+sponsorship\s+available|not\s+offering\s+sponsorship|must\s+be\s+a\s+(?:u\.?s\.?|us)\s+citizen|u\.?s\.?\s+citizenship\s+required|us\s+citizens\s+only|active\s+security\s+clearance\s+required|must\s+possess\s+active\s+(?:secret|top\s+secret)\s+clearance|visa.?only|green\s+card\s+or\s+us\s+citizen\s+only)/i.test(text)) {
-    flags.push({ label: 'Visa Restriction', color: '#f97316' });
-  }
-
-  // 8. Multi-Level / Commission-Only / Unpaid Risk
-  if (/(?:commission\s+only|100%\s+commission|multi-?level|unpaid\s+(?:internship|trial|training)|pay\s+to\s+join|referral\s+fee\s+required|revenue\s+share\s+only|no\s+base\s+salary)/i.test(text)) {
-    flags.push({ label: 'Multi-Level / Commission Risk', color: '#ef4444' });
-  }
-
-  // 9. Ghost-Job Probability / Evergreen / Talent Pool
-  const hasGhostKeywords = /(?:evergreen\s+requisition|talent\s+pool\s+only|future\s+opportunities\s+only|pooling\s+requisition|not\s+actively\s+hiring|pipeline\s+building\s+only|general\s+application\s+pool|expression\s+of\s+interest\s+only)/i.test(text);
-  const isGhostByMeta = jobMeta?.freshness?.code === 'GHOST' || 
-    (jobMeta?.posted_at && (Date.now() - new Date(jobMeta.posted_at).getTime()) > 90 * 24 * 3600 * 1000) ||
-    (typeof jobMeta?.daysOld === 'number' && jobMeta.daysOld > 90);
-  if (hasGhostKeywords || isGhostByMeta) {
-    flags.push({ label: 'Ghost-Job Probability', color: '#eab308' });
-  }
-
-  // 10. Interview Phishing / Recruitment Scam Risk
-  if (/(?:contact\s*(?:us\s*)?(?:on|via)\s*telegram|interview\s*(?:on|via)\s*telegram|telegram\s*(?:username|handle|app)\s*[:-]|wire\s+transfer\s+for\s+(?:home\s+)?equipment|check\s+(?:will\s+be\s+sent|deposit)\s+for\s+equipment|purchase\s+(?:your\s+own\s+)?(?:laptop|equipment)\s+and\s+(?:we\s+will\s+)?reimburse|cashier(?:'s)?\s+check|application\s+fee\s+required|pay\s+(?:to\s+)?(?:apply|start|join|train))/i.test(text)) {
-    flags.push({ label: 'Interview Phishing / Scam Risk', color: '#ef4444' });
-  }
-
-  // 11. Resume Harvesting / Staffing Farm Risk
-  if (/(?:confidential\s+client|undisclosed\s+client|resume\s+collection\s+only|general\s+pipeline\s+building|talent\s+community\s+submission|candidate\s+pool\s+building)/i.test(text)) {
-    flags.push({ label: 'Resume Harvesting / Staffing Farm', color: '#f59e0b' });
-  }
-
-  // 12. Unpaid Trial / Labor Exploitation
-  if (/(?:unpaid\s+(?:trial|assessment|project|task|take-?home)|free\s+trial\s+work|production\s+ready\s+(?:app|system)\s+as\s+interview|20\+\s*hours?\s+take-?home)/i.test(text)) {
-    flags.push({ label: 'Unpaid Trial / Work Exploitation', color: '#ef4444' });
-  }
-
-  // 13. Stale Requisition (>45d) via metadata
-  const daysOld = jobMeta?.freshness?.ageDays ?? (jobMeta?.posted_at ? Math.max(0, Math.floor((Date.now() - new Date(jobMeta.posted_at).getTime()) / (1000 * 60 * 60 * 24))) : (typeof jobMeta?.daysOld === 'number' ? jobMeta.daysOld : null));
-  if (daysOld !== null && daysOld > 45 && daysOld <= 90) {
-    flags.push({ label: 'Stale Requisition (>45d)', color: '#f97316' });
-  }
-
-  return flags;
-}
-
-// ── Company Health Score from Red Flag Array ──────────────────────────────────
-/**
- * Converts a red flag array into a 0–100 health score with tier label.
- * 100 = clean, 0 = avoid.
- * @param {Array} flags - Output of detectJdRedFlags()
- * @returns {{ score: number, tier: 'clean'|'caution'|'risky'|'avoid', color: string, bg: string, label: string }}
- */
-export function computeJobHealthScore(flags = []) {
-  if (!Array.isArray(flags) || flags.length === 0) {
-    return { score: 100, tier: 'clean', color: '#10b981', bg: 'rgba(16,185,129,0.12)', label: '✓ Clean' };
-  }
-  const SEVERITY = {
-    'Interview Phishing / Scam Risk': 50,
-    'Multi-Level / Commission Risk': 40,
-    'Unpaid Trial / Work Exploitation': 40,
-    'Unrealistic Requirements': 30,
-    'Resume Harvesting / Staffing Farm': 30,
-    'Ghost-Job Probability': 25,
-    'Stale Requisition (>45d)': 20,
-    'Visa Restriction': 20,
-    'Burnout Risk': 15,
-    'Under-Resourced': 15,
-    'No Salary Listed': 10,
-    'Vague Culture Filter': 10,
-    'Informal Tone': 5
-  };
-  let penalty = 0;
-  for (const flag of flags) {
-    const flagLabel = typeof flag === 'string' ? flag : flag?.label;
-    penalty += SEVERITY[flagLabel] || 10;
-  }
-  const score = Math.max(0, 100 - penalty);
-  let tier = 'clean';
-  let color = '#10b981';
-  let bg = 'rgba(16,185,129,0.12)';
-  let label = '✓ Clean';
-
-
-  if (score < 50) {
-    tier = 'avoid';
-    color = '#ef4444';
-    bg = 'rgba(239,68,68,0.15)';
-    label = '⛔ Avoid';
-  } else if (score < 70) {
-    tier = 'risky';
-    color = '#f59e0b';
-    bg = 'rgba(245,158,11,0.15)';
-    label = '⚡ Risky';
-  } else if (score < 90) {
-    tier = 'caution';
-    color = '#38bdf8';
-    bg = 'rgba(56,189,248,0.15)';
-    label = '⚠️ Caution';
-  }
-  return { score, tier, color, bg, label };
-}
-
-// ── Adzuna Monthly Quota & BYOK Connection Helpers ─────────────────────────────
-
-/**
- * Tracks and reports Adzuna monthly API usage in the local storage vault.
- * Free tier limit is 250 calls per calendar month.
- *
- * @returns {Promise<{ used: number, limit: number, monthYear: string, remaining: number }>}
- */
-export async function getAdzunaQuotaTelemetry() {
-  const currentMonthYear = new Date().toISOString().substring(0, 7); // 'YYYY-MM'
-  try {
-    const raw = (await storageVault.getItem('sprav_adzuna_monthly_usage')) || {};
-    if (raw && raw.monthYear === currentMonthYear) {
-      const used = Number(raw.count) || 0;
-      return { used, limit: 250, monthYear: currentMonthYear, remaining: Math.max(0, 250 - used) };
-    }
-    return { used: 0, limit: 250, monthYear: currentMonthYear, remaining: 250 };
-  } catch {
-    return { used: 0, limit: 250, monthYear: currentMonthYear, remaining: 250 };
-  }
-}
-
-/**
- * Increments Adzuna monthly quota counter after a successful API fetch.
- *
- * @returns {Promise<number>} Updated usage count
- */
-export async function incrementAdzunaQuotaTelemetry() {
-  const currentMonthYear = new Date().toISOString().substring(0, 7);
-  try {
-    const telemetry = await getAdzunaQuotaTelemetry();
-    const newCount = telemetry.used + 1;
-    await storageVault.setItem('sprav_adzuna_monthly_usage', {
-      monthYear: currentMonthYear,
-      count: newCount,
-      lastCallAt: new Date().toISOString()
-    });
-    return newCount;
-  } catch {
-    return 1;
-  }
-}
-
-/**
- * Tests Adzuna API credentials with an ultra-lightweight 1-result validation probe.
- *
- * @param {string} appId - Adzuna Application ID
- * @param {string} appKey - Adzuna Application Key
- * @returns {Promise<{ ok: boolean, error?: string, message?: string, totalCount?: number }>}
- */
-export async function testAdzunaCredentials(appId, appKey) {
-  if (!appId || !appKey) {
-    return { ok: false, error: 'Both Adzuna App ID and App Key are required.' };
-  }
-  try {
-    const cleanId = String(appId).trim();
-    const cleanKey = String(appKey).trim();
-    const res = await fetch(`https://api.adzuna.com/v1/api/jobs/us/search/1?app_id=${cleanId}&app_key=${cleanKey}&results_per_page=1&what=developer&content-type=application/json`);
-    if (res.status === 401 || res.status === 403) {
-      return { ok: false, error: 'Invalid Adzuna App ID or App Key (401/403 Unauthorized).' };
-    }
-    if (res.status === 429) {
-      return { ok: false, error: 'Adzuna monthly free quota (250 calls) has been exhausted (429 Too Many Requests).' };
-    }
-    if (!res.ok) {
-      return { ok: false, error: `Adzuna API responded with HTTP status ${res.status}.` };
-    }
-    const data = await res.json();
-    return {
-      ok: true,
-      totalCount: data.count || 0,
-      message: `Verified! Adzuna connected (~${(data.count || 0).toLocaleString()} developer jobs accessible).`
-    };
-  } catch (err) {
-    return { ok: false, error: `Network error connecting to Adzuna: ${err.message}` };
-  }
-}
-
-/**
- * Tests USAJOBS API credentials with an ultra-lightweight 1-result validation probe.
- *
- * @param {string} apiKey - USAJOBS Authorization-Key
- * @param {string} email - Developer contact email for User-Agent
- * @returns {Promise<{ ok: boolean, error?: string, message?: string, totalCount?: number }>}
- */
-export async function testUsajobsCredentials(apiKey, email) {
-  if (!apiKey) {
-    return { ok: false, error: 'USAJOBS Authorization-Key is required.' };
-  }
-  try {
-    const cleanKey = String(apiKey).trim();
-    const cleanEmail = String(email || '').trim() || 'candidate@sprav-job-ai.local';
-    const res = await fetch('https://data.usajobs.gov/api/search?Keyword=engineer&ResultsPerPage=1', {
-      headers: {
-        'User-Agent': cleanEmail,
-        'Authorization-Key': cleanKey
-      }
-    });
-    if (res.status === 401 || res.status === 403) {
-      return { ok: false, error: 'Invalid USAJOBS Authorization Key or missing User-Agent.' };
-    }
-    if (!res.ok) {
-      return { ok: false, error: `USAJOBS API responded with HTTP status ${res.status}.` };
-    }
-    const data = await res.json();
-    const count = data.SearchResult?.SearchResultCountAll || data.SearchResult?.SearchResultCount || 0;
-    return {
-      ok: true,
-      totalCount: count,
-      message: `Verified! USAJOBS connected (${count.toLocaleString()} federal roles accessible).`
-    };
-  } catch (err) {
-    return { ok: false, error: `Network error connecting to USAJOBS: ${err.message}` };
-  }
-}
 
