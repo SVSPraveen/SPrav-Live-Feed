@@ -605,4 +605,192 @@ test('matchesTargetRoleWithSeniority: matches 2025/2026 target roles accurately 
   );
 });
 
+test('tech_roles_taxonomy: covers all newly added 2025/2026 tech roles in domains and ALL_TECH_ROLES', () => {
+  // 1. Developer Relations & Developer Advocate
+  assert.ok(ROLE_DOMAINS.product_management.roles.includes('Developer Relations (DevRel)'));
+  assert.ok(ROLE_DOMAINS.product_management.roles.includes('Developer Advocate'));
+  assert.ok(ALL_TECH_ROLES.includes('Developer Relations (DevRel)'));
+  assert.ok(ALL_TECH_ROLES.includes('Developer Advocate'));
+
+  // 2. Technical Program Manager (TPM)
+  assert.ok(ROLE_DOMAINS.product_management.roles.includes('Technical Program Manager (TPM)'));
+  assert.ok(ALL_TECH_ROLES.includes('Technical Program Manager (TPM)'));
+
+  // 3. Prompt Engineer / LLM Engineer
+  assert.ok(ROLE_DOMAINS.ai_ml.roles.includes('Prompt Engineer / LLM Engineer'));
+  assert.ok(ROLE_DOMAINS.ai_ml.roles.includes('LLM Engineer'));
+  assert.ok(ROLE_DOMAINS.ai_ml.roles.includes('Prompt Engineer'));
+  assert.ok(ALL_TECH_ROLES.includes('Prompt Engineer / LLM Engineer'));
+
+  // 4. MLOps Engineer (distinct from ML Engineer)
+  assert.ok(ROLE_DOMAINS.ai_ml.roles.includes('MLOps Engineer'));
+  assert.ok(ROLE_DOMAINS.devops_cloud.roles.includes('MLOps Engineer'));
+  assert.ok(ROLE_DOMAINS.ai_ml.roles.includes('Lead MLOps Platform Engineer'));
+  assert.ok(ALL_TECH_ROLES.includes('MLOps Engineer'));
+
+  // 5. Platform Engineer (distinct from DevOps)
+  assert.ok(ROLE_DOMAINS.devops_cloud.roles.includes('Platform Engineer'));
+  assert.ok(ROLE_DOMAINS.devops_cloud.roles.includes('Internal Developer Platform (IDP) Engineer'));
+  assert.ok(ROLE_DOMAINS.devops_cloud.roles.includes('Senior Platform Engineer'));
+  assert.ok(ALL_TECH_ROLES.includes('Platform Engineer'));
+
+  // 6. Web3/Blockchain Developer
+  assert.ok(ROLE_DOMAINS.web3_blockchain.roles.includes('Web3/Blockchain Developer'));
+  assert.ok(ROLE_DOMAINS.web3_blockchain.roles.includes('Web3 Developer'));
+  assert.ok(ROLE_DOMAINS.web3_blockchain.roles.includes('Blockchain Developer'));
+  assert.ok(ALL_TECH_ROLES.includes('Web3/Blockchain Developer'));
+
+  // 7. AR/VR/XR Engineer
+  assert.ok(ROLE_DOMAINS.game_development.roles.includes('AR/VR/XR Engineer'));
+  assert.ok(ROLE_DOMAINS.game_development.roles.includes('AR/VR Engineer'));
+  assert.ok(ROLE_DOMAINS.game_development.roles.includes('XR Systems Engineer'));
+  assert.ok(ALL_TECH_ROLES.includes('AR/VR/XR Engineer'));
+
+  // 8. Quantitative Developer / Algo Trader (Engineering)
+  assert.ok(ROLE_DOMAINS.backend.roles.includes('Quantitative Developer / Algo Trader (Engineering)'));
+  assert.ok(ROLE_DOMAINS.backend.roles.includes('Quantitative Developer (Quant Dev)'));
+  assert.ok(ROLE_DOMAINS.backend.roles.includes('Algorithmic Trading Systems Engineer'));
+  assert.ok(ROLE_DOMAINS.data_analytics.roles.includes('Quantitative Developer / Algo Trader (Engineering)'));
+  assert.ok(ALL_TECH_ROLES.includes('Quantitative Developer / Algo Trader (Engineering)'));
+
+  // 9. Penetration Tester, Malware Analyst, SIEM Engineer
+  assert.ok(ROLE_DOMAINS.cybersecurity.roles.includes('Penetration Tester'));
+  assert.ok(ROLE_DOMAINS.cybersecurity.roles.includes('Malware Analyst'));
+  assert.ok(ROLE_DOMAINS.cybersecurity.roles.includes('SIEM Engineer'));
+  assert.ok(ROLE_DOMAINS.cybersecurity.roles.includes('SIEM / Detection Engineer'));
+  assert.ok(ALL_TECH_ROLES.includes('Penetration Tester'));
+  assert.ok(ALL_TECH_ROLES.includes('Malware Analyst'));
+  assert.ok(ALL_TECH_ROLES.includes('SIEM Engineer'));
+});
+
+test('normalizeRoleSearchTerm & expandRoleSearchVariants: handles new emerging roles shorthand and expansion', () => {
+  // Normalization
+  assert.equal(normalizeRoleSearchTerm('devrel'), 'developer relations');
+  assert.equal(normalizeRoleSearchTerm('dev advocate'), 'developer advocate');
+  assert.equal(normalizeRoleSearchTerm('tpm'), 'technical program manager');
+  assert.equal(normalizeRoleSearchTerm('prompt eng'), 'prompt engineer');
+  assert.equal(normalizeRoleSearchTerm('llm eng'), 'llm engineer');
+  assert.equal(normalizeRoleSearchTerm('mlops'), 'mlops engineer');
+  assert.equal(normalizeRoleSearchTerm('platform engg'), 'platform engineer');
+  assert.equal(normalizeRoleSearchTerm('web3 dev'), 'web3 developer');
+  assert.equal(normalizeRoleSearchTerm('ar vr xr'), 'ar vr xr engineer');
+  assert.equal(normalizeRoleSearchTerm('quant dev'), 'quantitative developer');
+  assert.equal(normalizeRoleSearchTerm('algo trader'), 'algo trader');
+  assert.equal(normalizeRoleSearchTerm('pentester'), 'penetration tester');
+  assert.equal(normalizeRoleSearchTerm('malware ana'), 'malware analyst');
+  assert.equal(normalizeRoleSearchTerm('siem eng'), 'siem engineer');
+
+  // Expansion
+  const devrelVariants = expandRoleSearchVariants('devrel');
+  assert.ok(devrelVariants.includes('developer relations'));
+  assert.ok(devrelVariants.includes('developer advocate'));
+
+  const tpmVariants = expandRoleSearchVariants('tpm');
+  assert.ok(tpmVariants.includes('technical program manager'));
+  assert.ok(tpmVariants.includes('technical program manager (tpm)'));
+
+  const promptVariants = expandRoleSearchVariants('prompt engineer');
+  assert.ok(promptVariants.includes('prompt engineer / llm engineer'));
+  assert.ok(promptVariants.includes('llm engineer'));
+
+  const mlopsVariants = expandRoleSearchVariants('mlops');
+  assert.ok(mlopsVariants.includes('mlops engineer'));
+  assert.ok(mlopsVariants.includes('senior mlops engineer'));
+
+  const platformVariants = expandRoleSearchVariants('platform engineer');
+  assert.ok(platformVariants.includes('platform engineer'));
+  assert.ok(platformVariants.includes('internal developer platform (idp) engineer'));
+
+  const web3Variants = expandRoleSearchVariants('web3 dev');
+  assert.ok(web3Variants.includes('web3/blockchain developer'));
+  assert.ok(web3Variants.includes('blockchain developer'));
+
+  const xrVariants = expandRoleSearchVariants('ar/vr/xr');
+  assert.ok(xrVariants.includes('ar/vr/xr engineer'));
+  assert.ok(xrVariants.includes('xr systems engineer'));
+
+  const quantVariants = expandRoleSearchVariants('quant dev');
+  assert.ok(quantVariants.includes('quantitative developer / algo trader (engineering)'));
+  assert.ok(quantVariants.includes('algo trader (engineering)'));
+
+  const secVariants = expandRoleSearchVariants('penetration tester');
+  assert.ok(secVariants.includes('penetration tester'));
+  assert.ok(secVariants.includes('malware analyst'));
+  assert.ok(secVariants.includes('siem engineer'));
+});
+
+test('matchesTargetRoleWithSeniority: matches new tech roles accurately with seniority guardrails', () => {
+  // DevRel
+  assert.equal(matchesTargetRoleWithSeniority('Senior Developer Advocate', ['devrel'], 'senior'), true);
+  assert.equal(matchesTargetRoleWithSeniority('Lead Developer Relations Engineer', ['developer advocate'], 'senior'), true);
+
+  // TPM
+  assert.equal(matchesTargetRoleWithSeniority('Senior Technical Program Manager', ['tpm'], 'senior'), true);
+
+  // Prompt / LLM Engineer
+  assert.equal(matchesTargetRoleWithSeniority('Prompt Engineer / LLM Engineer', ['prompt eng'], 'mid'), true);
+  assert.equal(matchesTargetRoleWithSeniority('Senior LLM Inference Engineer', ['llm eng'], 'senior'), true);
+
+  // MLOps Engineer
+  assert.equal(matchesTargetRoleWithSeniority('Staff MLOps Platform Architect', ['mlops'], 'staff_exec'), true);
+
+  // Platform Engineer
+  assert.equal(matchesTargetRoleWithSeniority('Senior Platform Engineer', ['platform engg'], 'senior'), true);
+
+  // Web3 / Blockchain Developer
+  assert.equal(matchesTargetRoleWithSeniority('Lead Web3/Blockchain Developer', ['web3 dev'], 'senior'), true);
+
+  // AR/VR/XR Engineer
+  assert.equal(matchesTargetRoleWithSeniority('Senior AR/VR/XR Systems Engineer', ['xr eng'], 'senior'), true);
+
+  // Quantitative Developer / Algo Trader
+  assert.equal(matchesTargetRoleWithSeniority('High-Frequency Trading Systems Developer', ['quant dev'], 'any'), true);
+  assert.equal(matchesTargetRoleWithSeniority('Senior Algorithmic Trading Systems Engineer', ['algo trader'], 'senior'), true);
+
+  // Penetration Tester / Malware Analyst / SIEM Engineer
+  assert.equal(matchesTargetRoleWithSeniority('Senior Penetration Tester', ['pentester'], 'senior'), true);
+  assert.equal(matchesTargetRoleWithSeniority('Reverse Engineer & Malware Analyst', ['malware ana'], 'any'), true);
+  assert.equal(matchesTargetRoleWithSeniority('Lead SIEM / Detection Engineer', ['siem eng'], 'senior'), true);
+
+  // Guardrail checks: fresher cannot match Senior Penetration Tester or Senior Platform Engineer
+  assert.equal(matchesTargetRoleWithSeniority('Senior Penetration Tester', ['pentester'], 'fresher'), false);
+  assert.equal(matchesTargetRoleWithSeniority('Senior Platform Engineer', ['platform engg'], 'fresher'), false);
+});
+
+test('detectCandidateDomain: correctly detects candidate profiles for emerging tech domains', () => {
+  // 1. DevRel Candidate
+  const devrelProfile = {
+    skills: { advocacy: ['Developer Relations', 'DevRel', 'Technical Evangelism', 'Open Source Community', 'Public Speaking'] },
+    work_history: [{ role: 'Developer Advocate', description: 'Built demos and represented platform at developer conferences' }]
+  };
+  const devrelResult = detectCandidateDomain(devrelProfile);
+  assert.equal(devrelResult.domain, 'product_management');
+
+  // 2. Quantitative Developer Candidate
+  const quantProfile = {
+    skills: { quant: ['C++', 'Low-Latency Systems', 'Algo Trading', 'HFT', 'Order Matching Engine', 'Market Data'] },
+    work_history: [{ role: 'Quantitative Developer', description: 'Engineered sub-microsecond algorithmic trading systems' }]
+  };
+  const quantResult = detectCandidateDomain(quantProfile);
+  assert.equal(quantResult.domain, 'backend');
+
+  // 3. Penetration Tester / Malware Candidate
+  const penProfile = {
+    skills: { sec: ['Penetration Testing', 'Metasploit', 'Burp Suite', 'Malware Analysis', 'Reverse Engineering', 'SIEM'] },
+    work_history: [{ role: 'Penetration Tester', description: 'Conducted red team exercises and vulnerability assessments' }]
+  };
+  const penResult = detectCandidateDomain(penProfile);
+  assert.equal(penResult.domain, 'cybersecurity');
+
+  // 4. AR / VR / XR Candidate
+  const xrProfile = {
+    skills: { xr: ['AR/VR', 'XR', 'visionOS', 'Unity', 'OpenXR', 'Spatial Computing'] },
+    work_history: [{ role: 'AR/VR/XR Engineer', description: 'Created spatial computing experiences' }]
+  };
+  const xrResult = detectCandidateDomain(xrProfile);
+  assert.equal(xrResult.domain, 'game_development');
+});
+
+
+
 

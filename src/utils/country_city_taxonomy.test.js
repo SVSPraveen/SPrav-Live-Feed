@@ -186,3 +186,63 @@ test('matchLocationString: matches cities and bidirectional alias expansions', (
   assert.equal(matchLocationString('AI Engineer - Rwanda', 'Kigali'), true);
   assert.equal(matchLocationString('Platform Engineer - Uruguay', 'Montevideo'), true);
 });
+
+test('country_city_taxonomy: covers expanded locations for Brazil, Mexico, Africa, Eastern Europe, Philippines, and India tier-3', () => {
+  // 1. Brazil (Sao Paulo, Florianopolis)
+  assert.ok(TECH_LOCATIONS.includes('Sao Paulo'), 'TECH_LOCATIONS must include Sao Paulo');
+  assert.ok(TECH_LOCATIONS.includes('Florianopolis'), 'TECH_LOCATIONS must include Florianopolis');
+  assert.equal(resolveCountryCode('Sao Paulo'), 'br');
+  assert.equal(resolveCountryCode('Florianopolis'), 'br');
+  assert.equal(matchLocationString('Software Engineer (Sao Paulo, Brazil)', 'São Paulo'), true);
+  assert.equal(matchLocationString('Full Stack Developer in Florianopolis', 'Florianópolis'), true);
+
+  // 2. Mexico (Mexico City, Guadalajara, CDMX)
+  assert.ok(TECH_LOCATIONS.includes('Mexico City'), 'TECH_LOCATIONS must include Mexico City');
+  assert.ok(TECH_LOCATIONS.includes('CDMX'), 'TECH_LOCATIONS must include CDMX');
+  assert.ok(TECH_LOCATIONS.includes('Guadalajara'), 'TECH_LOCATIONS must include Guadalajara');
+  assert.equal(resolveCountryCode('Mexico City'), 'mx');
+  assert.equal(resolveCountryCode('Guadalajara'), 'mx');
+  assert.equal(matchLocationString('Backend Engineer - CDMX', 'Mexico City'), true);
+
+  // 3. Nigeria + Kenya (Lagos, Nairobi, Abuja)
+  assert.ok(TECH_LOCATIONS.includes('Lagos'), 'TECH_LOCATIONS must include Lagos');
+  assert.ok(TECH_LOCATIONS.includes('Nairobi'), 'TECH_LOCATIONS must include Nairobi');
+  assert.ok(TECH_LOCATIONS.includes('Abuja'), 'TECH_LOCATIONS must include Abuja');
+  assert.equal(resolveCountryCode('Lagos'), 'ng');
+  assert.equal(resolveCountryCode('Nairobi'), 'ke');
+  assert.equal(matchLocationString('DevOps Engineer, Nairobi, Kenya', 'nairobi'), true);
+  assert.equal(matchLocationString('Cloud Architect in Lagos, NG', 'lagos'), true);
+
+  // 4. Poland + Romania (Warsaw, Bucharest, Krakow, Wroclaw, Timisoara)
+  assert.ok(TECH_LOCATIONS.includes('Warsaw'), 'TECH_LOCATIONS must include Warsaw');
+  assert.ok(TECH_LOCATIONS.includes('Krakow'), 'TECH_LOCATIONS must include Krakow');
+  assert.ok(TECH_LOCATIONS.includes('Wroclaw'), 'TECH_LOCATIONS must include Wroclaw');
+  assert.ok(TECH_LOCATIONS.includes('Bucharest'), 'TECH_LOCATIONS must include Bucharest');
+  assert.ok(TECH_LOCATIONS.includes('Timisoara'), 'TECH_LOCATIONS must include Timisoara');
+  assert.equal(resolveCountryCode('Warsaw'), 'pl');
+  assert.equal(resolveCountryCode('Bucharest'), 'ro');
+  assert.equal(matchLocationString('Frontend Engineer, Krakow, Poland', 'Kraków'), true);
+  assert.equal(matchLocationString('Java Developer - Timisoara', 'Timișoara'), true);
+  assert.equal(matchLocationString('Senior C++ Developer - Warsaw', 'warszawa'), true);
+
+  // 5. Philippines (Manila, Metro Manila, BGC)
+  assert.ok(TECH_LOCATIONS.includes('Manila'), 'TECH_LOCATIONS must include Manila');
+  assert.ok(TECH_LOCATIONS.includes('Metro Manila'), 'TECH_LOCATIONS must include Metro Manila');
+  assert.ok(TECH_LOCATIONS.includes('BGC'), 'TECH_LOCATIONS must include BGC');
+  assert.equal(resolveCountryCode('Manila'), 'ph');
+  assert.equal(resolveCountryCode('Metro Manila'), 'ph');
+  assert.equal(matchLocationString('QA Lead - BGC, Taguig, Philippines', 'Manila'), true);
+
+  // 6. India Tier-3 (Raipur, Ranchi, Agra, Kanpur)
+  const tier3Cities = ['Raipur', 'Ranchi', 'Agra', 'Kanpur', 'Nashik', 'Varanasi', 'Prayagraj'];
+  for (const city of tier3Cities) {
+    assert.ok(TECH_LOCATIONS.includes(city), `TECH_LOCATIONS must include ${city}`);
+    assert.ok(COUNTRY_CITY_MAP.india.cities.includes(city), `india.cities must include ${city}`);
+    assert.equal(resolveCountryCode(city), 'in', `${city} must resolve to 'in'`);
+  }
+  assert.equal(matchLocationString('SDE II - Raipur, India', 'Raipur'), true);
+  assert.equal(matchLocationString('Data Analyst - Ranchi, Jharkhand', 'Ranchi'), true);
+  assert.equal(matchLocationString('Full Stack Engineer - Agra', 'Agra'), true);
+  assert.equal(matchLocationString('DevOps Engineer - Kanpur', 'Kanpur'), true);
+});
+
