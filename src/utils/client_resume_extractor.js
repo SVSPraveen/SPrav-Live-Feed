@@ -422,7 +422,74 @@ export async function extractTextFromPdf(arrayBuffer) {
 }
 
 /**
- * Extracts text from a File object (PDF, TXT, MD, JSON).
+ * Extracts text from a Microsoft Word (.docx) file by reading word/document.xml from the ZIP archive.
+ * Works 100% offline in browser via native DecompressionStream('deflate-raw') ($0 server cost).
+ * @param {ArrayBuffer} arrayBuffer
+ * @returns {Promise<string>}
+ */
+export async function extractTextFromDocx(arrayBuffer) {
+  if (!arrayBuffer || arrayBuffer.byteLength < 30) return '';
+  const bytes = new Uint8Array(arrayBuffer);
+  let offset = 0;
+  while (offset < bytes.length - 30) {
+    // Check for ZIP Local File Header signature: PK\x03\x04
+    if (bytes[offset] === 0x50 && bytes[offset + 1] === 0x4b && bytes[offset + 2] === 0x03 && bytes[offset + 3] === 0x04) {
+      const view = new DataView(arrayBuffer, offset);
+      const compression = view.getUint16(8, true);
+      const compressedSize = view.getUint32(18, true);
+      const fnLen = view.getUint16(26, true);
+      const extraLen = view.getUint16(28, true);
+      const fnBytes = bytes.subarray(offset + 30, offset + 30 + fnLen);
+      const filename = new TextDecoder().decode(fnBytes);
+      const dataStart = offset + 30 + fnLen + extraLen;
+
+      if (filename === 'word/document.xml') {
+        let xmlStr = '';
+        if (compression === 0) {
+          xmlStr = new TextDecoder().decode(bytes.subarray(dataStart, dataStart + compressedSize));
+        } else if (compression === 8 && typeof DecompressionStream !== 'undefined') {
+          const rawCompressed = bytes.subarray(dataStart, dataStart + compressedSize);
+          const ds = new DecompressionStream('deflate-raw');
+          const writer = ds.writable.getWriter();
+          writer.write(rawCompressed);
+          writer.close();
+          xmlStr = await new Response(ds.readable).text();
+        }
+        if (xmlStr) {
+          const paragraphs = [];
+          const pRegex = /<w:p(?:\s[^>]*)?>([\s\S]*?)<\/w:p>/g;
+          let pMatch;
+          while ((pMatch = pRegex.exec(xmlStr)) !== null) {
+            const pContent = pMatch[1];
+            const tokenRegex = /<w:t(?:\s[^>]*)?>([^<]*)<\/w:t>|<w:tab(?:\s[^>]*)?\/>|<w:br(?:\s[^>]*)?\/>/g;
+            let tokenMatch;
+            let pText = '';
+            while ((tokenMatch = tokenRegex.exec(pContent)) !== null) {
+              if (tokenMatch[1] !== undefined) {
+                pText += tokenMatch[1];
+              } else if (tokenMatch[0].includes('tab')) {
+                pText += ' \t ';
+              } else if (tokenMatch[0].includes('br')) {
+                pText += '\n';
+              }
+            }
+            if (pText.trim()) {
+              paragraphs.push(pText.trim());
+            }
+          }
+          return paragraphs.join('\n');
+        }
+      }
+      offset = dataStart + (compressedSize > 0 ? compressedSize : 1);
+    } else {
+      offset++;
+    }
+  }
+  return '';
+}
+
+/**
+ * Extracts text from a File object (PDF, DOCX, TXT, MD, JSON).
  */
 export async function extractTextFromFile(file) {
   if (!file) throw new Error('No file provided.');
@@ -431,6 +498,20 @@ export async function extractTextFromFile(file) {
   if (name.endsWith('.pdf') || file.type === 'application/pdf') {
     const buffer = await file.arrayBuffer();
     return extractTextFromPdf(buffer);
+  }
+
+  if (
+    name.endsWith('.docx') || 
+    file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+    file.type === 'application/msword'
+  ) {
+    if (typeof file.arrayBuffer === 'function') {
+      const buffer = await file.arrayBuffer();
+      const docxText = await extractTextFromDocx(buffer);
+      if (docxText && docxText.trim().length > 0) {
+        return docxText;
+      }
+    }
   }
 
   // Text, markdown, JSON, or other text formats read directly
@@ -589,6 +670,7 @@ export function extractWorkHistory(text) {
   const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
   
   let inExperienceSection = false;
+  let experienceStartIndex = -1;
   let currentCompany = null;
 
   // Section break anchor: terminates work experience cleanly
@@ -599,6 +681,7 @@ export function extractWorkHistory(text) {
 
     if (/^(?:work\s+experience|professional\s+experience|experience|employment\s+history|career\s+history)\b/i.test(line)) {
       inExperienceSection = true;
+      experienceStartIndex = i;
       continue;
     }
 
@@ -679,20 +762,27 @@ export function extractWorkHistory(text) {
             }
           }
 
+          const SENIORITY_REGEX = /^(?:senior|sr\.?|junior|jr\.?|staff|principal|lead|associate|intern|chief|entry|mid|executive|head|vp|director)$/i;
+          if (!company || company.length < 2 || SENIORITY_REGEX.test(company)) {
+            title = rawHeader;
+            company = '';
+          }
+
           // Clean duration annotations like "(3 years 6 months)" from company header
           if (company) {
             company = company.replace(/\(\s*\d+\s*(?:years?|yrs?|months?|mos?)[^)]*\)/gi, '').trim();
           }
 
           // In multi-line layouts (such as LinkedIn PDF exports), company and title
-          // are on the lines immediately preceding the date line.
+          // are on the lines immediately preceding the date line, but must not cross section start.
           if (!company || company.length < 2) {
-            if (i >= 2) {
+            if (i - 2 > experienceStartIndex) {
               const prev1 = lines[i - 1];
               const prev2 = lines[i - 2];
               if (prev1 && prev2 && !prev1.startsWith('•') && !prev1.startsWith('-') && !prev1.startsWith('*') &&
                   !prev2.startsWith('•') && !prev2.startsWith('-') && !prev2.startsWith('*') &&
-                  !/^(?:experience|work\s+experience|employment\s+history)\b/i.test(prev2)) {
+                  !/^(?:experience|work\s+experience|employment\s+history)\b/i.test(prev2) &&
+                  !prev2.includes(':')) {
                 if (GENERIC_ROLE_REGEX.test(prev1)) {
                   title = prev1.trim();
                   company = prev2.trim();
@@ -703,14 +793,43 @@ export function extractWorkHistory(text) {
                   company = prev2.trim();
                   title = prev1.trim();
                 }
-              } else if (prev1 && !prev1.startsWith('•') && !prev1.startsWith('-') && !/^(?:experience|work\s+experience)\b/i.test(prev1)) {
+              } else if (prev1 && !prev1.startsWith('•') && !prev1.startsWith('-') && !/^(?:experience|work\s+experience)\b/i.test(prev1) && !prev1.includes(':')) {
                 company = prev1.trim();
               }
-            } else if (i >= 1) {
+            } else if (i - 1 > experienceStartIndex) {
               const prev1 = lines[i - 1];
-              if (prev1 && !prev1.startsWith('•') && !/^(?:experience|work\s+experience)\b/i.test(prev1)) {
+              if (prev1 && !prev1.startsWith('•') && !/^(?:experience|work\s+experience)\b/i.test(prev1) && !prev1.includes(':')) {
                 company = prev1.trim();
               }
+            }
+          }
+
+          // In forward multi-line layouts (common in DOCX & modern ATS templates),
+          // role and dates are on line 1, while company is on line 2 immediately preceding bullets.
+          if (!company && i + 1 < lines.length) {
+            const nextCandidate = lines[i + 1];
+            const isBulletOrDateOrBreak =
+              nextCandidate.startsWith('•') ||
+              nextCandidate.startsWith('-') ||
+              nextCandidate.startsWith('*') ||
+              /^\d+\.\s/.test(nextCandidate) ||
+              /(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|20\d\d|19\d\d)[^,\n]*(?:-|–|—|to)/i.test(nextCandidate) ||
+              SECTION_BREAK_REGEX.test(nextCandidate);
+
+            if (!isBulletOrDateOrBreak && nextCandidate.length < 100) {
+              const compLine = nextCandidate.replace(/^[#•\-_*|\s]+|[|\s]+$/g, '');
+              if (compLine.includes(' | ')) {
+                const cParts = compLine.split(/\s+\|\s+/);
+                company = cParts[0].trim();
+                if (!location && cParts[1]) location = cParts[1].trim();
+              } else if (compLine.includes(',')) {
+                const cParts = compLine.split(/\s*,\s*/);
+                company = cParts[0].trim();
+                if (!location && cParts.length > 1) location = cParts.slice(1).join(', ').trim();
+              } else {
+                company = compLine.trim();
+              }
+              i++;
             }
           }
 

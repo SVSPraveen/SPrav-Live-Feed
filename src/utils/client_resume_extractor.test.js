@@ -8,6 +8,7 @@ import {
   extractEducation,
   extractAuthenticResumeProfile,
   extractTextFromPdf,
+  extractTextFromDocx,
   scoreTextQuality,
   isLinkedInProfilePdf,
   extractLinkedInProfileDetails
