@@ -1,0 +1,15 @@
+{
+  "name": "sprav-engine",
+  "collaborators": [
+    "SPrav Job AI Team"
+  ],
+  "version": "1.0.0",
+  "files": [
+    "sprav_engine_bg.wasm",
+    "sprav_engine.js",
+    "sprav_engine_bg.js"
+  ],
+  "module": "sprav_engine.js",
+  "types": "sprav_engine.d.ts",
+  "sideEffects": false
+}
