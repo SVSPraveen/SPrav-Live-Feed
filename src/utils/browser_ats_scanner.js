@@ -61,6 +61,7 @@ import {
 } from './github_job_streamer.js';
 
 import { fetchAtsViaExtension, isExtensionInstalled } from './extension_companion.js';
+import { sanitizeObject, formatSafeWebUrl } from './security_guard.js';
 
 // Modular Sub-Modules (Decoupled for tree-shaking and fast loading)
 import {

@@ -68,7 +68,20 @@ export const ROLE_DOMAINS = {
       "UX Research Intern",
       "Junior Full Stack AI Engineer",
       "Junior Agentic AI Developer",
-      "Junior Cloud / GPU Infrastructure Engineer"
+      "Junior Cloud / GPU Infrastructure Engineer",
+      "Junior Developer Advocate",
+      "Associate Technical Program Manager (TPM)",
+      "Junior Prompt Engineer",
+      "Junior LLM Engineer",
+      "Junior MLOps Engineer",
+      "Junior Platform Engineer",
+      "Associate Platform Engineer",
+      "Junior Web3/Blockchain Developer",
+      "Junior AR/VR/XR Engineer",
+      "Junior Quantitative Developer",
+      "Junior Penetration Tester",
+      "Junior Malware Analyst",
+      "Junior SIEM Analyst"
     ]
   },
   "mid_level": {
@@ -113,7 +126,27 @@ export const ROLE_DOMAINS = {
       "Instructional Design Engineer",
       "Technical Customer Success Engineer",
       "VLSI Design Engineer",
-      "RTL Design Engineer"
+      "RTL Design Engineer",
+      "Developer Relations (DevRel) Engineer",
+      "Developer Advocate",
+      "Technical Program Manager (TPM)",
+      "Prompt Engineer / LLM Engineer",
+      "Prompt Engineer",
+      "LLM Engineer",
+      "MLOps Engineer",
+      "Platform Engineer",
+      "Internal Developer Platform (IDP) Engineer",
+      "Web3/Blockchain Developer",
+      "Blockchain Developer",
+      "AR/VR/XR Engineer",
+      "AR/VR Engineer",
+      "XR Systems Engineer",
+      "Quantitative Developer / Algo Trader (Engineering)",
+      "Quantitative Developer",
+      "Algo Trader (Engineering)",
+      "Penetration Tester",
+      "Malware Analyst",
+      "SIEM Engineer"
     ]
   },
   "senior_lead": {
@@ -167,7 +200,26 @@ export const ROLE_DOMAINS = {
       "Lead DevOps Engineer",
       "Tech Lead",
       "Engineering Team Lead",
-      "Technical Lead Architect"
+      "Technical Lead Architect",
+      "Senior Developer Advocate",
+      "Lead Developer Relations (DevRel) Engineer",
+      "Senior Technical Program Manager (TPM)",
+      "Lead Technical Program Manager (TPM)",
+      "Senior Prompt Engineer",
+      "Senior LLM Engineer",
+      "Lead LLM Engineer",
+      "Senior MLOps Engineer",
+      "Lead MLOps Platform Engineer",
+      "Lead Platform Engineer",
+      "Senior Web3/Blockchain Developer",
+      "Senior Blockchain Engineer",
+      "Senior AR/VR/XR Engineer",
+      "Lead XR Systems Engineer",
+      "Senior Quantitative Developer",
+      "Lead Algorithmic Trading Systems Engineer",
+      "Senior Penetration Tester",
+      "Senior Malware Analyst",
+      "Senior SIEM Engineer"
     ]
   },
   "staff_principal": {
@@ -212,7 +264,19 @@ export const ROLE_DOMAINS = {
       "Head of Engineering",
       "VP of Engineering",
       "Chief Technology Officer (CTO)",
-      "Chief AI Officer (CAIO)"
+      "Chief AI Officer (CAIO)",
+      "Head of Developer Relations",
+      "Principal Technical Program Manager",
+      "Director of Technical Program Management",
+      "Staff LLM Engineer",
+      "Principal LLM Systems Engineer",
+      "Principal MLOps Architect",
+      "Principal Platform Architect",
+      "Principal Blockchain Architect",
+      "Principal Spatial Computing & XR Architect",
+      "Principal Quantitative Systems Architect",
+      "Head of Quantitative Engineering",
+      "Principal Security & Penetration Testing Architect"
     ]
   },
   "ai_ml": {
@@ -221,13 +285,23 @@ export const ROLE_DOMAINS = {
     aliases: [
       "ai", "ml", "artificial intelligence", "machine learning", "genai", "generative ai", "llm", "rag", "nlp", "deep learning",
       "computer vision", "mlops", "agentic ai", "ai agent", "ai agents", "agentic", "inference", "llmops", "ai safety",
-      "red teaming", "red team", "ai red team", "model safety", "ai alignment"
+      "red teaming", "red team", "ai red team", "model safety", "ai alignment", "prompt engineer", "prompt engineering", "llm engineer", "llm engineering", "mlops engineer"
     ],
     roles: [
       "AI Engineer",
       "Machine Learning Engineer",
       "Generative AI Engineer",
+      "Prompt Engineer / LLM Engineer",
       "LLM Engineer",
+      "Prompt Engineer",
+      "Senior Prompt Engineer",
+      "Senior LLM Engineer",
+      "Lead LLM Engineer",
+      "Staff LLM Engineer",
+      "MLOps Engineer",
+      "Senior MLOps Engineer",
+      "Lead MLOps Platform Engineer",
+      "MLOps Platform Architect",
       "Agentic AI Developer",
       "AI Agent Systems Engineer",
       "LLM Inference Optimization Engineer",
@@ -239,13 +313,11 @@ export const ROLE_DOMAINS = {
       "AI Alignment & Safety Researcher",
       "LLM Red Teamer",
       "Model Evaluation & Safety Engineer",
-      "MLOps Engineer",
       "AI Research Scientist",
       "Deep Learning Engineer",
       "NLP Engineer",
       "Computer Vision Engineer",
       "Applied AI Scientist",
-      "Prompt Engineer",
       "AI Solutions Architect",
       "AI Agent Developer",
       "RAG Specialist",
@@ -287,10 +359,19 @@ export const ROLE_DOMAINS = {
   "backend": {
     domainName: "Backend & Systems Development",
     badge: "⚙️",
-    aliases: ["backend", "back end", "back-end", "python", "java", "golang", "go", "node", "nodejs", "c++", "rust", "zig", "c#", ".net", "api", "microservices"],
+    aliases: [
+      "backend", "back end", "back-end", "python", "java", "golang", "go", "node", "nodejs", "c++", "rust", "zig", "c#", ".net", "api", "microservices",
+      "quant", "quant dev", "quantitative developer", "algo trader", "algo trading", "algorithmic trading", "hft", "high frequency trading"
+    ],
     roles: [
       "Backend Engineer",
       "Backend Developer",
+      "Quantitative Developer / Algo Trader (Engineering)",
+      "Quantitative Developer (Quant Dev)",
+      "Quantitative Developer",
+      "Algo Trader (Engineering)",
+      "Algorithmic Trading Systems Engineer",
+      "High-Frequency Trading (HFT) Systems Developer",
       "Systems Software Engineer (Rust / Go / Zig)",
       "Low-Latency C++ Systems Engineer",
       "Python Backend Engineer",
@@ -343,7 +424,10 @@ export const ROLE_DOMAINS = {
   "data_analytics": {
     domainName: "Data Engineering, Science & Analytics",
     badge: "📊",
-    aliases: ["data", "data engineer", "data scientist", "analytics", "bi", "business intelligence", "sql", "big data", "etl", "spark", "dba", "database"],
+    aliases: [
+      "data", "data engineer", "data scientist", "analytics", "bi", "business intelligence", "sql", "big data", "etl", "spark", "dba", "database",
+      "quant dev", "quantitative developer", "algo trader", "algo trading"
+    ],
     roles: [
       "Data Engineer",
       "Senior Data Engineer",
@@ -353,6 +437,8 @@ export const ROLE_DOMAINS = {
       "Business Intelligence (BI) Developer",
       "BI Analyst",
       "Data Analyst",
+      "Quantitative Developer / Algo Trader (Engineering)",
+      "Quantitative Developer (Quant Dev)",
       "Quantitative Researcher",
       "Quantitative Analyst (Quant)",
       "Database Administrator (DBA)",
@@ -369,17 +455,26 @@ export const ROLE_DOMAINS = {
     aliases: [
       "devops", "cloud", "sre", "site reliability", "platform", "infrastructure", "aws", "azure", "gcp",
       "kubernetes", "k8s", "docker", "terraform", "finops", "cloud cost", "cost optimization", "cloud economics",
-      "gpu infra", "gpu infrastructure", "ai cluster", "idp", "internal developer platform", "platform engineering"
+      "gpu infra", "gpu infrastructure", "ai cluster", "idp", "internal developer platform", "platform engineering",
+      "platform engineer", "mlops", "mlops engineer"
     ],
     roles: [
       "DevOps Engineer",
       "Cloud Engineer",
       "Site Reliability Engineer (SRE)",
       "Platform Engineer",
+      "Senior Platform Engineer",
+      "Lead Platform Engineer",
+      "Staff Platform Engineer",
+      "Developer Platform Engineer",
+      "Cloud Platform Engineer",
+      "Internal Developer Platform (IDP) Engineer",
+      "MLOps Engineer",
+      "Senior MLOps Engineer",
+      "Lead MLOps Platform Engineer",
       "Infrastructure Engineer",
       "GPU Cloud Infrastructure Engineer",
       "AI Cluster Reliability Engineer",
-      "Internal Developer Platform (IDP) Engineer",
       "Kubernetes Control Plane Engineer",
       "FinOps Engineer",
       "Senior FinOps Engineer",
@@ -405,11 +500,21 @@ export const ROLE_DOMAINS = {
       "security", "cyber", "cybersecurity", "infosec", "soc", "penetration", "pentest",
       "devsecops", "threat", "appsec", "siem", "splunk", "wireshark", "owasp", "firewall",
       "incident response", "vulnerability", "iam", "zero trust", "ai red teaming", "red team", "red teaming",
-      "post-quantum", "pqc", "hardware security", "icam", "detection and response"
+      "post-quantum", "pqc", "hardware security", "icam", "detection and response",
+      "malware", "malware analyst", "reverse engineering", "siem engineer", "pen tester", "pentester", "penetration tester", "detection engineering"
     ],
     roles: [
       "Security Engineer",
       "Cybersecurity Analyst",
+      "Penetration Tester",
+      "Malware Analyst",
+      "SIEM Engineer",
+      "SIEM / Detection Engineer",
+      "Senior Penetration Tester",
+      "Senior Malware Analyst",
+      "Senior SIEM Engineer",
+      "Lead Penetration Tester",
+      "Reverse Engineer & Malware Analyst",
       "DevSecOps Engineer",
       "Application Security (AppSec) Engineer",
       "Cloud Security Detection & Response Engineer",
@@ -454,7 +559,8 @@ export const ROLE_DOMAINS = {
       "product manager", "pm", "tpm", "program manager", "project manager", "scrum", "agile", "engineering manager",
       "customer success", "tcse", "tam", "customer solutions", "implementation", "technical account manager", "client solutions",
       "ux research", "uxr", "user research", "design research", "ux researcher",
-      "fde", "forward deployed", "forward deployed engineer", "ai product engineer"
+      "fde", "forward deployed", "forward deployed engineer", "ai product engineer",
+      "devrel", "developer relations", "developer advocate", "dev advocate", "developer evangelist", "technical program manager"
     ],
     roles: [
       "Technical Customer Success Engineer (TCSE)",
@@ -468,8 +574,19 @@ export const ROLE_DOMAINS = {
       "Forward Deployed AI Engineer",
       "AI Product Engineer",
       "Product Manager",
+      "Technical Program Manager (TPM)",
+      "Senior Technical Program Manager (TPM)",
+      "Lead Technical Program Manager (TPM)",
+      "Staff Technical Program Manager",
+      "Principal Technical Program Manager",
       "Technical Product Manager (TPM)",
       "Technical Program Manager",
+      "Developer Relations (DevRel)",
+      "Developer Advocate",
+      "Developer Relations Engineer",
+      "DevRel Engineer",
+      "Head of Developer Relations",
+      "Developer Advocate / DevRel",
       "AI Product Manager",
       "Growth Product Manager",
       "Engineering Manager",
@@ -483,7 +600,6 @@ export const ROLE_DOMAINS = {
       "Scrum Master / Agile Coach",
       "Solutions Architect",
       "Enterprise Architect",
-      "Developer Advocate / DevRel",
       "Pre-Sales Solutions Engineer",
       "Product Operations Manager"
     ]
@@ -538,11 +654,19 @@ export const ROLE_DOMAINS = {
     aliases: [
       "game", "games", "gaming", "game dev", "gamedev", "unity", "unity3d", "unreal", "unreal engine",
       "ue4", "ue5", "graphics", "shader", "shaders", "rendering", "gameplay", "xr", "ar", "vr", "directx", "opengl", "vulkan",
-      "spatial", "spatial computing", "visionos", "realitykit", "webgpu", "nanite", "lumen", "game physics"
+      "spatial", "spatial computing", "visionos", "realitykit", "webgpu", "nanite", "lumen", "game physics",
+      "ar/vr/xr", "ar/vr", "xr engineer", "ar engineer", "vr engineer"
     ],
     roles: [
       "Game Developer",
       "Gameplay Programmer",
+      "AR/VR/XR Engineer",
+      "AR/VR Engineer",
+      "XR Systems Engineer",
+      "AR Software Engineer",
+      "VR Software Engineer",
+      "Senior AR/VR/XR Engineer",
+      "Lead XR Systems Engineer",
       "Spatial Computing Developer (visionOS / RealityKit)",
       "WebGPU Engine Programmer",
       "Unreal Engine 5 Nanite & Lumen Technical Artist",
@@ -588,9 +712,15 @@ export const ROLE_DOMAINS = {
   "web3_blockchain": {
     domainName: "Blockchain, Web3 & Cryptography",
     badge: "🔗",
-    aliases: ["web3", "blockchain", "solidity", "smart contract", "crypto", "defi", "ethereum"],
+    aliases: ["web3", "blockchain", "solidity", "smart contract", "crypto", "defi", "ethereum", "web3 developer", "blockchain developer", "web3/blockchain developer"],
     roles: [
       "Blockchain Engineer",
+      "Web3/Blockchain Developer",
+      "Web3 Developer",
+      "Blockchain Developer",
+      "Senior Web3/Blockchain Developer",
+      "Senior Blockchain Engineer",
+      "Lead Blockchain Engineer",
       "Smart Contract Developer",
       "Solidity Developer",
       "Web3 Full Stack Developer",
@@ -703,6 +833,27 @@ export function normalizeRoleSearchTerm(term = '') {
     .replace(/\bagentic ai (dev(eloper)?|engg?|engineer)?\b/g, 'agentic ai developer')
     .replace(/\bgpu infra\b/g, 'gpu infrastructure')
     .replace(/\bfde\b/g, 'forward deployed engineer')
+    .replace(/\bdevrel\b/g, 'developer relations')
+    .replace(/\bdev advocate\b/g, 'developer advocate')
+    .replace(/\bprompt eng(ineer(ing)?)?\b/g, 'prompt engineer')
+    .replace(/\bllm eng(ineer(ing)?)?\b/g, 'llm engineer')
+    .replace(/\bmlops\b/g, 'mlops engineer')
+    .replace(/\bplatform engg?\b/g, 'platform engineer')
+    .replace(/\bweb 3\b/g, 'web3')
+    .replace(/\bblockchain dev(eloper)?\b/g, 'blockchain developer')
+    .replace(/\bweb3 dev(eloper)?\b/g, 'web3 developer')
+    .replace(/\bar[ /]vr[ /]xr\b/g, 'ar vr xr engineer')
+    .replace(/\bar[ /]vr\b(?!\s*xr)/g, 'ar vr engineer')
+    .replace(/\bxr eng(ineer)?\b/g, 'xr engineer')
+    .replace(/\bquant dev\b/g, 'quantitative developer')
+    .replace(/\balgo trader\b/g, 'algo trader')
+    .replace(/\balgo trading\b/g, 'algorithmic trading')
+    .replace(/\bhft dev(eloper)?\b/g, 'high frequency trading developer')
+    .replace(/\bhft eng(ineer)?\b/g, 'high frequency trading engineer')
+    .replace(/\bpen tester\b/g, 'penetration tester')
+    .replace(/\bpentester\b/g, 'penetration tester')
+    .replace(/\bmalware ana(lyst)?\b/g, 'malware analyst')
+    .replace(/\bsiem eng(ineer)?\b/g, 'siem engineer')
     .replace(/\bengg?\b/g, 'engineer')
     .replace(/\bdevs?\b/g, 'developer')
     .replace(/\bsec\b/g, 'security')
@@ -718,7 +869,7 @@ export function normalizeRoleSearchTerm(term = '') {
     .replace(/\bqa\b/g, 'quality assurance')
     .replace(/\bsdet\b/g, 'software development engineer in test')
     .replace(/\bpm\b/g, 'product manager')
-    .replace(/\btpm\b/g, 'technical product manager')
+    .replace(/\btpm\b/g, 'technical program manager')
     .replace(/\btam\b/g, 'technical account manager')
     .replace(/\btcse\b/g, 'technical customer success engineer')
     .replace(/\bhw\b/g, 'hardware')
@@ -883,6 +1034,9 @@ export function expandRoleSearchVariants(role = '') {
   }
 
   if (/\b(web3|blockchain|solidity|crypto|defi|smart contract)\b/i.test(raw) || /\b(web3|blockchain|solidity|crypto|defi|smart contract)\b/i.test(normalized)) {
+    variants.add('web3/blockchain developer');
+    variants.add('web3 developer');
+    variants.add('blockchain developer');
     variants.add('blockchain engineer');
     variants.add('solidity developer');
     variants.add('smart contract developer');
@@ -890,12 +1044,31 @@ export function expandRoleSearchVariants(role = '') {
     variants.add('smart contract auditor');
   }
 
-  if (/\b(product manager|pm|tpm|customer success|tam|tcse|solutions architect)\b/i.test(raw) || /\b(product manager|pm|tpm|customer success|tam|tcse|solutions architect)\b/i.test(normalized)) {
+  if (/\b(product manager|pm|tpm|customer success|tam|tcse|solutions architect|technical program manager)\b/i.test(raw) || /\b(product manager|pm|tpm|customer success|tam|tcse|solutions architect|technical program manager)\b/i.test(normalized)) {
     variants.add('product manager');
+    variants.add('technical program manager');
+    variants.add('technical program manager (tpm)');
     variants.add('technical product manager');
     variants.add('solutions architect');
     variants.add('technical customer success engineer');
     variants.add('technical account manager');
+  }
+
+  if (/\b(devrel|developer relations|developer advocate|dev advocate)\b/i.test(raw) || /\b(devrel|developer relations|developer advocate|dev advocate)\b/i.test(normalized)) {
+    variants.add('developer relations');
+    variants.add('developer advocate');
+    variants.add('devrel engineer');
+    variants.add('developer relations (devrel)');
+    variants.add('developer relations engineer');
+    variants.add('developer evangelist');
+  }
+
+  if (/\b(tpm|technical program manager)\b/i.test(raw) || /\b(tpm|technical program manager)\b/i.test(normalized)) {
+    variants.add('technical program manager');
+    variants.add('technical program manager (tpm)');
+    variants.add('senior technical program manager');
+    variants.add('program manager');
+    variants.add('technical product manager');
   }
 
   if (/\b(safety|red team|red teaming|alignment)\b/i.test(raw) || /\b(safety|red team|red teaming|alignment)\b/i.test(normalized)) {
@@ -962,11 +1135,57 @@ export function expandRoleSearchVariants(role = '') {
     variants.add('cloud infrastructure engineer');
   }
 
-  if (/\b(spatial|visionos|realitykit|webgpu)\b/i.test(raw) || /\b(spatial|visionos|realitykit|webgpu)\b/i.test(normalized)) {
+  if (/\b(prompt|prompt engineer|llm engineer)\b/i.test(raw) || /\b(prompt|prompt engineer|llm engineer)\b/i.test(normalized)) {
+    variants.add('prompt engineer');
+    variants.add('llm engineer');
+    variants.add('prompt engineer / llm engineer');
+    variants.add('generative ai engineer');
+    variants.add('ai engineer');
+  }
+
+  if (/\b(mlops|ml ops)\b/i.test(raw) || /\b(mlops|ml ops)\b/i.test(normalized)) {
+    variants.add('mlops engineer');
+    variants.add('senior mlops engineer');
+    variants.add('lead mlops platform engineer');
+    variants.add('mlops platform architect');
+    variants.add('machine learning operations');
+  }
+
+  if (/\b(platform engineer|platform engineering)\b/i.test(raw) || /\b(platform engineer|platform engineering)\b/i.test(normalized)) {
+    variants.add('platform engineer');
+    variants.add('senior platform engineer');
+    variants.add('internal developer platform (idp) engineer');
+    variants.add('developer platform engineer');
+    variants.add('cloud platform engineer');
+  }
+
+  if (/\b(spatial|visionos|realitykit|webgpu|ar\/vr\/xr|ar\/vr|xr)\b/i.test(raw) || /\b(spatial|visionos|realitykit|webgpu|ar\/vr\/xr|ar\/vr|xr)\b/i.test(normalized)) {
+    variants.add('ar/vr/xr engineer');
+    variants.add('ar/vr engineer');
+    variants.add('xr systems engineer');
     variants.add('spatial computing developer');
     variants.add('webgpu engine programmer');
     variants.add('ar / vr / xr developer');
     variants.add('graphics programmer');
+  }
+
+  if (/\b(quant|algo trader|algo trading|algorithmic trading|hft)\b/i.test(raw) || /\b(quant|algo trader|algo trading|algorithmic trading|hft)\b/i.test(normalized)) {
+    variants.add('quantitative developer / algo trader (engineering)');
+    variants.add('quantitative developer');
+    variants.add('quantitative developer (quant dev)');
+    variants.add('algo trader (engineering)');
+    variants.add('algo trader');
+    variants.add('algorithmic trading systems engineer');
+    variants.add('high-frequency trading systems developer');
+  }
+
+  if (/\b(penetration|pentest|malware|siem)\b/i.test(raw) || /\b(penetration|pentest|malware|siem)\b/i.test(normalized)) {
+    variants.add('penetration tester');
+    variants.add('malware analyst');
+    variants.add('siem engineer');
+    variants.add('siem / detection engineer');
+    variants.add('penetration tester / ethical hacker');
+    variants.add('security engineer');
   }
 
   return Array.from(variants).filter(Boolean);
@@ -1132,7 +1351,9 @@ export function matchesTargetRoleWithSeniority(jobTitle = '', targetRoles = [], 
     if (variants.some(v => v && lowerTitle.includes(v))) return true;
 
     // Compound domain + engineer matching (e.g. "ai engg" matching "Staff AI Infrastructure Engineer")
-    if ((rawRole.includes('ai') || rawRole.includes('ml')) && /\bai\b/i.test(lowerTitle) && /\b(engineer|developer|scientist|specialist|architect|lead)\b/i.test(lowerTitle)) {
+    if ((rawRole.includes('ai') || rawRole.includes('ml') || rawRole.includes('llm') || rawRole.includes('prompt')) &&
+      (/\b(ai|ml|llm|prompt)\b/i.test(lowerTitle)) &&
+      /\b(engineer|developer|scientist|specialist|architect|lead)\b/i.test(lowerTitle)) {
       return true;
     }
     if (rawRole.includes('cloud') && /\bcloud\b/i.test(lowerTitle) && /\b(engineer|developer|architect|specialist)\b/i.test(lowerTitle)) {
@@ -1178,6 +1399,37 @@ export function matchesTargetRoleWithSeniority(jobTitle = '', targetRoles = [], 
       return true;
     }
     if ((rawRole.includes('quantum') || rawRole.includes('post-quantum') || rawRole.includes('pqc')) && /\b(quantum|post-quantum|pqc)\b/i.test(lowerTitle)) {
+      return true;
+    }
+    if ((rawRole.includes('devrel') || rawRole.includes('advocate') || rawRole.includes('developer relations')) &&
+      (/\b(devrel|developer advocate|developer relations)\b/i.test(lowerTitle))) {
+      return true;
+    }
+    if ((rawRole.includes('tpm') || rawRole.includes('program manager')) &&
+      (/\b(technical program manager|tpm)\b/i.test(lowerTitle))) {
+      return true;
+    }
+    if (rawRole.includes('mlops') && /\bmlops\b/i.test(lowerTitle)) {
+      return true;
+    }
+    if (rawRole.includes('platform') && /\bplatform\b/i.test(lowerTitle) && /\b(engineer|developer|architect|lead)\b/i.test(lowerTitle)) {
+      return true;
+    }
+    if ((rawRole.includes('web3') || rawRole.includes('blockchain') || rawRole.includes('solidity')) &&
+      /\b(web3|blockchain|solidity|smart contract)\b/i.test(lowerTitle)) {
+      return true;
+    }
+    if ((rawRole.includes('xr') || rawRole.includes('ar/vr') || rawRole.includes('ar') || rawRole.includes('vr')) &&
+      /\b(ar\/vr\/xr|ar\/vr|xr|augmented reality|virtual reality)\b/i.test(lowerTitle) &&
+      /\b(engineer|developer|programmer|architect)\b/i.test(lowerTitle)) {
+      return true;
+    }
+    if ((rawRole.includes('quant') || rawRole.includes('algo trad') || rawRole.includes('hft')) &&
+      (/\b(quantitative developer|quant dev|algo trader|algorithmic trading|hft)\b/i.test(lowerTitle))) {
+      return true;
+    }
+    if ((rawRole.includes('penetration') || rawRole.includes('pentest') || rawRole.includes('malware') || rawRole.includes('siem')) &&
+      (/\b(penetration test|pentest|malware|siem)\b/i.test(lowerTitle))) {
       return true;
     }
 
