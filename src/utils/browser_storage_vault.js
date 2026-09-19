@@ -781,7 +781,16 @@ class BrowserStorageVault {
       actualKey = `${storeName}_${key}`;
     }
 
-    _cacheDelete(`${actualStore}::${actualKey}`);
+    const cacheKey = `${actualStore}::${actualKey}`;
+    _cacheSet(cacheKey, actualValue);
+
+    // Dual-storage sync: write to localStorage to prevent divergence with synchronous callers
+    try {
+      if (typeof localStorage !== 'undefined' && typeof actualKey === 'string') {
+        const valToStore = typeof actualValue === 'object' && actualValue !== null ? JSON.stringify(actualValue) : String(actualValue);
+        localStorage.setItem(actualKey, valToStore);
+      }
+    } catch {}
 
     const db = await this.initDB();
     return new Promise((resolve, reject) => {
@@ -795,6 +804,15 @@ class BrowserStorageVault {
       req.onsuccess = () => resolve(true);
       req.onerror = () => reject(req.error);
     });
+  }
+
+  /**
+   * Synchronous retrieval from in-memory vault cache for keys that might have been loaded or written
+   */
+  getCached(key) {
+    if (!key) return undefined;
+    const cacheKey = `${STORES.SETTINGS}::${key}`;
+    return _cacheGet(cacheKey);
   }
 
   async getItem(storeName, key) {
@@ -3203,9 +3221,11 @@ class BrowserStorageVault {
     URL.revokeObjectURL(url);
 
     try {
+      const nowIso = new Date().toISOString();
       if (typeof localStorage !== 'undefined') {
-        localStorage.setItem('sprav_last_backup_at', new Date().toISOString());
+        localStorage.setItem('sprav_last_backup_at', nowIso);
       }
+      this.setItem('sprav_last_backup_at', nowIso).catch(() => {});
     } catch {}
 
     return {

@@ -329,13 +329,13 @@ test('extractProjects: strips repository and project URLs from tech stack string
   const resume = `
 KEY TECHNICAL PROJECTS
 SPrav Job AI - Sovereign Career Intelligence Platform
-github.com/SVSPraveen/SPrav-Job-AI | React 19 · Vite · WebGPU · IndexedDB · Node.js
+github.com/SVSPraveen/SPrav-WEB-Prv | React 19 · Vite · WebGPU · IndexedDB · Node.js
 * Architected a zero-server career platform running 100% client-side.
 `;
   const projects = extractProjects(resume);
   assert.equal(projects.length, 1);
   assert.equal(projects[0].name, 'SPrav Job AI');
-  assert.equal(projects[0].url, 'https://github.com/SVSPraveen/SPrav-Job-AI');
+  assert.equal(projects[0].url, 'https://github.com/SVSPraveen/SPrav-WEB-Prv');
   assert.ok(!projects[0].tech.includes('github.com'), 'Tech stack string should not contain repository URL');
   assert.ok(projects[0].tech.includes('React 19'));
   assert.ok(projects[0].tech.includes('WebGPU'));

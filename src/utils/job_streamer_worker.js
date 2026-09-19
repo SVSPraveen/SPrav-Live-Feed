@@ -2,13 +2,13 @@
  * src/utils/job_streamer_worker.js
  * =================================
  * Dedicated Web Worker for background streaming and decompressing of
- * high-volume sovereign job chunks (Feashliaa/job-board-data, 1.5M+ directly-sourced tech listings).
+ * high-volume sovereign job chunks (Feashliaa/job-board-data, 3.5M+ directly-sourced tech listings).
  *
  * Runs off the main React UI thread to ensure 0 dropped frames and 0 jank.
  * Offloads gzip stream decompression and in-memory filtering.
  */
 
-const SOVEREIGN_SPRAV_BASE = 'https://raw.githubusercontent.com/SVSPraveen/SPrav-Job-AI/sovereign-job-feed';
+const SOVEREIGN_SPRAV_BASE = 'https://raw.githubusercontent.com/SVSPraveen/SPrav-Live-Feed/sovereign-job-feed';
 const FALLBACK_MIRROR_BASE = 'https://raw.githubusercontent.com/Feashliaa/job-board-data/main/data';
 
 /**

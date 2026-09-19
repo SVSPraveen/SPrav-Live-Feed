@@ -1238,7 +1238,53 @@ test('hybridLLM BYOK: handles malformed JSON response safely without throwing un
   }
 });
 
+test('hybridLLM BYOK: auto-failover to local Ollama on cloud 429 rate limit with event dispatching', async () => {
+  const originalFetch = globalThis.fetch;
+  const originalWindow = globalThis.window;
+  let eventDispatched = null;
 
+  globalThis.window = {
+    dispatchEvent: (evt) => { eventDispatched = evt; },
+    addEventListener: () => {},
+    removeEventListener: () => {}
+  };
 
+  globalThis.fetch = async (url, opts) => {
+    const urlStr = String(url);
+    // Cloud provider returns 429
+    if (urlStr.includes('api.groq.com')) {
+      return { ok: false, status: 429, text: async () => 'Rate limit reached' };
+    }
+    // Local Ollama tags check
+    if (urlStr.includes('/api/tags')) {
+      return {
+        ok: true,
+        json: async () => ({
+          models: [{ name: 'qwen2.5-coder:7b-instruct' }]
+        })
+      };
+    }
+    // Local Ollama generate endpoint
+    if (urlStr.includes('/api/generate')) {
+      return {
+        ok: true,
+        text: async () => JSON.stringify({ response: 'Local Qwen 2.5 Coder Tailored Pitch' })
+      };
+    }
+    return { ok: false, status: 500, text: async () => 'error' };
+  };
 
+  try {
+    hybridLLM.setCloudCredential('groq', 'gsk-test');
+    hybridLLM.setPreferredProvider('groq');
 
+    const result = await hybridLLM.callClientCloudLLM('Tailor my resume for senior dev');
+    assert.equal(result, 'Local Qwen 2.5 Coder Tailored Pitch');
+    assert.ok(eventDispatched, 'sprav_cloud_rate_limit_failover event should be dispatched');
+    assert.equal(eventDispatched.detail.switchedTo, 'ollama');
+    assert.ok(eventDispatched.detail.message.includes('Local Ollama (Qwen 2.5 Coder)'));
+  } finally {
+    globalThis.fetch = originalFetch;
+    globalThis.window = originalWindow;
+  }
+});

@@ -19,6 +19,8 @@
  * 5. Candidate advice & ghost risk assessments
  */
 
+import { wasmEngine } from './wasm_engine_bridge.js';
+
 export const FRESHNESS_CODES = {
   ULTRA_FRESH: 'ultra_fresh',       // < 4 hours old
   FRESH_DROP: 'fresh_drop',         // 4 - 24 hours old
@@ -336,34 +338,9 @@ export function calculateFreshnessDecayScore(atsScore = 75, jobOrTelemetry = nul
     ? jobOrTelemetry
     : calculateFreshnessTelemetry(jobOrTelemetry, referenceDate);
 
-  let multiplier = 1.0;
-  switch (telemetry.code) {
-    case FRESHNESS_CODES.ULTRA_FRESH:
-      multiplier = 1.25;
-      break;
-    case FRESHNESS_CODES.FRESH_DROP:
-      multiplier = 1.15;
-      break;
-    case FRESHNESS_CODES.ACTIVE_CYCLE:
-      multiplier = (telemetry.ageDays || 0) <= 7 ? 1.0 : 0.90;
-      break;
-    case FRESHNESS_CODES.MODERATE_AGE:
-      multiplier = 0.80;
-      break;
-    case FRESHNESS_CODES.REPOST_WARNING:
-      multiplier = 0.50;
-      break;
-    case FRESHNESS_CODES.STALE_PIPELINE:
-      multiplier = 0.65;
-      break;
-    case FRESHNESS_CODES.LIKELY_GHOST:
-      multiplier = 0.35;
-      break;
-    default:
-      multiplier = 1.0;
-  }
+  const multiplier = wasmEngine.getFreshnessMultiplier(telemetry.code, telemetry.ageDays || 0);
+  const decayScore = wasmEngine.calculateFreshnessDecay(baseScore, telemetry.code, telemetry.ageDays || 0);
 
-  const decayScore = Math.min(100, Math.max(15, Math.round(baseScore * multiplier)));
   return {
     baseScore,
     decayScore,
@@ -435,23 +412,7 @@ export function calculateCallbackLikelihood({ atsScore = 50, freshnessMultiplier
   const numericAts = Math.min(100, Math.max(0, Number(atsScore) || 50));
   const mult = typeof freshnessMultiplier === 'number' && freshnessMultiplier > 0 ? freshnessMultiplier : 1.0;
 
-  // Base raw likelihood derived from ATS match score scaled by the listing freshness multiplier
-  let raw = (numericAts * 0.75) * mult;
-
-  // Remote roles attract an average of 4-10x more applicant volume in tech, shifting probability distribution
-  if (isRemote) {
-    raw -= 8;
-  }
-
-  // Early-applicant advantage for listings active under 24 hours (fresh drop / ultra fresh)
-  if (mult >= 1.15) {
-    raw += 10;
-  } else if (mult <= 0.5) {
-    // Severe stale or repost penalty
-    raw -= 12;
-  }
-
-  const score = Math.round(Math.min(95, Math.max(5, raw)));
+  const score = wasmEngine.calculateCallbackLikelihood(numericAts, mult, isRemote);
 
   let rating = 'Stretch';
   let color = '#f87171';

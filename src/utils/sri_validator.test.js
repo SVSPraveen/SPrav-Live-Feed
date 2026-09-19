@@ -154,14 +154,14 @@ test('loadCdnScriptWithSri sets crossOrigin anonymous and data attributes', () =
     container: mockContainer,
     documentRef: mockDocument,
     attributes: {
-      'data-repo': 'SVSPraveen/SPrav-Job-AI',
+      'data-repo': 'SVSPraveen/SPrav-Live-Feed',
       'data-category': 'General'
     }
   });
 
   assert.equal(script.src, 'https://giscus.app/client.js');
   assert.equal(script.crossOrigin, 'anonymous');
-  assert.equal(script.getAttribute('data-repo'), 'SVSPraveen/SPrav-Job-AI');
+  assert.equal(script.getAttribute('data-repo'), 'SVSPraveen/SPrav-Live-Feed');
   assert.equal(script.getAttribute('data-category'), 'General');
 });
 

@@ -13,16 +13,20 @@
  * Zero backend server requirements, 100% CORS-friendly, zero disk bloat.
  */
 
-export const SOVEREIGN_SPRAV_BASE = 'https://raw.githubusercontent.com/SVSPraveen/SPrav-Job-AI/sovereign-job-feed';
+export const SOVEREIGN_SPRAV_BASE = 'https://raw.githubusercontent.com/SVSPraveen/SPrav-Live-Feed/sovereign-job-feed';
 export const FALLBACK_MIRROR_BASE = 'https://raw.githubusercontent.com/Feashliaa/job-board-data/main/data';
 export const GITHUB_DATA_BASE = SOVEREIGN_SPRAV_BASE;
 
 const SIMPLIFY_NEW_GRAD_URL = 'https://raw.githubusercontent.com/SimplifyJobs/New-Grad-Positions/dev/.github/scripts/listings.json';
 const SIMPLIFY_INTERN_URL = 'https://raw.githubusercontent.com/SimplifyJobs/Summer2025-Internships/dev/.github/scripts/listings.json';
 
-// Himalayas: Free, public, CORS-enabled remote tech jobs API (no auth required)
+import { computeJobDedupKey } from './browser_ats_scanner.js';
+
+// Keyless Free Public CORS-Enabled Tech Job APIs (Zero Authentication / Zero Keys Required)
 const HIMALAYAS_BASE_URL = 'https://himalayas.app/jobs/api';
 const HIMALAYAS_SEARCH_URL = 'https://himalayas.app/jobs/api/search';
+const JOBICY_BASE_URL = 'https://jobicy.com/api/v2/remote-jobs';
+const ARBEITNOW_BASE_URL = 'https://www.arbeitnow.com/api/job-board-api';
 
 // In-memory cache for metadata to avoid redundant network pings
 let _cachedMetadata = null;
@@ -117,7 +121,7 @@ async function decompressGzipResponse(response) {
 }
 
 /**
- * Fetches live metadata for the 1.5M+ directly-sourced tech listings index.
+ * Fetches live metadata for the 3.5M+ directly-sourced tech listings index.
  * Probes the primary Sovereign SPrav CDN first, then gracefully cascades to fallback.
  * @param {AbortSignal} [signal]
  * @returns {Promise<{ total_jobs: number, active_companies: number, last_updated: string, platforms: string, source: string }>}
@@ -343,7 +347,7 @@ export async function streamJobChunk(chunkIndex = 0, filterOptions = {}, signal)
 }
 
 /**
- * Progressive multi-chunk search across 1.5M+ directly-sourced tech listings.
+ * Progressive multi-chunk search across 3.5M+ directly-sourced tech listings.
  * Powered by client-side Chunked Inverted Index with BM25 ranking.
  * Keeps total execution time under 50ms while scanning up to 50,000–75,000 jobs.
  *
@@ -580,7 +584,7 @@ export async function fetchHimalayasJobs(options = {}) {
   try {
     const res = await fetch(url.toString(), {
       signal,
-      headers: { 'User-Agent': 'SPrav-Job-AI/4.0 (himalayas-integration)' }
+      headers: { 'User-Agent': 'SPrav-Job-AI/1.0.0 (himalayas-integration)' }
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
@@ -632,7 +636,7 @@ export async function fetchHimalayasSearch(query = '', options = {}) {
 
     const res = await fetch(url.toString(), {
       signal,
-      headers: { 'User-Agent': 'SPrav-Job-AI/4.0 (himalayas-integration)' }
+      headers: { 'User-Agent': 'SPrav-Job-AI/1.0.0 (himalayas-integration)' }
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
@@ -652,3 +656,199 @@ export async function fetchHimalayasSearch(query = '', options = {}) {
     return jobs;
   }
 }
+
+/**
+ * Normalizes a raw Jobicy API job object into SPrav standard schema.
+ * @param {Object} raw - Raw job object from Jobicy API
+ * @returns {Object|null}
+ */
+export function normalizeJobicyJob(raw) {
+  if (!raw || !raw.jobTitle) return null;
+  const company = (raw.companyName || 'Tech Company').trim();
+  const location = raw.jobGeo || 'Remote';
+  const isRemote = true; // Jobicy is dedicated remote tech
+
+  let salaryRange = null;
+  if (raw.annualSalaryMin && raw.annualSalaryMax) {
+    const sym = raw.salaryCurrency === 'USD' || !raw.salaryCurrency ? '$' : `${raw.salaryCurrency} `;
+    salaryRange = `${sym}${Math.round(raw.annualSalaryMin / 1000)}k – ${sym}${Math.round(raw.annualSalaryMax / 1000)}k`;
+  }
+
+  const safeId = `jobicy_${raw.id || Math.random().toString(36).substring(2, 10)}`;
+
+  return {
+    id: safeId,
+    title: raw.jobTitle.trim(),
+    company,
+    location,
+    url: raw.url || 'https://jobicy.com',
+    source: 'JOBICY_FEED',
+    portal: 'Jobicy Remote Tech (Public CORS)',
+    provenance_tier: 'keyless_public_api',
+    provenance_label: 'Jobicy Free Public Feed',
+    freshness_guarantee: 'Keyless Open Job Board API',
+    description: raw.jobExcerpt 
+      ? raw.jobExcerpt.replace(/<[^>]+>/g, ' ').slice(0, 400).trim()
+      : `${raw.jobTitle} at ${company}. Industry: ${raw.jobIndustry || 'Engineering'}.`,
+    salary_range: salaryRange,
+    is_remote: isRemote,
+    category: raw.jobIndustry || 'Engineering',
+    posted_at: raw.pubDate || new Date().toISOString()
+  };
+}
+
+/**
+ * Fetches remote tech jobs from the Jobicy free public API.
+ * 100% keyless, CORS-enabled, no authentication required.
+ * @param {Object} [options={}]
+ * @returns {Promise<Array<Object>>}
+ */
+export async function fetchJobicyJobs(options = {}) {
+  const { keyword = '', limit = 50, signal } = options;
+  try {
+    const url = new URL(JOBICY_BASE_URL);
+    url.searchParams.set('count', String(Math.min(limit, 50)));
+    url.searchParams.set('industry', 'engineering');
+
+    const res = await fetch(url.toString(), {
+      signal,
+      headers: { 'User-Agent': 'SPrav-Job-AI/1.0.0 (jobicy-integration)' }
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const rawJobs = Array.isArray(data.jobs) ? data.jobs : [];
+    const cleanKeyword = keyword.trim().toLowerCase();
+
+    const jobs = [];
+    for (const raw of rawJobs) {
+      if (cleanKeyword) {
+        const titleHit = (raw.jobTitle || '').toLowerCase().includes(cleanKeyword);
+        const compHit = (raw.companyName || '').toLowerCase().includes(cleanKeyword);
+        const indHit = (raw.jobIndustry || '').toLowerCase().includes(cleanKeyword);
+        if (!titleHit && !compHit && !indHit) continue;
+      }
+      const normalized = normalizeJobicyJob(raw);
+      if (normalized) jobs.push(normalized);
+      if (jobs.length >= limit) break;
+    }
+    return jobs;
+  } catch (err) {
+    if (err?.name === 'AbortError') throw err;
+    return [];
+  }
+}
+
+/**
+ * Normalizes a raw Arbeitnow API job object into SPrav standard schema.
+ * @param {Object} raw - Raw job object from Arbeitnow API
+ * @returns {Object|null}
+ */
+export function normalizeArbeitnowJob(raw) {
+  if (!raw || !raw.title) return null;
+  const company = (raw.company_name || 'Tech Employer').trim();
+  const location = raw.location || (raw.remote ? 'Remote' : 'Worldwide');
+  const isRemote = Boolean(raw.remote) || /remote/i.test(location);
+
+  const safeId = `arbeitnow_${raw.slug || Math.random().toString(36).substring(2, 10)}`;
+
+  return {
+    id: safeId,
+    title: raw.title.trim(),
+    company,
+    location,
+    url: raw.url || 'https://www.arbeitnow.com',
+    source: 'ARBEITNOW_FEED',
+    portal: 'Arbeitnow Global ATS (Public CORS)',
+    provenance_tier: 'keyless_public_api',
+    provenance_label: 'Arbeitnow Free Public Feed',
+    freshness_guarantee: 'Keyless Open Job Board API',
+    description: raw.description 
+      ? raw.description.replace(/<[^>]+>/g, ' ').slice(0, 400).trim()
+      : `${raw.title} at ${company}. Tags: ${(raw.tags || []).join(', ')}.`,
+    is_remote: isRemote,
+    category: (raw.tags || [])[0] || 'Engineering',
+    posted_at: raw.created_at ? new Date(raw.created_at * 1000).toISOString() : new Date().toISOString()
+  };
+}
+
+/**
+ * Fetches jobs from the Arbeitnow free public API.
+ * 100% keyless, CORS-enabled, no authentication required.
+ * @param {Object} [options={}]
+ * @returns {Promise<Array<Object>>}
+ */
+export async function fetchArbeitnowJobs(options = {}) {
+  const { keyword = '', limit = 50, signal } = options;
+  try {
+    const res = await fetch(ARBEITNOW_BASE_URL, {
+      signal,
+      headers: { 'User-Agent': 'SPrav-Job-AI/1.0.0 (arbeitnow-integration)' }
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const rawJobs = Array.isArray(data.data) ? data.data : [];
+    const cleanKeyword = keyword.trim().toLowerCase();
+
+    const jobs = [];
+    for (const raw of rawJobs) {
+      if (cleanKeyword) {
+        const titleHit = (raw.title || '').toLowerCase().includes(cleanKeyword);
+        const compHit = (raw.company_name || '').toLowerCase().includes(cleanKeyword);
+        const tagHit = (raw.tags || []).some(t => t.toLowerCase().includes(cleanKeyword));
+        if (!titleHit && !compHit && !tagHit) continue;
+      }
+      const normalized = normalizeArbeitnowJob(raw);
+      if (normalized) jobs.push(normalized);
+      if (jobs.length >= limit) break;
+    }
+    return jobs;
+  } catch (err) {
+    if (err?.name === 'AbortError') throw err;
+    return [];
+  }
+}
+
+/**
+ * Live multi-feed discovery across keyless, unauthenticated CORS APIs in parallel.
+ * Enforces strict semantic deduplication so no duplicate cards are ever returned.
+ *
+ * @param {string} query - Keyword query
+ * @param {Object} [options={}]
+ * @returns {Promise<Array<Object>>} Deduplicated normalized jobs
+ */
+export async function fetchLiveKeylessCORSJobs(query = '', options = {}) {
+  const { limit = 60, signal } = options;
+  const targetPerFeed = Math.ceil(limit / 2);
+
+  const [himalayasRes, jobicyRes, arbeitnowRes] = await Promise.allSettled([
+    query ? fetchHimalayasSearch(query, { limit: targetPerFeed, signal }) : fetchHimalayasJobs({ limit: targetPerFeed, signal }),
+    fetchJobicyJobs({ keyword: query, limit: targetPerFeed, signal }),
+    fetchArbeitnowJobs({ keyword: query, limit: targetPerFeed, signal })
+  ]);
+
+  const candidates = [
+    ...(himalayasRes.status === 'fulfilled' && Array.isArray(himalayasRes.value) ? himalayasRes.value : (himalayasRes.value?.jobs || [])),
+    ...(jobicyRes.status === 'fulfilled' && Array.isArray(jobicyRes.value) ? jobicyRes.value : []),
+    ...(arbeitnowRes.status === 'fulfilled' && Array.isArray(arbeitnowRes.value) ? arbeitnowRes.value : [])
+  ];
+
+  // Enforce client-side deduplication using canonical semantic and company:::title keys
+  const deduped = [];
+  const seenDedupKeys = new Set();
+  const seenCompanyTitleKeys = new Set();
+
+  for (const job of candidates) {
+    if (!job || !job.title || !job.company) continue;
+    const dedupKey = computeJobDedupKey(job);
+    const ctKey = `${job.company.toLowerCase().trim()}:::${job.title.toLowerCase().trim()}`;
+    if (dedupKey && seenDedupKeys.has(dedupKey)) continue;
+    if (seenCompanyTitleKeys.has(ctKey)) continue;
+    if (dedupKey) seenDedupKeys.add(dedupKey);
+    seenCompanyTitleKeys.add(ctKey);
+    deduped.push(job);
+    if (deduped.length >= limit) break;
+  }
+
+  return deduped;
+}
+

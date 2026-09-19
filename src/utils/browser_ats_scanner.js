@@ -2727,7 +2727,7 @@ export class BrowserAtsScanner {
         } catch {}
       }
 
-      // 3. Fallback: query 1.5M Global Index for this Workday company's indexed snapshot listings
+      // 3. Fallback: query 3.5M Global Index for this Workday company's indexed snapshot listings
       if (!data) {
         try {
           const streamRes = await searchHighVolumeStream(company, {
@@ -4020,12 +4020,14 @@ export class BrowserAtsScanner {
 
   /**
    * Starts continuous scanning with intervals.
+   * Default interval is 60 seconds (1 minute) for maximum safe freshness without 429 rate limiting.
    */
   startContinuousScan(options = {}) {
     if (this.isRunning) return;
     this.isRunning = true;
     this.status.active = true;
-    this.status.state = 'Running (In-Browser ATS Scanner)';
+    const intervalMs = Number(options.intervalMs) || 60000;
+    this.status.state = `Running (Autonomous ATS Scanner • ${Math.round(intervalMs / 1000)}s cycle)`;
     this._notify();
 
     const loop = async () => {
@@ -4033,7 +4035,7 @@ export class BrowserAtsScanner {
 
       // Throttle when browser tab is hidden to conserve power and avoid rate limiting
       if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
-        setTimeout(loop, 30000);
+        this._loopTimer = setTimeout(loop, 30000);
         return;
       }
 
@@ -4058,8 +4060,10 @@ export class BrowserAtsScanner {
       await this.scanOnce({ ...options, scope: dynamicScope, kb: dynamicKb });
 
       if (this.isRunning) {
-        // 2-minute cadence between scan cycles when active
-        setTimeout(loop, 120000);
+        // Dynamic interval (default 60s) with ±3s organic jitter to prevent predictable bot fingerprinting
+        const jitter = Math.floor(Math.random() * 6000) - 3000;
+        const nextDelay = Math.max(30000, intervalMs + jitter);
+        this._loopTimer = setTimeout(loop, nextDelay);
       }
     };
 
@@ -4073,6 +4077,10 @@ export class BrowserAtsScanner {
     this.isRunning = false;
     this.status.active = false;
     this.status.state = 'Stopped';
+    if (this._loopTimer) {
+      clearTimeout(this._loopTimer);
+      this._loopTimer = null;
+    }
     if (this.abortController) {
       this.abortController.abort();
       this.abortController = null;
@@ -4477,7 +4485,7 @@ export class BrowserAtsScanner {
         } catch {}
       })(),
 
-      // 5. 1.5M+ Directly-Sourced Tech Listings (Ashby, Greenhouse, Lever, Workday, Himalayas)
+      // 5. 3.5M+ Directly-Sourced Tech Listings (Ashby, Greenhouse, Lever, Workday, Himalayas)
       (async () => {
         try {
           const streamResult = await searchHighVolumeStream(cleanQ, {

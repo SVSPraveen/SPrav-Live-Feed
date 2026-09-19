@@ -24,7 +24,7 @@ import {
 } from './structured_schemas.js';
 import { WEBGPU_MODELS, getOptimalModelPolicy } from './webgpu_detector.js';
 import { storageVault } from './browser_storage_vault.js';
-import { safeJsonParse, sanitizeObject } from './security_guard.js';
+import { safeJsonParse, sanitizeObject, isValidWebUrl, isCloudMetadataUrl } from './security_guard.js';
 import { findRelevantStarStories } from './star_story_bank.js';
 import {
   retrieveStyleAnchor,
@@ -348,7 +348,10 @@ class HybridLLMClient {
       try {
         const customEndpoint = localStorage.getItem('sprav_ollama_endpoint');
         if (customEndpoint && typeof customEndpoint === 'string' && customEndpoint.trim()) {
-          return customEndpoint.trim().replace(/\/+$/, '');
+          const candidate = customEndpoint.trim().replace(/\/+$/, '');
+          if (isValidWebUrl(candidate) && !isCloudMetadataUrl(candidate)) {
+            return candidate;
+          }
         }
       } catch (_) {}
 
@@ -1159,12 +1162,47 @@ class HybridLLMClient {
   }
 
   /**
+   * Helper to dispatch failover notification when cloud limits or errors occur.
+   */
+  _dispatchCloudFailover(provider, switchedTo, reason = 'Rate limit or quota reached') {
+    if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+      try {
+        window.dispatchEvent(new CustomEvent('sprav_cloud_rate_limit_failover', {
+          detail: {
+            provider,
+            switchedTo,
+            reason,
+            message: `Cloud API quota reached on ${provider}. Seamlessly switched to ${switchedTo === 'ollama' ? 'Local Ollama (Qwen 2.5 Coder)' : switchedTo === 'webgpu' ? 'Local WebGPU (Qwen 2.5 Coder)' : 'Local Heuristic Engine'}.`,
+            timestamp: Date.now()
+          }
+        }));
+      } catch {}
+    }
+  }
+
+  /**
+   * Subscribe to cloud rate-limit auto-failover events.
+   */
+  onCloudRateLimitFailover(callback) {
+    if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+      const handler = (e) => callback(e.detail);
+      window.addEventListener('sprav_cloud_rate_limit_failover', handler);
+      return () => window.removeEventListener('sprav_cloud_rate_limit_failover', handler);
+    }
+    return () => {};
+  }
+
+  /**
    * Direct in-browser call to client-configured cloud LLMs.
    * Dispatches according to preferred provider or cascades across all active BYOK keys.
+   * If cloud keys hit 429 rate limits or are exhausted, seamlessly auto-failovers to Local Qwen (Ollama or WebGPU).
    */
   async callClientCloudLLM(prompt, system = null, options = {}) {
     const preferred = this.getPreferredProvider();
     const allProviders = ['groq', 'gemini', 'anthropic', 'deepseek', 'openrouter', 'mistral', 'openai'];
+
+    let hadRateLimit = false;
+    let lastProviderTried = preferred;
 
     // 1. If preferred provider is explicitly specified, try it first
     if (preferred && preferred !== 'auto') {
@@ -1175,6 +1213,9 @@ class HybridLLMClient {
           if (res) return res;
         } catch (e) {
           console.warn(`[Hybrid LLM] Preferred provider (${preferred}) failed:`, e);
+          if (e?.name === 'ByokRateLimitError' || e?.status === 429 || (typeof e?.message === 'string' && e.message.includes('429'))) {
+            hadRateLimit = true;
+          }
         }
       }
     }
@@ -1184,11 +1225,62 @@ class HybridLLMClient {
       if (service === preferred) continue; // already tried
       const key = await this.getCloudCredential(service);
       if (key) {
+        lastProviderTried = service;
         try {
           const res = await this._callProviderEndpointWithRetry(service, key, prompt, system, options);
           if (res) return res;
         } catch (e) {
           console.warn(`[Hybrid LLM] Cloud provider (${service}) failed:`, e);
+          if (e?.name === 'ByokRateLimitError' || e?.status === 429 || (typeof e?.message === 'string' && e.message.includes('429'))) {
+            hadRateLimit = true;
+          }
+        }
+      }
+    }
+
+    // 3. If cloud failed or rate-limited and auto-failover is permitted, seamlessly failover to local engine
+    if (options?.autoFailover !== false) {
+      // 3A. Try Localhost Ollama (Champion Qwen 2.5 Coder or user's local model)
+      try {
+        const isOllamaOnline = await this.checkOllamaReachable();
+        if (isOllamaOnline) {
+          const targetModel = this.getBestOllamaModel(options?.taskType) || 'qwen2.5-coder:7b-instruct';
+          this._dispatchCloudFailover(lastProviderTried || 'cloud', 'ollama', hadRateLimit ? '429 Rate Limit' : 'Cloud Unavailable');
+          const ollamaRes = await fetch(`${this._getOllamaBaseUrl()}/api/generate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              model: targetModel,
+              system: system || undefined,
+              prompt,
+              stream: false,
+              options: { temperature: typeof options?.temperature === 'number' ? options.temperature : 0.3 }
+            })
+          });
+          if (ollamaRes.ok) {
+            const json = await parseResponseJson(ollamaRes);
+            if (json?.response) return json.response.trim();
+          }
+        }
+      } catch (ollamaErr) {
+        console.warn('[Hybrid LLM] Auto-failover to Ollama failed:', ollamaErr);
+      }
+
+      // 3B. Try In-Browser WebGPU if loaded
+      if (this.isReady()) {
+        try {
+          this._dispatchCloudFailover(lastProviderTried || 'cloud', 'webgpu', hadRateLimit ? '429 Rate Limit' : 'Cloud Unavailable');
+          const msgs = [];
+          if (system) msgs.push({ role: 'system', content: system });
+          msgs.push({ role: 'user', content: prompt });
+          const webgpuResp = await this.engine.chat.completions.create({
+            messages: msgs,
+            temperature: typeof options?.temperature === 'number' ? options.temperature : 0.3
+          });
+          const content = webgpuResp.choices?.[0]?.message?.content;
+          if (content) return content.trim();
+        } catch (webgpuErr) {
+          console.warn('[Hybrid LLM] Auto-failover to WebGPU failed:', webgpuErr);
         }
       }
     }

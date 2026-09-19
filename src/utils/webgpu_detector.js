@@ -16,10 +16,21 @@ export const WEBGPU_MODELS = {
   HIGH_TIER: {
     id: 'Qwen2.5-Coder-7B-Instruct-q4f16_1-MLC',
     name: 'Qwen 2.5 Coder (7B High Accuracy)',
+    label: 'Qwen 2.5 Coder (7B Premier Unlimited)',
+    tag: 'Champion Model',
     vramRequirement: '>= 6GB VRAM',
     sizeBytes: 4.3 * 1024 * 1024 * 1024,
     sizeFormatted: '~4.3 GB',
     tokensPerSecEstimate: '50-70 t/s on RTX'
+  },
+  REASONING_7B: {
+    id: 'DeepSeek-R1-Distill-Qwen-7B-q4f16_1-MLC',
+    name: 'DeepSeek-R1-Distill-Qwen (7B Reasoning CoT)',
+    tag: 'Reasoning CoT',
+    vramRequirement: '>= 6GB VRAM',
+    sizeBytes: 4.3 * 1024 * 1024 * 1024,
+    sizeFormatted: '~4.3 GB',
+    tokensPerSecEstimate: '45-65 t/s on RTX'
   },
   BALANCED_TIER: {
     id: 'Qwen2.5-Coder-3B-Instruct-q4f16_1-MLC',

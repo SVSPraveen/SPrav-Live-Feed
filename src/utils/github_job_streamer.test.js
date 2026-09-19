@@ -3,6 +3,9 @@ import assert from 'node:assert/strict';
 import {
   normalizeFeashliaaJob,
   normalizeSimplifyJob,
+  normalizeJobicyJob,
+  normalizeArbeitnowJob,
+  fetchLiveKeylessCORSJobs,
   fetchJobBoardMetadata,
   streamJobChunk,
   searchHighVolumeStream,
@@ -13,6 +16,7 @@ import {
   SOVEREIGN_SPRAV_BASE,
   FALLBACK_MIRROR_BASE
 } from './github_job_streamer.js';
+import { getJobDedupKey, filterCleanActiveJobs } from '../../scripts/sprav_universe_chunker.js';
 
 
 test('normalizeFeashliaaJob: standard job mapping & salary percentiles', () => {
@@ -223,6 +227,113 @@ test('dual CDN: SOVEREIGN_SPRAV_BASE and FALLBACK_MIRROR_BASE are valid URLs', (
   assert.ok(SOVEREIGN_SPRAV_BASE.includes('sovereign-job-feed'));
   assert.ok(FALLBACK_MIRROR_BASE.startsWith('https://raw.githubusercontent.com/'));
   assert.ok(FALLBACK_MIRROR_BASE.includes('job-board-data'));
+});
+
+test('normalizeJobicyJob: correctly maps keyless public Jobicy API response', () => {
+  const raw = {
+    id: 99123,
+    url: 'https://jobicy.com/jobs/senior-fullstack-dev-123',
+    jobTitle: 'Senior Fullstack Developer',
+    companyName: 'Starlight Interactive Inc.',
+    jobGeo: 'Remote, US',
+    jobIndustry: 'engineering',
+    jobExcerpt: 'Build next-generation distributed interfaces with React and Go.',
+    pubDate: '2026-09-18T12:00:00Z',
+    annualSalaryMin: '140000',
+    annualSalaryMax: '180000',
+    salaryCurrency: 'USD'
+  };
+
+  const normalized = normalizeJobicyJob(raw);
+  assert.ok(normalized);
+  assert.equal(normalized.title, 'Senior Fullstack Developer');
+  assert.equal(normalized.company, 'Starlight Interactive Inc.');
+  assert.equal(normalized.source, 'JOBICY_FEED');
+  assert.equal(normalized.is_remote, true);
+  assert.equal(normalized.salary_range, '$140k – $180k');
+  assert.equal(normalized.provenance_tier, 'keyless_public_api');
+  assert.equal(normalizeJobicyJob(null), null);
+});
+
+test('normalizeArbeitnowJob: correctly maps keyless public Arbeitnow API response', () => {
+  const raw = {
+    slug: 'kubernetes-platform-engineer-berlin-456',
+    company_name: 'FinTech Cloud AG',
+    title: 'Kubernetes Platform Engineer',
+    description: 'Lead multi-region Kubernetes clusters and Terraform deployments.',
+    remote: true,
+    url: 'https://www.arbeitnow.com/view/kubernetes-platform-engineer-456',
+    tags: ['DevOps', 'Kubernetes', 'Golang'],
+    location: 'Berlin / Remote',
+    created_at: 1726700000
+  };
+
+  const normalized = normalizeArbeitnowJob(raw);
+  assert.ok(normalized);
+  assert.equal(normalized.title, 'Kubernetes Platform Engineer');
+  assert.equal(normalized.company, 'FinTech Cloud AG');
+  assert.equal(normalized.source, 'ARBEITNOW_FEED');
+  assert.equal(normalized.is_remote, true);
+  assert.equal(normalized.category, 'DevOps');
+  assert.equal(normalized.provenance_tier, 'keyless_public_api');
+  assert.equal(normalizeArbeitnowJob(null), null);
+});
+
+test('getJobDedupKey: collapses legal suffixes and bracket variations into canonical fingerprint', () => {
+  const jobA = {
+    company: 'Amazon Web Services, Inc.',
+    title: 'Senior Software Development Engineer (Remote)',
+    location: 'Remote - US',
+    is_remote: true
+  };
+  const jobB = {
+    company: 'Amazon Web Services',
+    title: 'Senior Software Development Engineer [Full-Time]',
+    location: 'Virtual',
+    is_remote: true
+  };
+  const keyA = getJobDedupKey(jobA);
+  const keyB = getJobDedupKey(jobB);
+  assert.equal(keyA, keyB, 'Both variations must produce identical canonical dedup keys');
+});
+
+test('filterCleanActiveJobs: prioritizes direct corporate ATS over aggregator duplicates', () => {
+  const directWorkday = {
+    id: 'mirror_workday_nvidia_1',
+    company: 'NVIDIA Corporation',
+    title: 'Senior Deep Learning Engineer',
+    location: 'Santa Clara, CA',
+    source: 'WORKDAY_CXS_ENTERPRISE',
+    portal: 'Nvidia Workday Careers',
+    posted_at: new Date().toISOString()
+  };
+
+  const aggregatorCopy = {
+    id: 'mirror_jobicy_2',
+    company: 'Nvidia',
+    title: 'Senior Deep Learning Engineer (Full-Time)',
+    location: 'Remote',
+    source: 'JOBICY_FEED',
+    portal: 'Jobicy Remote Tech',
+    posted_at: new Date().toISOString()
+  };
+
+  const { cleanJobs, stats } = filterCleanActiveJobs([aggregatorCopy, directWorkday]);
+  assert.equal(cleanJobs.length, 1, 'Duplicate must be filtered out');
+  assert.equal(cleanJobs[0].source, 'WORKDAY_CXS_ENTERPRISE', 'Higher fidelity direct Workday posting must be retained');
+  assert.equal(stats.droppedDuplicates, 1, 'Duplicate counter must record 1 dropped duplicate');
+});
+
+test('fetchLiveKeylessCORSJobs: returns deduplicated normalized jobs array', async () => {
+  const jobs = await fetchLiveKeylessCORSJobs('engineer', { limit: 10 });
+  assert.ok(Array.isArray(jobs));
+  // Ensure no duplicate keys exist in the returned set
+  const seenKeys = new Set();
+  for (const j of jobs) {
+    const key = `${j.company.toLowerCase()}:::${j.title.toLowerCase()}`;
+    assert.equal(seenKeys.has(key), false, `Job ${key} must not be duplicated`);
+    seenKeys.add(key);
+  }
 });
 
 

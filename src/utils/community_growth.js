@@ -63,7 +63,7 @@ export const MANIFESTO_PILLARS = [
  */
 export function generateSocialShareUrl(platform, payload = {}) {
   const {
-    url = 'https://github.com/SVSPraveen/SPrav-Job-AI',
+    url = 'https://github.com/SVSPraveen/SPrav-Live-Feed',
     title = 'SPrav Job AI — 100% Free Autonomous Career Intelligence & In-Browser ATS Matcher',
     summary = 'Found my next tech job using 100% client-side AI with zero fees and total resume privacy!',
     hashtags = ['JobSearch', 'OpenSource', 'WebGPU', 'CareerAI']
@@ -108,7 +108,7 @@ export function buildShowHnPost(options = {}) {
   const {
     appName = 'SPrav Job AI',
     author = 'SVS Praveen',
-    repoUrl = 'https://github.com/SVSPraveen/SPrav-Job-AI',
+    repoUrl = 'https://github.com/SVSPraveen/SPrav-Live-Feed',
     channelsCount = 16
   } = options;
 
@@ -127,7 +127,7 @@ Instead of another commercial aggregator, **${appName}** is 100% free forever, r
 4. **Universal 1-Click AutoFill Bookmarklet:** Pure JS bookmarklet (\`javascript:(...)\`) that populates Greenhouse, Lever, and Ashby applications with zero browser extension downloads and zero permissions.
 5. **Multi-Model BYOK Cloud AI & WebGPU:** Runs compact local models (Qwen 2.5 Coder) via WebGPU, or routes through client-side free-tier developer APIs (Google Gemini, Groq LPU, DeepSeek V3/R1, Ollama Local, OpenAI) with automated cascading failover.
 6. **Laptop GPU to Mobile Continuity:** Compresses top matched jobs into a pure JS ISO/IEC 18004 QR code or \`.sprav-sync\` file so candidates can scan from their phone and continue applying on the go.
-7. **1,640 Passing Automated Tests & Zero Server Cost:** 1,640 tests across 164 test suites (934 unit + 706 component) with 100% mutation test verification. Everything is stored in your browser's IndexedDB storage vault and locked via \`navigator.storage.persist()\`. Zero telemetry, zero resumes collected.
+7. **1,677 Passing Automated Tests & Zero Server Cost:** 1,677 tests across 168 test suites (948 unit + 729 component) with 100% mutation test verification. Everything is stored in your browser's IndexedDB storage vault and locked via \`navigator.storage.persist()\`. Zero telemetry, zero resumes collected.
 
 Code & Web App: ${repoUrl}
 
@@ -142,7 +142,7 @@ I'd love your honest feedback, critique on the browser-native architecture, and 
  */
 export function buildRedditPost(subreddit, options = {}) {
   const {
-    repoUrl = 'https://github.com/SVSPraveen/SPrav-Job-AI'
+    repoUrl = 'https://github.com/SVSPraveen/SPrav-Live-Feed'
   } = options;
 
   switch (subreddit) {
@@ -230,7 +230,7 @@ Wishing everyone the best of luck with their applications!`
 export function buildLinkedInPost(options = {}) {
   const {
     author = 'SVS Praveen',
-    repoUrl = 'https://github.com/SVSPraveen/SPrav-Job-AI'
+    repoUrl = 'https://github.com/SVSPraveen/SPrav-Live-Feed'
   } = options;
 
   return `The tech job search in 2026 is fundamentally broken.
@@ -249,7 +249,7 @@ That's why I built and open-sourced **SPrav Job AI** — an autonomous, privacy-
 • **In-Browser ATS PDF & DOCX Resume Compiler:** Zero-dependency vector compiler generating single-column Harvard-format resumes in 1 second.
 • **1-Click AutoFill Bookmarklet:** Zero extensions to install; fills applications safely in one click.
 • **Hardware Accelerated & Free Cloud:** Runs on WebGPU locally or through free-tier Google Gemini, Groq, and Ollama APIs.
-• **1,640 Passing Automated Tests:** Engineered with comprehensive testing across 164 suites and 100% mutation test verification.
+• **1,677 Passing Automated Tests:** Engineered with comprehensive testing across 168 suites and 100% mutation test verification.
 • **100% Private:** Stored strictly in your browser's IndexedDB vault. Zero resumes harvested.
 
 Built by ${author} for the global developer and job-seeking community.
@@ -301,7 +301,7 @@ export function generateEmbedBadgeMarkdown(badgeType = 'powered') {
   const label = toShieldsSegment(labelDisplay);
   const message = toShieldsSegment(messageDisplay);
   const badgeUrl = `https://img.shields.io/badge/${label}-${message}-${color}.svg`;
-  const targetUrl = 'https://github.com/SVSPraveen/SPrav-Job-AI';
+  const targetUrl = 'https://github.com/SVSPraveen/SPrav-Live-Feed';
 
   return {
     markdown: `[![${labelDisplay}](${badgeUrl})](${targetUrl})`,
@@ -318,10 +318,10 @@ export function generateEmbedBadgeMarkdown(badgeType = 'powered') {
 export function exportLaunchKit(stats = {}) {
   return {
     appName: 'SPrav Job AI',
-    version: '2.5.0 Pro Edition',
+    version: '1.0.0',
     exportTimestamp: new Date().toISOString(),
-    testsPassing: 1640,
-    testSuites: 164,
+    testsPassing: 1677,
+    testSuites: 168,
     channelsCount: 16,
     companyBoardsCount: 500,
     manifesto: MANIFESTO_PILLARS,

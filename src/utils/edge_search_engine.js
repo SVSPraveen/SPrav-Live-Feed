@@ -1,7 +1,7 @@
 /**
  * src/utils/edge_search_engine.js
  * =================================
- * Pure Client-Side Instant Edge Search Engine across 1.5M+ sovereign tech jobs.
+ * Pure Client-Side Instant Edge Search Engine across 3.5M+ sovereign tech jobs.
  * 
  * Powered by:
  * 1. Build-Time Chunked Inverted Index (~350 KB compressed dictionary)
@@ -28,7 +28,7 @@ export const INDEX_CANDIDATE_URLS = [
 export const CHUNK_CDN_BASES = [
   'https://raw.githubusercontent.com/SVSPraveen/SPrav-Live-Feed/gh-pages/chunks',
   'https://svspraveen.github.io/SPrav-Live-Feed/chunks',
-  'https://raw.githubusercontent.com/SVSPraveen/SPrav-Job-AI/sovereign-job-feed/chunks',
+  'https://raw.githubusercontent.com/SVSPraveen/SPrav-Live-Feed/sovereign-job-feed/chunks',
   'https://raw.githubusercontent.com/Feashliaa/job-board-data/main/data/chunks'
 ];
 
@@ -355,7 +355,7 @@ export class EdgeSearchEngine {
   }
 
   /**
-   * Executes an instant edge search query across the 1.5M+ sovereign index.
+   * Executes an instant edge search query across the 3.5M+ sovereign index.
    * @param {string} query
    * @param {Object} [options]
    * @returns {Promise<{ jobs: Array<Object>, totalMatches: number, durationMs: number, chunksScanned: number, totalUniverseIndexed: number }>}

@@ -90,7 +90,7 @@ test('community_growth: MANIFESTO_PILLARS and SUBREDDIT_PRESETS constants integr
 
 test('community_growth: social share url generator produces valid encoded URLs and handles defaults', () => {
   const payload = {
-    url: 'https://github.com/SVSPraveen/SPrav-Job-AI',
+    url: 'https://github.com/SVSPraveen/SPrav-Live-Feed',
     title: 'SPrav Job AI',
     summary: 'Great free tool for tech jobs',
     hashtags: ['JobSearch', 'TechJobs']
@@ -110,7 +110,7 @@ test('community_growth: social share url generator produces valid encoded URLs a
 
   const whatsappUrl = generateSocialShareUrl(SOCIAL_PLATFORMS.WHATSAPP, payload);
   assert.ok(whatsappUrl.startsWith('https://api.whatsapp.com/send'));
-  assert.ok(whatsappUrl.includes(encodeURIComponent('SPrav Job AI\n\nGreat free tool for tech jobs\n\nhttps://github.com/SVSPraveen/SPrav-Job-AI')));
+  assert.ok(whatsappUrl.includes(encodeURIComponent('SPrav Job AI\n\nGreat free tool for tech jobs\n\nhttps://github.com/SVSPraveen/SPrav-Live-Feed')));
 
   const telegramUrl = generateSocialShareUrl(SOCIAL_PLATFORMS.TELEGRAM, payload);
   assert.ok(telegramUrl.startsWith('https://t.me/share/url'));
@@ -126,7 +126,7 @@ test('community_growth: social share url generator produces valid encoded URLs a
 
   // Default parameters when called with no arguments
   const defaultLinkedIn = generateSocialShareUrl(SOCIAL_PLATFORMS.LINKEDIN);
-  assert.ok(defaultLinkedIn.includes('https%3A%2F%2Fgithub.com%2FSVSPraveen%2FSPrav-Job-AI'));
+  assert.ok(defaultLinkedIn.includes('https%3A%2F%2Fgithub.com%2FSVSPraveen%2FSPrav-Live-Feed'));
 
   const defaultTwitter = generateSocialShareUrl(SOCIAL_PLATFORMS.TWITTER);
   assert.ok(defaultTwitter.includes('JobSearch%2COpenSource%2CWebGPU%2CCareerAI'));
@@ -142,7 +142,7 @@ test('community_growth: buildShowHnPost generates comprehensive markdown with cu
   assert.ok(defaultPost.includes('# Show HN: SPrav Job AI'));
   assert.ok(defaultPost.includes('SVS Praveen'));
   assert.ok(defaultPost.includes('16 verified channels'));
-  assert.ok(defaultPost.includes('https://github.com/SVSPraveen/SPrav-Job-AI'));
+  assert.ok(defaultPost.includes('https://github.com/SVSPraveen/SPrav-Live-Feed'));
 
   // Custom options
   const post = buildShowHnPost({ author: 'Custom Author', appName: 'Custom App', repoUrl: 'https://custom.app', channelsCount: 20 });
@@ -179,7 +179,7 @@ test('community_growth: buildRedditPost supports all targeted subreddits and cus
   const defaultPost = buildRedditPost('jobs');
   assert.ok(defaultPost.title.includes('A completely free, privacy-first career intelligence app'));
   assert.ok(defaultPost.content.includes('Job seekers today deal with subscription paywalls'));
-  assert.ok(defaultPost.content.includes('https://github.com/SVSPraveen/SPrav-Job-AI'));
+  assert.ok(defaultPost.content.includes('https://github.com/SVSPraveen/SPrav-Live-Feed'));
 
   const unknownPost = buildRedditPost('other_sub');
   assert.strictEqual(unknownPost.title, defaultPost.title);
@@ -201,7 +201,7 @@ test('community_growth: buildLinkedInPost generates authentic narrative and tags
   // Default post
   const defaultPost = buildLinkedInPost();
   assert.ok(defaultPost.includes('SVS Praveen'));
-  assert.ok(defaultPost.includes('https://github.com/SVSPraveen/SPrav-Job-AI'));
+  assert.ok(defaultPost.includes('https://github.com/SVSPraveen/SPrav-Live-Feed'));
 
   // Custom post
   const post = buildLinkedInPost({ author: 'Praveen SVS', repoUrl: 'https://sprav.ai' });
@@ -218,7 +218,7 @@ test('community_growth: generateEmbedBadgeMarkdown produces valid shields.io lin
   assert.ok(defaultBadge.badgeUrl.includes('SPrav_Job_AI'));
   assert.ok(defaultBadge.badgeUrl.includes('Career_Intelligence'));
   assert.ok(defaultBadge.badgeUrl.includes('6366f1'));
-  assert.ok(defaultBadge.html.includes('https://github.com/SVSPraveen/SPrav-Job-AI'));
+  assert.ok(defaultBadge.html.includes('https://github.com/SVSPraveen/SPrav-Live-Feed'));
 
   const poweredBadge = generateEmbedBadgeMarkdown('powered');
   assert.ok(poweredBadge.markdown.includes('img.shields.io'));
@@ -244,7 +244,7 @@ test('community_growth: generateEmbedBadgeMarkdown produces valid shields.io lin
 test('community_growth: exportLaunchKit produces structured bundle with all presets', () => {
   const kit = exportLaunchKit({ author: 'Custom Author' });
   assert.strictEqual(kit.appName, 'SPrav Job AI');
-  assert.strictEqual(kit.version, '2.5.0 Pro Edition');
+  assert.strictEqual(kit.version, '1.0.0');
   assert.ok(Array.isArray(kit.manifesto));
   assert.strictEqual(kit.manifesto.length, 5);
   assert.ok(kit.showHn.includes('Custom Author'));

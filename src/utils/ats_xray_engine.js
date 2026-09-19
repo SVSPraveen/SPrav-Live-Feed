@@ -14,6 +14,7 @@
  */
 
 import { extractTextFromFile as clientExtractTextFromFile } from './client_resume_extractor.js';
+import { wasmEngine } from './wasm_engine_bridge.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CONSTANTS & DATABASES
@@ -149,12 +150,7 @@ const DEGREE_KEYWORDS = ['bachelor','master','phd','doctorate','associate','dipl
  */
 export function scoreToGrade(score) {
   if (typeof score !== 'number' || isNaN(score)) return 'F';
-  const clamped = Math.max(0, Math.min(100, score));
-  if (clamped >= GRADE_THRESHOLDS.A) return 'A';
-  if (clamped >= GRADE_THRESHOLDS.B) return 'B';
-  if (clamped >= GRADE_THRESHOLDS.C) return 'C';
-  if (clamped >= GRADE_THRESHOLDS.D) return 'D';
-  return 'F';
+  return wasmEngine.scoreToGrade(score);
 }
 
 /** Clamps a number to [0, 100] and rounds to nearest integer */
@@ -1176,25 +1172,8 @@ export function analyzeResume(resumeText, jobDescription = null, options = {}) {
   const dimensions = { contact, sections, format, keywords, actionVerbs, quantification, dates, length, redFlags, skills, education };
   if (jdMatch) dimensions.jdMatch = jdMatch;
 
-  // Compute overall score — weighted average
-  // If JD is provided, jdMatch replaces keywords weight
-  const weights = { ...DIMENSION_WEIGHTS };
-  if (jdMatch) {
-    weights.jdMatch  = weights.keywords;
-    weights.keywords = 0;
-  }
-
-  let overallScore = 0;
-  let totalWeight  = 0;
-  for (const [dim, result] of Object.entries(dimensions)) {
-    if (!result || typeof result.score !== 'number') continue;
-    const w = weights[dim] || 0;
-    overallScore += result.score * w;
-    totalWeight  += w;
-  }
-
-  if (totalWeight > 0) overallScore = overallScore / totalWeight;
-  overallScore = clamp100(Math.round(overallScore));
+  // Compute overall score — routed through Wasm scoring kernel (with seamless JS fallback)
+  const overallScore = wasmEngine.scoreResume(dimensions, !!jdMatch);
 
   // Build parsed view (what ATS "sees")
   const parsedView = {
