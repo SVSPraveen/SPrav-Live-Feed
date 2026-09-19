@@ -20,7 +20,7 @@ import fs from 'fs';
 import path from 'path';
 import zlib from 'zlib';
 import { fileURLToPath } from 'url';
-import { ALL_SOVEREIGN_TECH_COMPANIES, WORKDAY_ENTERPRISE_TENANTS } from '../src/utils/top_tech_companies_catalog.js';
+import { ALL_SOVEREIGN_TECH_COMPANIES, WORKDAY_ENTERPRISE_TENANTS, SMARTRECRUITERS_ENTERPRISE_TENANTS } from '../src/utils/top_tech_companies_catalog.js';
 import { CURATED_ATS_COMPANIES } from '../src/utils/browser_ats_scanner.js';
 import { filterCleanActiveJobs, chunkAndCompressJobs } from './sprav_universe_chunker.js';
 
@@ -759,6 +759,35 @@ async function scrapeWorkdayTenant(tenantConfig) {
   return jobs;
 }
 
+// 4B. Scrape SmartRecruiters Enterprise Verified Tenants (Visa, Bosch, Ikea, etc.)
+async function scrapeSmartRecruitersTenant(tenantConfig) {
+  const { name, slug, category = 'Enterprise Tech' } = tenantConfig;
+  const jobs = [];
+  try {
+    const res = await fetchWithRetry(`https://api.smartrecruiters.com/v1/companies/${slug}/postings`, 1, 4500);
+    if (res && res.ok) {
+      const data = await res.json();
+      for (const j of (data.content || [])) {
+        const loc = j.location?.city ? `${j.location.city}, ${j.location.country || ''}` : 'Remote';
+        jobs.push({
+          id: `mirror_sr_${slug.toLowerCase()}_${j.id}`,
+          title: j.name || 'Software Engineer',
+          company: name,
+          location: loc,
+          url: `https://jobs.smartrecruiters.com/${slug}/${j.id}`,
+          source: 'SMARTRECRUITERS_ENTERPRISE',
+          portal: `${name} Careers (SmartRecruiters)`,
+          category,
+          description: `${j.name} at ${name}. Location: ${loc}.`,
+          is_remote: loc.toLowerCase().includes('remote'),
+          posted_at: j.releasedDate || new Date().toISOString()
+        });
+      }
+    }
+  } catch {}
+  return jobs;
+}
+
 // 5. Scrape High-Volume Open Tech Universe Stream (29,000+ Company ATS Index)
 async function scrapeUniverseStream(chunkCount = 4) {
   const chunkIds = Array.from({ length: chunkCount }, (_, i) => i);
@@ -872,6 +901,11 @@ export async function runDailyMirror() {
   const workdayJobs = workdayResults.flat();
   console.log(`  ✓ Phase 2: Ingested ${workdayJobs.length} roles from ${WORKDAY_ENTERPRISE_TENANTS.length} Enterprise Workday Tenants.`);
 
+  // Phase 2B: SmartRecruiters Enterprise Global Portals
+  const srEnterpriseResults = await asyncPool(6, SMARTRECRUITERS_ENTERPRISE_TENANTS, scrapeSmartRecruitersTenant);
+  const srEnterpriseJobs = srEnterpriseResults.flat();
+  console.log(`  ✓ Phase 2B: Ingested ${srEnterpriseJobs.length} roles from ${SMARTRECRUITERS_ENTERPRISE_TENANTS.length} SmartRecruiters Enterprise Portals.`);
+
   // Phase 3: SimplifyJobs Verified Community Feeds
   const simplifyJobs = await scrapeSimplifyJobs();
   console.log(`  ✓ Phase 3: Ingested ${simplifyJobs.length} roles from SimplifyJobs.`);
@@ -885,7 +919,7 @@ export async function runDailyMirror() {
   console.log(`  ✓ Phase 5: Ingested ${universeJobs.length} roles from Universe ATS Stream.`);
 
   // Phase 6: Multi-Stage Sovereign Hygiene (Active-Only, Ghost Detection, Spam Detection, Canonical Dedup)
-  const allRaw = [...atsJobs, ...workdayJobs, ...simplifyJobs, ...apiJobs, ...universeJobs];
+  const allRaw = [...atsJobs, ...workdayJobs, ...srEnterpriseJobs, ...simplifyJobs, ...apiJobs, ...universeJobs];
   const { cleanJobs: aggregatedJobs, stats: hygieneStats } = filterCleanActiveJobs(allRaw, {
     maxAgeDays: 45
   });
@@ -920,7 +954,7 @@ export async function runDailyMirror() {
     updated_at: new Date().toISOString(),
     total_jobs: aggregatedJobs.length,
     companies_count: distinctCompanies.size,
-    boards_scraped: EXPANDED_SOVEREIGN_BOARDS.length + WORKDAY_ENTERPRISE_TENANTS.length,
+    boards_scraped: EXPANDED_SOVEREIGN_BOARDS.length + WORKDAY_ENTERPRISE_TENANTS.length + SMARTRECRUITERS_ENTERPRISE_TENANTS.length,
     chunks_count: chunkResult.chunksWritten,
     hygiene_metrics: hygieneStats,
     index_metrics: chunkResult.indexStats ? {
@@ -930,13 +964,14 @@ export async function runDailyMirror() {
     sources_breakdown: {
       direct_ats_boards: atsJobs.length,
       workday_enterprise: workdayJobs.length,
+      smartrecruiters_enterprise: srEnterpriseJobs.length,
       simplify_community: simplifyJobs.length,
       open_apis: apiJobs.length,
       universe_stream: universeJobs.length,
       unique_published: aggregatedJobs.length,
       distinct_companies: distinctCompanies.size
     },
-    version: '4.0.0-universe'
+    version: '1.0.0-universe'
   };
 
   fs.writeFileSync(path.join(outputDir, 'mirror_manifest.json'), JSON.stringify(manifest, null, 2));
@@ -991,7 +1026,7 @@ export async function runDailyMirror() {
 
 export const TARGET_BOARDS = EXPANDED_SOVEREIGN_BOARDS;
 export const scrapeBoard = scrapeDirectAts;
-export { scrapeDirectAts, scrapeWorkdayTenant, scrapeSimplifyJobs, scrapeOpenApis, scrapeUniverseStream, WORKDAY_ENTERPRISE_TENANTS };
+export { scrapeDirectAts, scrapeWorkdayTenant, scrapeSmartRecruitersTenant, scrapeSimplifyJobs, scrapeOpenApis, scrapeUniverseStream, WORKDAY_ENTERPRISE_TENANTS, SMARTRECRUITERS_ENTERPRISE_TENANTS };
 
 // Direct execution entrypoint
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

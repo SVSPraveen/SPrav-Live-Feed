@@ -251,7 +251,7 @@ export function checkSkillInText(skill = '', lowerJobText = '') {
 }
 
 // ── Community-Sourced ATS Registry ───────────────────────────────────────────
-export const COMMUNITY_REGISTRY_URL = 'https://raw.githubusercontent.com/SPrav-Job-AI/sprav-job-ai-web/main/public/data/companies.json';
+export const COMMUNITY_REGISTRY_URL = 'https://raw.githubusercontent.com/SVSPraveen/SPrav-Live-Feed/main/public/data/companies.json';
 export const LOCAL_REGISTRY_FALLBACK_URL = '/data/companies.json';
 export const REGISTRY_CACHE_KEY = 'sprav_community_registry_cache_v1';
 export const REGISTRY_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours

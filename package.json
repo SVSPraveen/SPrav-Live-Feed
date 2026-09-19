@@ -1,10 +1,11 @@
-{
+﻿{
   "name": "sprav-live-feed",
-  "version": "3.0.0",
+  "version": "1.0.0",
   "type": "module",
   "description": "Daily automated sovereign tech job mirror powered by GitHub Actions.",
   "scripts": {
-    "sync": "node scripts/sprav_daily_jobs_mirror.js"
+    "sync": "node scripts/sprav_daily_jobs_mirror.js",
+    "test": "node --test scripts/sprav_universe_chunker.test.js"
   },
   "keywords": [
     "job-board",
@@ -14,7 +15,7 @@
     "lever",
     "smartrecruiters",
     "simplifyjobs",
-    "sprav-job-ai"
+    "sprav-live-feed"
   ],
   "author": "SVS Praveen <svspraveens@gmail.com>",
   "license": "MIT"

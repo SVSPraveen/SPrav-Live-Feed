@@ -1531,6 +1531,7 @@ export const ALL_SOVEREIGN_TECH_COMPANIES = Object.freeze(
  * High-volume Fortune 500 tech platforms with open CXS search endpoints.
  */
 export const WORKDAY_ENTERPRISE_TENANTS = Object.freeze([
+  // Big Tech, Cloud & Semiconductors
   { name: 'Nvidia', url: 'https://nvidia.wd5.myworkdayjobs.com/wday/cxs/nvidia/NVIDIAExternalCareerSite/jobs', host: 'https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite', maxJobs: 100 },
   { name: 'Salesforce', url: 'https://salesforce.wd12.myworkdayjobs.com/wday/cxs/salesforce/External_Career_Site/jobs', host: 'https://salesforce.wd12.myworkdayjobs.com/en-US/External_Career_Site', maxJobs: 100 },
   { name: 'Adobe', url: 'https://adobe.wd5.myworkdayjobs.com/wday/cxs/adobe/external_experienced/jobs', host: 'https://adobe.wd5.myworkdayjobs.com/en-US/external_experienced', maxJobs: 100 },
@@ -1538,12 +1539,66 @@ export const WORKDAY_ENTERPRISE_TENANTS = Object.freeze([
   { name: 'Workday', url: 'https://workday.wd5.myworkdayjobs.com/wday/cxs/workday/Workday/jobs', host: 'https://workday.wd5.myworkdayjobs.com/en-US/Workday', maxJobs: 100 },
   { name: 'PayPal', url: 'https://paypal.wd1.myworkdayjobs.com/wday/cxs/paypal/jobs/jobs', host: 'https://paypal.wd1.myworkdayjobs.com/en-US/jobs', maxJobs: 100 },
   { name: 'Micron', url: 'https://micron.wd1.myworkdayjobs.com/wday/cxs/micron/External/jobs', host: 'https://micron.wd1.myworkdayjobs.com/en-US/External', maxJobs: 100 },
-  { name: 'Mastercard', url: 'https://mastercard.wd1.myworkdayjobs.com/wday/cxs/mastercard/CorporateCareers/jobs', host: 'https://mastercard.wd1.myworkdayjobs.com/en-US/CorporateCareers', maxJobs: 100 },
-  { name: 'Target Tech', url: 'https://target.wd5.myworkdayjobs.com/wday/cxs/target/targetcareers/jobs', host: 'https://target.wd5.myworkdayjobs.com/en-US/targetcareers', maxJobs: 100 },
   { name: 'Cisco', url: 'https://cisco.wd5.myworkdayjobs.com/wday/cxs/cisco/Cisco_Careers/jobs', host: 'https://cisco.wd5.myworkdayjobs.com/en-US/Cisco_Careers', maxJobs: 100 },
   { name: 'Intel', url: 'https://intel.wd1.myworkdayjobs.com/wday/cxs/intel/External/jobs', host: 'https://intel.wd1.myworkdayjobs.com/en-US/External', maxJobs: 100 },
+  { name: 'Broadcom', url: 'https://broadcom.wd1.myworkdayjobs.com/wday/cxs/broadcom/External_Career/jobs', host: 'https://broadcom.wd1.myworkdayjobs.com/en-US/External_Career', maxJobs: 100 },
+  { name: 'Qualcomm', url: 'https://qualcomm.wd5.myworkdayjobs.com/wday/cxs/qualcomm/External/jobs', host: 'https://qualcomm.wd5.myworkdayjobs.com/en-US/External', maxJobs: 100 },
+  { name: 'AMD', url: 'https://amd.wd1.myworkdayjobs.com/wday/cxs/amd/AMD_Careers/jobs', host: 'https://amd.wd1.myworkdayjobs.com/en-US/AMD_Careers', maxJobs: 100 },
+  { name: 'Dell Technologies', url: 'https://dell.wd1.myworkdayjobs.com/wday/cxs/dell/External/jobs', host: 'https://dell.wd1.myworkdayjobs.com/en-US/External', maxJobs: 100 },
+  { name: 'HP Inc', url: 'https://hp.wd5.myworkdayjobs.com/wday/cxs/hp/ExternalCareerSite/jobs', host: 'https://hp.wd5.myworkdayjobs.com/en-US/ExternalCareerSite', maxJobs: 100 },
+  { name: 'IBM', url: 'https://ibm.wd3.myworkdayjobs.com/wday/cxs/ibm/IBM_Careers/jobs', host: 'https://ibm.wd3.myworkdayjobs.com/en-US/IBM_Careers', maxJobs: 100 },
+  { name: 'ServiceNow', url: 'https://servicenow.wd1.myworkdayjobs.com/wday/cxs/servicenow/ServiceNow_Careers/jobs', host: 'https://servicenow.wd1.myworkdayjobs.com/en-US/ServiceNow_Careers', maxJobs: 100 },
+  { name: 'Palo Alto Networks', url: 'https://paloaltonetworks.wd1.myworkdayjobs.com/wday/cxs/paloaltonetworks/PANW_Careers/jobs', host: 'https://paloaltonetworks.wd1.myworkdayjobs.com/en-US/PANW_Careers', maxJobs: 100 },
+  { name: 'Intuit', url: 'https://intuit.wd1.myworkdayjobs.com/wday/cxs/intuit/Intuit_Careers/jobs', host: 'https://intuit.wd1.myworkdayjobs.com/en-US/Intuit_Careers', maxJobs: 100 },
+  { name: 'VMware', url: 'https://vmware.wd1.myworkdayjobs.com/wday/cxs/vmware/VMware_Careers/jobs', host: 'https://vmware.wd1.myworkdayjobs.com/en-US/VMware_Careers', maxJobs: 100 },
+
+  // Global Retail, Consumer & Entertainment MNCs
+  { name: 'Walmart Tech', url: 'https://walmart.wd5.myworkdayjobs.com/wday/cxs/walmart/WalmartExternal/jobs', host: 'https://walmart.wd5.myworkdayjobs.com/en-US/WalmartExternal', maxJobs: 100 },
+  { name: 'Target Tech', url: 'https://target.wd5.myworkdayjobs.com/wday/cxs/target/targetcareers/jobs', host: 'https://target.wd5.myworkdayjobs.com/en-US/targetcareers', maxJobs: 100 },
+  { name: 'Nike', url: 'https://nike.wd1.myworkdayjobs.com/wday/cxs/nike/Nike/jobs', host: 'https://nike.wd1.myworkdayjobs.com/en-US/Nike', maxJobs: 100 },
+  { name: 'The Home Depot', url: 'https://homedepot.wd5.myworkdayjobs.com/wday/cxs/homedepot/CareerDepot/jobs', host: 'https://homedepot.wd5.myworkdayjobs.com/en-US/CareerDepot', maxJobs: 100 },
+  { name: 'Netflix', url: 'https://netflix.wd1.myworkdayjobs.com/wday/cxs/netflix/Netflix_Careers/jobs', host: 'https://netflix.wd1.myworkdayjobs.com/en-US/Netflix_Careers', maxJobs: 100 },
+  { name: 'Sony', url: 'https://sony.wd1.myworkdayjobs.com/wday/cxs/sony/Sony_Careers/jobs', host: 'https://sony.wd1.myworkdayjobs.com/en-US/Sony_Careers', maxJobs: 100 },
+  { name: 'Warner Bros Discovery', url: 'https://wbd.wd5.myworkdayjobs.com/wday/cxs/wbd/WBD_Careers/jobs', host: 'https://wbd.wd5.myworkdayjobs.com/en-US/WBD_Careers', maxJobs: 100 },
+
+  // Banking, Payments & FinTech Titans
+  { name: 'Mastercard', url: 'https://mastercard.wd1.myworkdayjobs.com/wday/cxs/mastercard/CorporateCareers/jobs', host: 'https://mastercard.wd1.myworkdayjobs.com/en-US/CorporateCareers', maxJobs: 100 },
+  { name: 'Visa', url: 'https://visa.wd1.myworkdayjobs.com/wday/cxs/visa/VisaCareers/jobs', host: 'https://visa.wd1.myworkdayjobs.com/en-US/VisaCareers', maxJobs: 100 },
+  { name: 'Fidelity Investments', url: 'https://fidelity.wd1.myworkdayjobs.com/wday/cxs/fidelity/FidelityCareers/jobs', host: 'https://fidelity.wd1.myworkdayjobs.com/en-US/FidelityCareers', maxJobs: 100 },
+  { name: 'Capital One', url: 'https://capitalone.wd1.myworkdayjobs.com/wday/cxs/capitalone/Capital_One/jobs', host: 'https://capitalone.wd1.myworkdayjobs.com/en-US/Capital_One', maxJobs: 100 },
+  { name: 'Bank of America', url: 'https://bankofamerica.wd1.myworkdayjobs.com/wday/cxs/bankofamerica/Global_Campus_Careers/jobs', host: 'https://bankofamerica.wd1.myworkdayjobs.com/en-US/Global_Campus_Careers', maxJobs: 100 },
+  { name: 'Morgan Stanley', url: 'https://morganstanley.wd1.myworkdayjobs.com/wday/cxs/morganstanley/Morgan_Stanley_Careers/jobs', host: 'https://morganstanley.wd1.myworkdayjobs.com/en-US/Morgan_Stanley_Careers', maxJobs: 100 },
+
+  // Industrial, Energy & Aerospace Conglomerates
   { name: 'Boeing', url: 'https://boeing.wd1.myworkdayjobs.com/wday/cxs/boeing/EXTERNAL_CAREERS/jobs', host: 'https://boeing.wd1.myworkdayjobs.com/en-US/EXTERNAL_CAREERS', maxJobs: 100 },
-  { name: 'Broadcom', url: 'https://broadcom.wd1.myworkdayjobs.com/wday/cxs/broadcom/External_Career/jobs', host: 'https://broadcom.wd1.myworkdayjobs.com/en-US/External_Career', maxJobs: 100 }
+  { name: 'Siemens', url: 'https://siemens.wd3.myworkdayjobs.com/wday/cxs/siemens/Siemens_Careers/jobs', host: 'https://siemens.wd3.myworkdayjobs.com/en-US/Siemens_Careers', maxJobs: 100 },
+  { name: 'General Electric', url: 'https://ge.wd5.myworkdayjobs.com/wday/cxs/ge/GE_Careers/jobs', host: 'https://ge.wd5.myworkdayjobs.com/en-US/GE_Careers', maxJobs: 100 },
+  { name: 'RTX (Raytheon)', url: 'https://rtx.wd1.myworkdayjobs.com/wday/cxs/rtx/RTX_Careers/jobs', host: 'https://rtx.wd1.myworkdayjobs.com/en-US/RTX_Careers', maxJobs: 100 },
+
+  // Healthcare & Pharmaceutical Giants
+  { name: 'Pfizer', url: 'https://pfizer.wd1.myworkdayjobs.com/wday/cxs/pfizer/Pfizer_Careers/jobs', host: 'https://pfizer.wd1.myworkdayjobs.com/en-US/Pfizer_Careers', maxJobs: 100 },
+  { name: 'AstraZeneca', url: 'https://astrazeneca.wd3.myworkdayjobs.com/wday/cxs/astrazeneca/Careers/jobs', host: 'https://astrazeneca.wd3.myworkdayjobs.com/en-US/Careers', maxJobs: 100 },
+  { name: 'Johnson & Johnson', url: 'https://jnj.wd1.myworkdayjobs.com/wday/cxs/jnj/JNJCareers/jobs', host: 'https://jnj.wd1.myworkdayjobs.com/en-US/JNJCareers', maxJobs: 100 },
+  { name: 'Abbott Laboratories', url: 'https://abbott.wd5.myworkdayjobs.com/wday/cxs/abbott/abbottcareers/jobs', host: 'https://abbott.wd5.myworkdayjobs.com/en-US/abbottcareers', maxJobs: 100 }
+]);
+
+/**
+ * Enterprise SmartRecruiters Verified Public Tenants
+ * Global enterprises with unauthenticated public REST endpoints (/v1/companies/{company}/postings)
+ */
+export const SMARTRECRUITERS_ENTERPRISE_TENANTS = Object.freeze([
+  { name: 'Visa', slug: 'Visa', category: 'Fintech & Payments' },
+  { name: 'Bosch Group', slug: 'BoschGroup', category: 'Industrial & IoT' },
+  { name: 'IKEA', slug: 'IKEA', category: 'Retail & Consumer' },
+  { name: 'McDonald\'s Tech', slug: 'McDonalds', category: 'FoodTech & Global Retail' },
+  { name: 'Ubisoft', slug: 'Ubisoft2', category: 'Gaming & Interactive Entertainment' },
+  { name: 'Publicis Groupe', slug: 'PublicisGroupe', category: 'Digital Media & AdTech' },
+  { name: 'Skechers', slug: 'Skechers', category: 'Consumer & Retail' },
+  { name: 'Equinix', slug: 'Equinix', category: 'Cloud Infrastructure & Data Centers' },
+  { name: 'Epic Games', slug: 'EpicGames', category: 'Gaming & Virtual Engines' },
+  { name: 'Square Enix', slug: 'SquareEnix', category: 'Gaming & Interactive' },
+  { name: 'Avery Dennison', slug: 'AveryDennison', category: 'Smart Materials & IoT' },
+  { name: 'Coty', slug: 'Coty', category: 'Global Consumer Brands' }
 ]);
 
 /**

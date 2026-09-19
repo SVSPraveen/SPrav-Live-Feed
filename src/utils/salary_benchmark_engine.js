@@ -8,6 +8,8 @@
  * instant market alignment telemetry on every job card.
  */
 
+import { wasmEngine } from './wasm_engine_bridge.js';
+
 // Standard ethical informed estimate disclaimer for static compensation telemetry
 export const SALARY_ESTIMATE_DISCLAIMER = 'Informed market estimates based on 2024–2025 market aggregations. Verify with Levels.fyi for current figures.';
 
@@ -386,13 +388,123 @@ export function detectGeoTier(location = '') {
 }
 
 /**
- * Extracts and parses salary text into normalized annual USD range.
+ * Extracts and parses salary text into normalized annual USD range and currency metadata.
  */
 export function extractSalaryRange(job = {}) {
   const rawSalary = job.salary || job.compensation || '';
   const textToScan = `${rawSalary} ${job.description || ''}`.slice(0, 1500);
 
-  // Match common salary patterns: $120k - $160k, $120,000 - $160,000, 120,000 to 160,000 USD
+  // 1. Match Indian Rupee (₹ LPA or Lakhs): e.g. ₹15L - ₹25L LPA, 15 - 30 LPA, ₹20,00,000
+  const inrLpaMatch = textToScan.match(/(?:₹|rs\.?|inr)?\s*(\d{1,2}(?:\.\d+)?)\s*(?:l|lakh|lakhs|lpa)?\s*(?:-|–|to)\s*(?:₹|rs\.?|inr)?\s*(\d{1,2}(?:\.\d+)?)\s*(?:l|lakh|lakhs|lpa)(?:\s*(?:per annum|\/yr|\/year|p\.a\.))?/i) ||
+                      textToScan.match(/(\d{1,2}(?:\.\d+)?)\s*(?:-|–|to)\s*(\d{1,2}(?:\.\d+)?)\s*(?:lpa|lakhs?)(?:\s*(?:per annum|\/yr|\/year|p\.a\.))?/i);
+  if (inrLpaMatch) {
+    const minLpa = parseFloat(inrLpaMatch[1]);
+    const maxLpa = parseFloat(inrLpaMatch[2]);
+    if (minLpa > 0 && maxLpa >= minLpa && maxLpa <= 300) {
+      const minInr = minLpa * 100000;
+      const maxInr = maxLpa * 100000;
+      const minUsd = convertSalaryToUsd(minInr, 'INR');
+      const maxUsd = convertSalaryToUsd(maxInr, 'INR');
+      return {
+        min: minUsd,
+        max: maxUsd,
+        median: Math.round((minUsd + maxUsd) / 2),
+        currency: 'INR',
+        currencySymbol: '₹',
+        text: `₹${minLpa}L – ₹${maxLpa}L LPA`
+      };
+    }
+  }
+
+  // Single INR LPA match: e.g. ₹20 LPA or 25 LPA
+  const singleInrMatch = textToScan.match(/(?:₹|rs\.?|inr)\s*(\d{1,2}(?:\.\d+)?)\s*(?:l|lakh|lakhs|lpa)(?:\s*(?:per annum|\/yr|\/year|p\.a\.))?/i) ||
+                         textToScan.match(/(\d{1,2}(?:\.\d+)?)\s*(?:lpa|lakhs?)\s*(?:per annum|\/yr|\/year|p\.a\.)?/i);
+  if (singleInrMatch) {
+    const valLpa = parseFloat(singleInrMatch[1]);
+    if (valLpa > 0 && valLpa <= 300) {
+      const valInr = valLpa * 100000;
+      const valUsd = convertSalaryToUsd(valInr, 'INR');
+      return {
+        min: valUsd,
+        max: valUsd,
+        median: valUsd,
+        currency: 'INR',
+        currencySymbol: '₹',
+        text: `₹${valLpa}L LPA`
+      };
+    }
+  }
+
+  // 2. Match Euro (€): e.g. €60,000 - €90,000, €70k - €95k
+  const eurMatch = textToScan.match(/€\s*(\d{2,3}(?:,\d{3})*(?:\.\d+)?|\d{2,3})\s*(?:k|thousand)?\s*(?:-|–|to)\s*€?\s*(\d{2,3}(?:,\d{3})*(?:\.\d+)?|\d{2,3})\s*(k|thousand)?(?:\s*(?:eur|\/yr|\/year|per year|annual))?/i);
+  if (eurMatch) {
+    let min = parseFloat(eurMatch[1].replace(/,/g, ''));
+    let max = parseFloat(eurMatch[2].replace(/,/g, ''));
+    if (/k/i.test(eurMatch[0]) || min < 1000) {
+      if (min < 1000) min *= 1000;
+      if (max < 1000) max *= 1000;
+    }
+    if (min >= 20000 && max >= min && max < 800000) {
+      const minUsd = convertSalaryToUsd(min, 'EUR');
+      const maxUsd = convertSalaryToUsd(max, 'EUR');
+      return {
+        min: minUsd,
+        max: maxUsd,
+        median: Math.round((minUsd + maxUsd) / 2),
+        currency: 'EUR',
+        currencySymbol: '€',
+        text: `€${Math.round(min / 1000)}k – €${Math.round(max / 1000)}k`
+      };
+    }
+  }
+
+  // 3. Match British Pound (£): e.g. £65k - £85k, £70,000 - £100,000
+  const gbpMatch = textToScan.match(/£\s*(\d{2,3}(?:,\d{3})*(?:\.\d+)?|\d{2,3})\s*(?:k|thousand)?\s*(?:-|–|to)\s*£?\s*(\d{2,3}(?:,\d{3})*(?:\.\d+)?|\d{2,3})\s*(k|thousand)?(?:\s*(?:gbp|\/yr|\/year|per year|annual))?/i);
+  if (gbpMatch) {
+    let min = parseFloat(gbpMatch[1].replace(/,/g, ''));
+    let max = parseFloat(gbpMatch[2].replace(/,/g, ''));
+    if (/k/i.test(gbpMatch[0]) || min < 1000) {
+      if (min < 1000) min *= 1000;
+      if (max < 1000) max *= 1000;
+    }
+    if (min >= 20000 && max >= min && max < 800000) {
+      const minUsd = convertSalaryToUsd(min, 'GBP');
+      const maxUsd = convertSalaryToUsd(max, 'GBP');
+      return {
+        min: minUsd,
+        max: maxUsd,
+        median: Math.round((minUsd + maxUsd) / 2),
+        currency: 'GBP',
+        currencySymbol: '£',
+        text: `£${Math.round(min / 1000)}k – £${Math.round(max / 1000)}k`
+      };
+    }
+  }
+
+  // 4. Match Singapore Dollar (S$ or SGD): e.g. S$80k - S$120k, SGD $90,000 - $140,000
+  const sgdMatch = textToScan.match(/(?:s\$|sgd)\s*(\d{2,3}(?:,\d{3})*(?:\.\d+)?|\d{2,3})\s*(?:k|thousand)?\s*(?:-|–|to)\s*(?:s\$|sgd)?\s*(\d{2,3}(?:,\d{3})*(?:\.\d+)?|\d{2,3})\s*(k|thousand)?(?:\s*(?:sgd|\/yr|\/year|per year|annual))?/i);
+  if (sgdMatch) {
+    let min = parseFloat(sgdMatch[1].replace(/,/g, ''));
+    let max = parseFloat(sgdMatch[2].replace(/,/g, ''));
+    if (/k/i.test(sgdMatch[0]) || min < 1000) {
+      if (min < 1000) min *= 1000;
+      if (max < 1000) max *= 1000;
+    }
+    if (min >= 25000 && max >= min && max < 900000) {
+      const minUsd = convertSalaryToUsd(min, 'SGD');
+      const maxUsd = convertSalaryToUsd(max, 'SGD');
+      return {
+        min: minUsd,
+        max: maxUsd,
+        median: Math.round((minUsd + maxUsd) / 2),
+        currency: 'SGD',
+        currencySymbol: 'S$',
+        text: `S$${Math.round(min / 1000)}k – S$${Math.round(max / 1000)}k`
+      };
+    }
+  }
+
+  // 5. Match USD: $120k - $160k, $120,000 - $160,000, 120,000 to 160,000 USD
   const usdMatch = textToScan.match(/\$?(\d{2,3}(?:,\d{3})*(?:\.\d+)?|\d{2,3})\s*(?:k|thousand)?\s*(?:-|–|to)\s*\$?(\d{2,3}(?:,\d{3})*(?:\.\d+)?|\d{2,3})\s*(k|thousand)?(?:\s*(?:usd|\/yr|\/year|per year|annual|a year))?/i);
 
   if (usdMatch) {
@@ -411,6 +523,8 @@ export function extractSalaryRange(job = {}) {
         min,
         max,
         median: Math.round((min + max) / 2),
+        currency: 'USD',
+        currencySymbol: '$',
         text: `$${Math.round(min / 1000)}k – $${Math.round(max / 1000)}k`
       };
     }
@@ -426,12 +540,165 @@ export function extractSalaryRange(job = {}) {
         min: val,
         max: val,
         median: val,
+        currency: 'USD',
+        currencySymbol: '$',
         text: `$${Math.round(val / 1000)}k`
       };
     }
   }
 
   return null;
+}
+
+/**
+ * Resolves candidate's active region for salary filtering from filter and scope settings.
+ * Returns: 'india' | 'uk' | 'europe' | 'apac' | 'canada' | 'us'
+ */
+export function detectActiveRegion(geoMarketFilter = 'all', activeScope = null) {
+  const g = String(geoMarketFilter || '').toLowerCase();
+  if (g.includes('india') || ['blr', 'bengaluru', 'hyd', 'hyderabad', 'pune', 'delhi_ncr', 'mumbai', 'chennai', 'remote_india'].includes(g)) {
+    return 'india';
+  }
+  if (g === 'london' || g === 'uk') {
+    return 'uk';
+  }
+  if (g.includes('europe') || g === 'eu' || ['berlin', 'amsterdam', 'dublin', 'remote_eu'].includes(g)) {
+    return 'europe';
+  }
+  if (g === 'singapore' || g.includes('apac')) {
+    return 'apac';
+  }
+  if (g.includes('canada') || ['toronto', 'vancouver'].includes(g)) {
+    return 'canada';
+  }
+
+  // If UI filter is neutral ('all'), infer from candidate's profile activeScope if present
+  if (activeScope && typeof activeScope === 'object') {
+    const rawLocs = [
+      ...(Array.isArray(activeScope.locations) ? activeScope.locations : []).map(l => (typeof l === 'string' ? l : l?.label || l?.name || '')),
+      activeScope.target_location,
+      ...(Array.isArray(activeScope.preferred_locations) ? activeScope.preferred_locations : [])
+    ].filter(Boolean).map(s => String(s).toLowerCase().trim());
+
+    if (rawLocs.some(l => l.includes('india') || ['bengaluru', 'hyderabad', 'pune', 'delhi', 'mumbai', 'chennai', 'noida', 'gurgaon'].some(c => l.includes(c)))) {
+      return 'india';
+    }
+    if (rawLocs.some(l => l.includes('london') || l === 'uk' || l.includes('united kingdom'))) {
+      return 'uk';
+    }
+    if (rawLocs.some(l => l.includes('europe') || l.includes('germany') || l.includes('netherlands') || l.includes('ireland') || l.includes('berlin') || l.includes('amsterdam'))) {
+      return 'europe';
+    }
+    if (rawLocs.some(l => l.includes('singapore'))) {
+      return 'apac';
+    }
+    if (rawLocs.some(l => l.includes('canada') || l.includes('toronto') || l.includes('vancouver'))) {
+      return 'canada';
+    }
+  }
+
+  return 'us';
+}
+
+/**
+ * Returns currency-appropriate salary threshold options for the UI filter bar.
+ */
+export function getSalaryFilterThresholds(geoMarketFilter = 'all', activeScope = null) {
+  const region = detectActiveRegion(geoMarketFilter, activeScope);
+  const inrRate = CURRENCY_CONFIG.INR?.rateFromUsd || 95.51;
+  const eurRate = CURRENCY_CONFIG.EUR?.rateFromUsd || 0.86;
+  const gbpRate = CURRENCY_CONFIG.GBP?.rateFromUsd || 0.74;
+  const sgdRate = CURRENCY_CONFIG.SGD?.rateFromUsd || 1.27;
+
+  switch (region) {
+    case 'india':
+      return {
+        currency: 'INR',
+        symbol: '₹',
+        region,
+        options: [
+          { id: 'all', label: 'Any', minUsd: 0 },
+          { id: 'tier_15l', label: '₹15 LPA+', minUsd: Math.round(1500000 / inrRate) },
+          { id: 'tier_25l', label: '₹25 LPA+', minUsd: Math.round(2500000 / inrRate) },
+          { id: 'tier_40l', label: '₹40 LPA+', minUsd: Math.round(4000000 / inrRate) }
+        ]
+      };
+    case 'uk':
+      return {
+        currency: 'GBP',
+        symbol: '£',
+        region,
+        options: [
+          { id: 'all', label: 'Any', minUsd: 0 },
+          { id: 'tier_60k', label: '£60k+', minUsd: Math.round(60000 / gbpRate) },
+          { id: 'tier_90k', label: '£90k+', minUsd: Math.round(90000 / gbpRate) },
+          { id: 'tier_120k', label: '£120k+', minUsd: Math.round(120000 / gbpRate) }
+        ]
+      };
+    case 'europe':
+      return {
+        currency: 'EUR',
+        symbol: '€',
+        region,
+        options: [
+          { id: 'all', label: 'Any', minUsd: 0 },
+          { id: 'tier_60k', label: '€60k+', minUsd: Math.round(60000 / eurRate) },
+          { id: 'tier_90k', label: '€90k+', minUsd: Math.round(90000 / eurRate) },
+          { id: 'tier_120k', label: '€120k+', minUsd: Math.round(120000 / eurRate) }
+        ]
+      };
+    case 'apac':
+      return {
+        currency: 'SGD',
+        symbol: 'S$',
+        region,
+        options: [
+          { id: 'all', label: 'Any', minUsd: 0 },
+          { id: 'tier_80k', label: 'SGD $80k+', minUsd: Math.round(80000 / sgdRate) },
+          { id: 'tier_130k', label: 'SGD $130k+', minUsd: Math.round(130000 / sgdRate) },
+          { id: 'tier_180k', label: 'SGD $180k+', minUsd: Math.round(180000 / sgdRate) }
+        ]
+      };
+    default:
+      return {
+        currency: 'USD',
+        symbol: '$',
+        region: 'us',
+        options: [
+          { id: 'all', label: 'Any', minUsd: 0 },
+          { id: '100k', label: '$100k+', minUsd: 100000 },
+          { id: '150k', label: '$150k+', minUsd: 150000 }
+        ]
+      };
+  }
+}
+
+/**
+ * Returns minimum USD required for any salary filter ID across regions.
+ */
+export function getSalaryThresholdUsd(filterId, region = 'us') {
+  if (!filterId || filterId === 'all') return 0;
+  if (filterId === '100k') return 100000;
+  if (filterId === '150k') return 150000;
+
+  const inrRate = CURRENCY_CONFIG.INR?.rateFromUsd || 95.51;
+  const eurRate = CURRENCY_CONFIG.EUR?.rateFromUsd || 0.86;
+  const gbpRate = CURRENCY_CONFIG.GBP?.rateFromUsd || 0.74;
+  const sgdRate = CURRENCY_CONFIG.SGD?.rateFromUsd || 1.27;
+
+  if (filterId === 'tier_15l') return Math.round(1500000 / inrRate);
+  if (filterId === 'tier_25l') return Math.round(2500000 / inrRate);
+  if (filterId === 'tier_40l') return Math.round(4000000 / inrRate);
+
+  if (filterId === 'tier_60k') return Math.round(60000 / (region === 'uk' ? gbpRate : eurRate));
+  if (filterId === 'tier_90k') return Math.round(90000 / (region === 'uk' ? gbpRate : eurRate));
+  if (filterId === 'tier_120k') return Math.round(120000 / (region === 'uk' ? gbpRate : eurRate));
+
+  if (filterId === 'tier_80k') return Math.round(80000 / sgdRate);
+  if (filterId === 'tier_130k') return Math.round(130000 / sgdRate);
+  if (filterId === 'tier_180k') return Math.round(180000 / sgdRate);
+
+  return 0;
 }
 
 /**
@@ -457,22 +724,20 @@ export function benchmarkJobSalary(job = {}, options = {}) {
 
   if (extracted) {
     const jobMedian = extracted.median;
-    const deltaPercent = Math.round(((jobMedian - benchmarkMedian) / benchmarkMedian) * 100);
+    const deltaPercent = wasmEngine.calculateSalaryDelta(jobMedian, benchmarkMedian);
+    const tier = wasmEngine.classifySalaryTier(deltaPercent);
 
-    let tier = 'at_market';
     let badgeColor = '#34d399'; // Emerald
     let badgeBg = 'rgba(16, 185, 129, 0.15)';
     let badgeBorder = 'rgba(16, 185, 129, 0.35)';
     let badgeText = `At Market Median (${formattedMedian})`;
 
-    if (deltaPercent >= 10) {
-      tier = 'above_market';
+    if (tier === 'above_market') {
       badgeColor = '#38bdf8'; // Sky cyan
       badgeBg = 'rgba(56, 189, 248, 0.15)';
       badgeBorder = 'rgba(56, 189, 248, 0.35)';
       badgeText = `~${deltaPercent}% Above Market (Top Tier Comp)`;
-    } else if (deltaPercent <= -10) {
-      tier = 'below_market';
+    } else if (tier === 'below_market') {
       badgeColor = '#fbbf24'; // Amber
       badgeBg = 'rgba(245, 158, 11, 0.15)';
       badgeBorder = 'rgba(245, 158, 11, 0.35)';
@@ -484,14 +749,16 @@ export function benchmarkJobSalary(job = {}, options = {}) {
     return {
       hasSalary: true,
       extractedSalaryText: extracted.text,
+      minSalary: extracted.min,
+      maxSalary: extracted.max,
       annualUsdMedian: jobMedian,
       benchmarkRole: `${seniority.toUpperCase()} ${roleCategory.replace(/_/g, ' ').toUpperCase()}`,
       benchmarkGeo: geoTier.toUpperCase().replace('_', ' '),
       benchmarkRange,
       benchmarkMedian,
       formattedMedian,
-      currency,
-      currencySymbol: conf.symbol,
+      currency: extracted.currency || currency,
+      currencySymbol: extracted.currencySymbol || conf.symbol,
       deltaPercent,
       tier,
       badgeText,
@@ -518,7 +785,9 @@ export function benchmarkJobSalary(job = {}, options = {}) {
   return {
     hasSalary: false,
     extractedSalaryText: null,
-    annualUsdMedian: null,
+    minSalary: p25,
+    maxSalary: p75,
+    annualUsdMedian: benchmarkMedian,
     benchmarkRole: `${seniority.toUpperCase()} ${roleCategory.replace(/_/g, ' ').toUpperCase()}`,
     benchmarkGeo: geoTier.toUpperCase().replace('_', ' '),
     benchmarkRange,

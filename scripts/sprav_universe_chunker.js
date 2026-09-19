@@ -23,41 +23,65 @@ export const MAX_ACTIVE_AGE_DAYS = 45;
 
 /**
  * Normalizes and extracts a canonical deduplication signature for a job.
+ * Incorporates URL requisition IDs and semantic company/title/location fingerprinting.
  */
 export function getJobDedupKey(job) {
   if (!job) return '';
-  const url = (job.url || '').trim().toLowerCase().split('?')[0].replace(/\/$/, '');
-  const company = (job.company || '').trim().toLowerCase();
-  const title = (job.title || '').trim().toLowerCase();
+  const rawUrl = (job.url || '').trim().toLowerCase().split('?')[0].replace(/\/$/, '');
 
-  // Workday job URL pattern
-  if (url.includes('workday') || url.includes('myworkdayjobs.com')) {
-    const workdayMatch = url.match(/\/jobs\/(\d+)/i);
+  // 1. Workday job requisition ID pattern
+  if (rawUrl.includes('workday') || rawUrl.includes('myworkdayjobs.com')) {
+    const workdayMatch = rawUrl.match(/\/jobs\/(\d+)/i) || rawUrl.match(/\/job\/[^/]+\/([a-zA-Z0-9_-]+)/i);
     if (workdayMatch) {
-      return `workday:${company}:${workdayMatch[1]}`;
+      const comp = String(job.company || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      return `workday:${comp}:${workdayMatch[1]}`;
     }
   }
 
-  // Greenhouse job board ID pattern
-  const ghMatch = url.match(/greenhouse\.io\/([^/]+)\/jobs\/(\d+)/i);
+  // 2. Greenhouse job board ID pattern
+  const ghMatch = rawUrl.match(/greenhouse\.io\/([^/]+)\/jobs\/(\d+)/i);
   if (ghMatch) {
     return `greenhouse:${ghMatch[1]}:${ghMatch[2]}`;
   }
 
-  // Ashby job posting ID pattern
-  const ashbyMatch = url.match(/ashbyhq\.com\/([^/]+)\/([^/?#]+)/i);
+  // 3. Ashby job posting ID pattern
+  const ashbyMatch = rawUrl.match(/ashbyhq\.com\/([^/]+)\/([^/?#]+)/i);
   if (ashbyMatch) {
     return `ashby:${ashbyMatch[1]}:${ashbyMatch[2]}`;
   }
 
-  // Lever posting ID pattern
-  const leverMatch = url.match(/lever\.co\/([^/]+)\/([^/?#]+)/i);
+  // 4. Lever posting ID pattern
+  const leverMatch = rawUrl.match(/lever\.co\/([^/]+)\/([^/?#]+)/i);
   if (leverMatch) {
     return `lever:${leverMatch[1]}:${leverMatch[2]}`;
   }
 
-  if (url) return url;
-  return `${company}:::${title}`;
+  // 5. SmartRecruiters requisition pattern
+  const srMatch = rawUrl.match(/smartrecruiters\.com\/([^/]+)\/([a-zA-Z0-9_-]+)/i);
+  if (srMatch) {
+    return `smartrecruiters:${srMatch[1]}:${srMatch[2]}`;
+  }
+
+  // 6. Robust semantic fingerprinting (matching computeJobDedupKey in client)
+  const cleanCompany = String(job.company || '')
+    .toLowerCase()
+    .replace(/\b(inc|llc|ltd|corp|corporation|technologies|tech|group|co|holdings|services)\b\.?/gi, '')
+    .replace(/[^a-z0-9]/g, '')
+    .trim();
+
+  const cleanTitle = String(job.title || '')
+    .toLowerCase()
+    .replace(/\(.*?\)|\[.*?\]/g, '')
+    .replace(/\b(remote|hybrid|onsite|full-time|part-time|contract|permanent|temp)\b/gi, '')
+    .replace(/[^a-z0-9]/g, ' ')
+    .trim()
+    .replace(/\s+/g, ' ');
+
+  const loc = String(job.location || '').toLowerCase();
+  const isRemote = loc.includes('remote') || !!job.is_remote;
+  const locToken = isRemote ? 'remote' : loc.replace(/[^a-z0-9]/g, '');
+
+  return locToken ? `${cleanCompany}:::${cleanTitle}:::${locToken}` : `${cleanCompany}:::${cleanTitle}`;
 }
 
 /**
@@ -204,7 +228,21 @@ export function filterCleanActiveJobs(rawJobs = [], options = {}) {
   let droppedSpam = 0;
   let droppedDuplicates = 0;
 
-  for (const job of rawJobs) {
+  // Helper to score source fidelity so direct corporate portals take precedence over aggregator copies
+  const getSourceFidelity = (j) => {
+    const src = String(j?.source || '').toUpperCase();
+    const portal = String(j?.portal || '').toUpperCase();
+    if (src.includes('WORKDAY') || portal.includes('WORKDAY') || src.includes('SMARTRECRUITERS') || portal.includes('SMARTRECRUITERS')) return 100;
+    if (src.includes('ASHBY') || src.includes('GREENHOUSE') || src.includes('LEVER') || src.includes('WORKABLE') || src.includes('PERSONIO') || src.includes('BAMBOOHR') || src.includes('RIPPLING')) return 90;
+    if (src.includes('SIMPLIFY') || src.includes('DIRECT_ATS') || src.includes('OPEN_JOBS')) return 70;
+    if (src.includes('HIMALAYAS') || src.includes('ARBEITNOW') || src.includes('JOBICY') || src.includes('REMOTIVE') || src.includes('HN')) return 50;
+    return 30;
+  };
+
+  // Process higher-fidelity direct employer postings first to lock the deduplication slots
+  const candidates = [...rawJobs].sort((a, b) => getSourceFidelity(b) - getSourceFidelity(a));
+
+  for (const job of candidates) {
     if (!job || typeof job !== 'object') continue;
 
     // 1. Active Check
@@ -227,17 +265,29 @@ export function filterCleanActiveJobs(rawJobs = [], options = {}) {
       continue;
     }
 
-    // 4. Canonical Deduplication Check
+    // 4. Canonical Deduplication Check (Key + Semantic Signature)
     const dedupKey = getJobDedupKey(job);
-    const signature = `${(job.company || '').toLowerCase().trim()}:::${(job.title || '').toLowerCase().trim()}`;
+    const cleanComp = String(job.company || '')
+      .toLowerCase()
+      .replace(/\b(inc|llc|ltd|corp|corporation|technologies|tech|group|co|holdings|services)\b\.?/gi, '')
+      .replace(/[^a-z0-9]/g, '')
+      .trim();
+    const cleanTitle = String(job.title || '')
+      .toLowerCase()
+      .replace(/\(.*?\)|\[.*?\]/g, '')
+      .replace(/\b(remote|hybrid|onsite|full-time|part-time|contract|permanent|temp)\b/gi, '')
+      .replace(/[^a-z0-9]/g, ' ')
+      .trim()
+      .replace(/\s+/g, ' ');
+    const signature = `${cleanComp}:::${cleanTitle}`;
 
-    if (seenKeys.has(dedupKey) || seenSignatures.has(signature)) {
+    if (seenKeys.has(dedupKey) || (cleanComp && cleanTitle && seenSignatures.has(signature))) {
       droppedDuplicates++;
       continue;
     }
 
     seenKeys.add(dedupKey);
-    seenSignatures.add(signature);
+    if (cleanComp && cleanTitle) seenSignatures.add(signature);
     cleanJobs.push(job);
   }
 
@@ -321,7 +371,7 @@ export function chunkAndCompressJobs(jobs, outputDir, metadataConfig = {}) {
     totalChunks: chunkFilenames.length,
     distinctCompanies: distinctCompanies.size,
     last_updated: timestamp,
-    version: '4.0.0-sovereign'
+    version: '1.0.0-sovereign'
   };
   const manifestPath = path.join(chunksDir, 'jobs_manifest.json');
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));

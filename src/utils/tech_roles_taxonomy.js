@@ -54,7 +54,7 @@ export const ROLE_DOMAINS = {
       "Associate Technical Account Manager",
       "Graduate Technical Consultant",
       "Tech Apprentice / Software Apprentice",
-      "AI Annotation & RLHF Specialist",
+      "Junior Web Developer",
       "Junior Cloud Support / NOC Engineer",
       "Junior Technical Support Engineer",
       "Junior Implementation Engineer",
