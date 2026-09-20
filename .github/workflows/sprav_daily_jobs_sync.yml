@@ -1,4 +1,4 @@
-name: SPrav Sovereign Daily Jobs Mirror
+﻿name: SPrav Sovereign Daily Jobs Mirror
 
 on:
   schedule:
@@ -36,6 +36,16 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist_mirror
           publish_branch: gh-pages
+          commit_message: "[skip ci] [skip vercel] [vercel skip] Automated Hourly ATS Mirror Ingestion"
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Deploy Mirror Feed to sovereign-job-feed Branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist_mirror
+          publish_branch: sovereign-job-feed
           commit_message: "[skip ci] [skip vercel] [vercel skip] Automated Hourly ATS Mirror Ingestion"
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
