@@ -1,8 +1,8 @@
 {
-  "last_updated": "2026-09-21T14:09:51.691Z",
-  "total_companies": 8652,
-  "active_companies": 8652,
-  "total_jobs": 162156,
+  "last_updated": "2026-09-21T19:28:35.211Z",
+  "total_companies": 8672,
+  "active_companies": 8672,
+  "total_jobs": 162229,
   "recruiter_jobs": 0,
   "source_type": "sprav_sovereign_universe",
   "platforms": "Greenhouse, Ashby, Lever, Workday, SmartRecruiters, Himalayas, Remotive, Jobicy, Arbeitnow, HN",
@@ -13,7 +13,7 @@
     "max_age_days": 45
   },
   "index_metrics": {
-    "total_terms": 39628,
-    "compressed_bytes": 220595
+    "total_terms": 39705,
+    "compressed_bytes": 221007
   }
 }
