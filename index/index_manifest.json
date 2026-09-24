@@ -1,9 +1,9 @@
 {
   "version": "1.0.0-edge-index",
-  "last_updated": "2026-09-24T04:51:14.601Z",
-  "total_jobs": 165480,
+  "last_updated": "2026-09-24T10:02:10.390Z",
+  "total_jobs": 165134,
   "total_chunks": 7,
-  "total_terms": 40516,
-  "uncompressed_bytes": 725037,
-  "compressed_bytes": 225973
+  "total_terms": 40511,
+  "uncompressed_bytes": 724700,
+  "compressed_bytes": 225943
 }
