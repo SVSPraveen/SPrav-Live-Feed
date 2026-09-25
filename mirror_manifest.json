@@ -1,30 +1,30 @@
 {
-  "updated_at": "2026-09-25T07:49:13.281Z",
-  "total_jobs": 166911,
-  "companies_count": 8753,
+  "updated_at": "2026-09-25T13:48:21.455Z",
+  "total_jobs": 164919,
+  "companies_count": 8714,
   "boards_scraped": 820,
   "chunks_count": 7,
   "hygiene_metrics": {
-    "totalRaw": 424943,
-    "cleanCount": 166911,
-    "droppedInactive": 160803,
-    "droppedGhost": 157,
+    "totalRaw": 424582,
+    "cleanCount": 164919,
+    "droppedInactive": 164420,
+    "droppedGhost": 154,
     "droppedSpam": 1,
-    "droppedDuplicates": 97071
+    "droppedDuplicates": 95088
   },
   "index_metrics": {
-    "total_terms": 40426,
-    "compressed_bytes": 225115
+    "total_terms": 40248,
+    "compressed_bytes": 224103
   },
   "sources_breakdown": {
-    "direct_ats_boards": 31295,
+    "direct_ats_boards": 31290,
     "workday_enterprise": 1700,
     "smartrecruiters_enterprise": 300,
-    "simplify_community": 12327,
-    "open_apis": 4321,
+    "simplify_community": 12267,
+    "open_apis": 4025,
     "universe_stream": 375000,
-    "unique_published": 166911,
-    "distinct_companies": 8753
+    "unique_published": 164919,
+    "distinct_companies": 8714
   },
   "version": "1.0.0-universe"
 }
