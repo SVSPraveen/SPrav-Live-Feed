@@ -8,10 +8,10 @@
     "jobs_chunk_5.json.gz",
     "jobs_chunk_6.json.gz"
   ],
-  "totalJobs": 162996,
+  "totalJobs": 163108,
   "chunkSize": 25000,
   "totalChunks": 7,
-  "distinctCompanies": 8804,
-  "last_updated": "2026-09-28T22:01:47.884Z",
+  "distinctCompanies": 8674,
+  "last_updated": "2026-09-29T01:58:06.054Z",
   "version": "1.0.0-sovereign"
 }
