@@ -1,0 +1,124 @@
+name: SPrav $0 Real-Time ATS Job Engine
+
+on:
+  schedule:
+    # Runs every 6 hours on free GitHub Actions runners ($0 server cost)
+    # Minute 20 avoids global :00 peak runner queue times
+    - cron: '20 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      max_age_days:
+        description: 'Maximum age of job postings in days'
+        required: false
+        default: '14'
+      limit:
+        description: 'Limit number of company boards to query (leave blank for all)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'sprav-job-harvest'
+  cancel-in-progress: true
+
+jobs:
+  harvest-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Execute Deterministic ATS Harvester ($0 Cost)
+        id: harvest
+        env:
+          MAX_AGE: ${{ github.event.inputs.max_age_days || '14' }}
+          BOARD_LIMIT: ${{ github.event.inputs.limit || '' }}
+        run: |
+          CMD="python scripts/harvest_jobs.py --max-age-days ${MAX_AGE} --concurrency 30"
+          if [ -n "$BOARD_LIMIT" ]; then
+            CMD="$CMD --limit $BOARD_LIMIT"
+          fi
+          echo "Executing: $CMD"
+          $CMD
+
+      - name: Generate Rich GitHub Step Summary
+        if: always()
+        run: |
+          if [ -f "dist_feed/feed_manifest.json" ]; then
+            python -c "
+            import json
+            with open('dist_feed/feed_manifest.json') as f:
+                m = json.load(f)
+            fresh = m.get('freshness_breakdown', {})
+            payload = m.get('payload_metrics', {})
+            print('### 🎯 SPrav $0 Real-Time Job Engine — Harvest Report')
+            print('')
+            print('| Metric | Value |')
+            print('|---|---|')
+            print(f'| **Total Verified Live Jobs** | `{m.get(\"total_jobs\", 0):,}` |')
+            print(f'| **Distinct Tech Employers** | `{m.get(\"distinct_companies\", 0)}` |')
+            print(f'| **Corporate Boards Queried** | `{m.get(\"boards_queried\", 0)}` |')
+            print(f'| **Execution Duration** | `{m.get(\"pipeline_duration_seconds\", 0)}s` |')
+            print(f'| **Compression Ratio** | `{payload.get(\"compression_ratio\", \"N/A\")}` |')
+            print(f'| **Compressed Feed Size** | `{payload.get(\"compressed_bytes\", 0) / 1024:.1f} KB` |')
+            print('')
+            print('#### 🕒 Freshness Distribution (Strict <= 14 Days)')
+            print(f'- **< 24 Hours Fresh:** `{fresh.get(\"< 24h\", 0):,}` postings')
+            print(f'- **< 3 Days Fresh:** `{fresh.get(\"< 3d\", 0):,}` postings')
+            print(f'- **< 7 Days Fresh:** `{fresh.get(\"< 7d\", 0):,}` postings')
+            print(f'- **< 14 Days Fresh:** `{fresh.get(\"< 14d\", 0):,}` postings')
+            print('')
+            print('#### 🌐 Edge CDN Distribution')
+            print('- `jobs.json.gz` (High-Speed Edge Delivery)')
+            print('- `latest.json.gz` (V4 Client Compatibility)')
+            print('- `feed_manifest.json` (Real-Time Health Manifest)')
+            " >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Deploy Feed to GitHub Pages & Sovereign Data Branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist_feed
+          publish_branch: gh-pages
+          keep_files: false
+          commit_message: "[skip ci] [skip vercel] [vercel skip] Live ATS Job Harvest & Edge CDN Refresh"
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Mirror Feed to sovereign-job-feed Branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist_feed
+          publish_branch: sovereign-job-feed
+          keep_files: false
+          commit_message: "[skip ci] [skip vercel] [vercel skip] Mirror to sovereign-job-feed"
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Sync Local Fallback Data to Main Branch
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          if [ -f "public/data/sprav_daily_jobs.json" ]; then
+            git add public/data/sprav_daily_jobs.json
+            if ! git diff-index --quiet HEAD --; then
+              git commit -m "[skip ci] [skip vercel] Auto-sync local fallback jobs feed [automated]"
+              git push origin main || echo "Local fallback push ignored or up to date"
+            fi
+          fi

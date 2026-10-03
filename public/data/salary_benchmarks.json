@@ -1,0 +1,3221 @@
+{
+  "$schema": "https://sprav-job-ai.org/schemas/salary-benchmarks-v1.json",
+  "version": "2026.09.01",
+  "lastUpdated": "September 2026",
+  "cadence": "semi_annual",
+  "nextScheduledRefresh": "March 2027",
+  "source": "SPrav Semi-Annual Calibrated Baseline & Macro Trend Index",
+  "generatedAt": "2026-10-02T14:54:40.637Z",
+  "driftAppliedPercent": 0,
+  "metadata": {
+    "engineVersion": "2.5.0",
+    "totalRoles": 11,
+    "totalDataPoints": 528,
+    "roles": [
+      "software_engineer",
+      "frontend_engineer",
+      "ai_ml_engineer",
+      "devops_sre",
+      "data_engineer",
+      "cybersecurity_engineer",
+      "mobile_engineer",
+      "qa_sdet",
+      "embedded_firmware",
+      "product_manager",
+      "engineering_manager"
+    ],
+    "seniorityLevels": [
+      "entry",
+      "mid",
+      "senior",
+      "staff"
+    ],
+    "geoTiers": [
+      "us_tier1",
+      "us_remote",
+      "europe",
+      "europe_tier1",
+      "europe_growth",
+      "india",
+      "india_gcc",
+      "india_tech",
+      "canada",
+      "uk",
+      "apac",
+      "latam"
+    ],
+    "warningsCount": 0
+  },
+  "currencyConfig": {
+    "USD": {
+      "code": "USD",
+      "symbol": "$",
+      "name": "US Dollar ($)",
+      "rateFromUsd": 1,
+      "isLpa": false,
+      "rateUpdated": "September 2026"
+    },
+    "INR": {
+      "code": "INR",
+      "symbol": "₹",
+      "name": "Indian Rupee (₹ LPA)",
+      "rateFromUsd": 95.51,
+      "isLpa": true,
+      "rateUpdated": "September 2026"
+    },
+    "GBP": {
+      "code": "GBP",
+      "symbol": "£",
+      "name": "British Pound (£)",
+      "rateFromUsd": 0.74,
+      "isLpa": false,
+      "rateUpdated": "September 2026"
+    },
+    "EUR": {
+      "code": "EUR",
+      "symbol": "€",
+      "name": "Euro (€)",
+      "rateFromUsd": 0.86,
+      "isLpa": false,
+      "rateUpdated": "September 2026"
+    },
+    "CAD": {
+      "code": "CAD",
+      "symbol": "CA$",
+      "name": "Canadian Dollar (CA$)",
+      "rateFromUsd": 1.38,
+      "isLpa": false,
+      "rateUpdated": "September 2026"
+    },
+    "AUD": {
+      "code": "AUD",
+      "symbol": "A$",
+      "name": "Australian Dollar (A$)",
+      "rateFromUsd": 1.39,
+      "isLpa": false,
+      "rateUpdated": "September 2026"
+    },
+    "SGD": {
+      "code": "SGD",
+      "symbol": "S$",
+      "name": "Singapore Dollar (S$)",
+      "rateFromUsd": 1.27,
+      "isLpa": false,
+      "rateUpdated": "September 2026"
+    }
+  },
+  "pppConversionTable": {
+    "USD": {
+      "code": "USD",
+      "name": "US Dollar",
+      "symbol": "$",
+      "pppRateFromUsd": 1,
+      "pppMultiplierVsUsd": 1,
+      "defaultFxRate": 1,
+      "referenceCountry": "United States",
+      "source": "World Bank / IMF ICP 2025/2026"
+    },
+    "INR": {
+      "code": "INR",
+      "name": "Indian Rupee",
+      "symbol": "₹",
+      "pppRateFromUsd": 25.2,
+      "pppMultiplierVsUsd": 3.79,
+      "defaultFxRate": 95.51,
+      "referenceCountry": "India",
+      "source": "World Bank ICP 2025/2026 (1 Int$ ≈ ₹25.20)"
+    },
+    "EUR": {
+      "code": "EUR",
+      "name": "Euro",
+      "symbol": "€",
+      "pppRateFromUsd": 0.78,
+      "pppMultiplierVsUsd": 1.1,
+      "defaultFxRate": 0.86,
+      "referenceCountry": "Eurozone (Germany, Netherlands, France)",
+      "source": "Eurostat / OECD 2025/2026 (1 Int$ ≈ €0.78)"
+    },
+    "GBP": {
+      "code": "GBP",
+      "name": "British Pound",
+      "symbol": "£",
+      "pppRateFromUsd": 0.7,
+      "pppMultiplierVsUsd": 1.06,
+      "defaultFxRate": 0.74,
+      "referenceCountry": "United Kingdom",
+      "source": "OECD 2025/2026 (1 Int$ ≈ £0.70)"
+    },
+    "CAD": {
+      "code": "CAD",
+      "name": "Canadian Dollar",
+      "symbol": "CA$",
+      "pppRateFromUsd": 1.22,
+      "pppMultiplierVsUsd": 1.13,
+      "defaultFxRate": 1.38,
+      "referenceCountry": "Canada",
+      "source": "OECD 2025/2026 (1 Int$ ≈ CA$1.22)"
+    },
+    "AUD": {
+      "code": "AUD",
+      "name": "Australian Dollar",
+      "symbol": "A$",
+      "pppRateFromUsd": 1.42,
+      "pppMultiplierVsUsd": 0.98,
+      "defaultFxRate": 1.39,
+      "referenceCountry": "Australia",
+      "source": "OECD 2025/2026 (1 Int$ ≈ A$1.42)"
+    },
+    "SGD": {
+      "code": "SGD",
+      "name": "Singapore Dollar",
+      "symbol": "S$",
+      "pppRateFromUsd": 0.85,
+      "pppMultiplierVsUsd": 1.49,
+      "defaultFxRate": 1.27,
+      "referenceCountry": "Singapore",
+      "source": "World Bank ICP 2025/2026 (1 Int$ ≈ S$0.85)"
+    },
+    "JPY": {
+      "code": "JPY",
+      "name": "Japanese Yen",
+      "symbol": "¥",
+      "pppRateFromUsd": 104.5,
+      "pppMultiplierVsUsd": 1.48,
+      "defaultFxRate": 154.5,
+      "referenceCountry": "Japan",
+      "source": "OECD / IMF 2025/2026 (1 Int$ ≈ ¥104.5)"
+    },
+    "CHF": {
+      "code": "CHF",
+      "name": "Swiss Franc",
+      "symbol": "CHF",
+      "pppRateFromUsd": 1.12,
+      "pppMultiplierVsUsd": 0.77,
+      "defaultFxRate": 0.86,
+      "referenceCountry": "Switzerland",
+      "source": "OECD / Swiss Federal Stat 2025/2026"
+    },
+    "CNY": {
+      "code": "CNY",
+      "name": "Chinese Yuan",
+      "symbol": "¥",
+      "pppRateFromUsd": 4.18,
+      "pppMultiplierVsUsd": 1.73,
+      "defaultFxRate": 7.24,
+      "referenceCountry": "China",
+      "source": "World Bank ICP 2025/2026"
+    },
+    "BRL": {
+      "code": "BRL",
+      "name": "Brazilian Real",
+      "symbol": "R$",
+      "pppRateFromUsd": 2.65,
+      "pppMultiplierVsUsd": 2.15,
+      "defaultFxRate": 5.7,
+      "referenceCountry": "Brazil",
+      "source": "World Bank ICP 2025/2026"
+    },
+    "MXN": {
+      "code": "MXN",
+      "name": "Mexican Peso",
+      "symbol": "Mex$",
+      "pppRateFromUsd": 10.2,
+      "pppMultiplierVsUsd": 1.92,
+      "defaultFxRate": 19.6,
+      "referenceCountry": "Mexico",
+      "source": "OECD / World Bank 2025/2026"
+    },
+    "PLN": {
+      "code": "PLN",
+      "name": "Polish Złoty",
+      "symbol": "zł",
+      "pppRateFromUsd": 2.1,
+      "pppMultiplierVsUsd": 1.9,
+      "defaultFxRate": 3.98,
+      "referenceCountry": "Poland",
+      "source": "Eurostat / OECD 2025/2026"
+    },
+    "KRW": {
+      "code": "KRW",
+      "name": "South Korean Won",
+      "symbol": "₩",
+      "pppRateFromUsd": 890,
+      "pppMultiplierVsUsd": 1.55,
+      "defaultFxRate": 1380,
+      "referenceCountry": "South Korea",
+      "source": "OECD / Bank of Korea 2025/2026"
+    },
+    "NZD": {
+      "code": "NZD",
+      "name": "New Zealand Dollar",
+      "symbol": "NZ$",
+      "pppRateFromUsd": 1.52,
+      "pppMultiplierVsUsd": 1.08,
+      "defaultFxRate": 1.64,
+      "referenceCountry": "New Zealand",
+      "source": "OECD 2025/2026"
+    },
+    "SEK": {
+      "code": "SEK",
+      "name": "Swedish Krona",
+      "symbol": "kr",
+      "pppRateFromUsd": 9.1,
+      "pppMultiplierVsUsd": 1.15,
+      "defaultFxRate": 10.45,
+      "referenceCountry": "Sweden",
+      "source": "Eurostat / OECD 2025/2026"
+    },
+    "NOK": {
+      "code": "NOK",
+      "name": "Norwegian Krone",
+      "symbol": "kr",
+      "pppRateFromUsd": 10.2,
+      "pppMultiplierVsUsd": 1.06,
+      "defaultFxRate": 10.8,
+      "referenceCountry": "Norway",
+      "source": "OECD 2025/2026"
+    },
+    "DKK": {
+      "code": "DKK",
+      "name": "Danish Krone",
+      "symbol": "kr",
+      "pppRateFromUsd": 7.15,
+      "pppMultiplierVsUsd": 0.96,
+      "defaultFxRate": 6.85,
+      "referenceCountry": "Denmark",
+      "source": "Eurostat / OECD 2025/2026"
+    },
+    "TRY": {
+      "code": "TRY",
+      "name": "Turkish Lira",
+      "symbol": "₺",
+      "pppRateFromUsd": 12.4,
+      "pppMultiplierVsUsd": 2.8,
+      "defaultFxRate": 34.8,
+      "referenceCountry": "Turkey",
+      "source": "OECD / World Bank 2025/2026"
+    },
+    "AED": {
+      "code": "AED",
+      "name": "UAE Dirham",
+      "symbol": "AED",
+      "pppRateFromUsd": 2.15,
+      "pppMultiplierVsUsd": 1.71,
+      "defaultFxRate": 3.67,
+      "referenceCountry": "United Arab Emirates",
+      "source": "World Bank ICP 2025/2026"
+    },
+    "SAR": {
+      "code": "SAR",
+      "name": "Saudi Riyal",
+      "symbol": "SAR",
+      "pppRateFromUsd": 2.05,
+      "pppMultiplierVsUsd": 1.83,
+      "defaultFxRate": 3.75,
+      "referenceCountry": "Saudi Arabia",
+      "source": "World Bank ICP 2025/2026"
+    },
+    "ZAR": {
+      "code": "ZAR",
+      "name": "South African Rand",
+      "symbol": "R",
+      "pppRateFromUsd": 7.8,
+      "pppMultiplierVsUsd": 2.34,
+      "defaultFxRate": 18.25,
+      "referenceCountry": "South Africa",
+      "source": "World Bank ICP 2025/2026"
+    },
+    "ILS": {
+      "code": "ILS",
+      "name": "Israeli New Shekel",
+      "symbol": "₪",
+      "pppRateFromUsd": 3.9,
+      "pppMultiplierVsUsd": 0.94,
+      "defaultFxRate": 3.65,
+      "referenceCountry": "Israel",
+      "source": "OECD 2025/2026"
+    },
+    "HKD": {
+      "code": "HKD",
+      "name": "Hong Kong Dollar",
+      "symbol": "HK$",
+      "pppRateFromUsd": 5.8,
+      "pppMultiplierVsUsd": 1.34,
+      "defaultFxRate": 7.78,
+      "referenceCountry": "Hong Kong",
+      "source": "World Bank ICP 2025/2026"
+    },
+    "THB": {
+      "code": "THB",
+      "name": "Thai Baht",
+      "symbol": "฿",
+      "pppRateFromUsd": 13.6,
+      "pppMultiplierVsUsd": 2.66,
+      "defaultFxRate": 36.2,
+      "referenceCountry": "Thailand",
+      "source": "World Bank ICP 2025/2026"
+    },
+    "IDR": {
+      "code": "IDR",
+      "name": "Indonesian Rupiah",
+      "symbol": "Rp",
+      "pppRateFromUsd": 5200,
+      "pppMultiplierVsUsd": 3.12,
+      "defaultFxRate": 16250,
+      "referenceCountry": "Indonesia",
+      "source": "World Bank ICP 2025/2026"
+    },
+    "MYR": {
+      "code": "MYR",
+      "name": "Malaysian Ringgit",
+      "symbol": "RM",
+      "pppRateFromUsd": 1.75,
+      "pppMultiplierVsUsd": 2.54,
+      "defaultFxRate": 4.45,
+      "referenceCountry": "Malaysia",
+      "source": "World Bank ICP 2025/2026"
+    },
+    "PHP": {
+      "code": "PHP",
+      "name": "Philippine Peso",
+      "symbol": "₱",
+      "pppRateFromUsd": 21.5,
+      "pppMultiplierVsUsd": 2.71,
+      "defaultFxRate": 58.2,
+      "referenceCountry": "Philippines",
+      "source": "World Bank ICP 2025/2026"
+    },
+    "VND": {
+      "code": "VND",
+      "name": "Vietnamese Dong",
+      "symbol": "₫",
+      "pppRateFromUsd": 8200,
+      "pppMultiplierVsUsd": 3.1,
+      "defaultFxRate": 25400,
+      "referenceCountry": "Vietnam",
+      "source": "World Bank ICP 2025/2026"
+    },
+    "CZK": {
+      "code": "CZK",
+      "name": "Czech Koruna",
+      "symbol": "Kč",
+      "pppRateFromUsd": 13.8,
+      "pppMultiplierVsUsd": 1.68,
+      "defaultFxRate": 23.2,
+      "referenceCountry": "Czech Republic",
+      "source": "Eurostat / OECD 2025/2026"
+    },
+    "HUF": {
+      "code": "HUF",
+      "name": "Hungarian Forint",
+      "symbol": "Ft",
+      "pppRateFromUsd": 175,
+      "pppMultiplierVsUsd": 2.06,
+      "defaultFxRate": 360,
+      "referenceCountry": "Hungary",
+      "source": "Eurostat / OECD 2025/2026"
+    },
+    "RON": {
+      "code": "RON",
+      "name": "Romanian Leu",
+      "symbol": "lei",
+      "pppRateFromUsd": 2.1,
+      "pppMultiplierVsUsd": 2.21,
+      "defaultFxRate": 4.65,
+      "referenceCountry": "Romania",
+      "source": "Eurostat / OECD 2025/2026"
+    },
+    "CLP": {
+      "code": "CLP",
+      "name": "Chilean Peso",
+      "symbol": "CLP$",
+      "pppRateFromUsd": 460,
+      "pppMultiplierVsUsd": 2.04,
+      "defaultFxRate": 940,
+      "referenceCountry": "Chile",
+      "source": "OECD / World Bank 2025/2026"
+    },
+    "COP": {
+      "code": "COP",
+      "name": "Colombian Peso",
+      "symbol": "COL$",
+      "pppRateFromUsd": 1650,
+      "pppMultiplierVsUsd": 2.51,
+      "defaultFxRate": 4150,
+      "referenceCountry": "Colombia",
+      "source": "OECD / World Bank 2025/2026"
+    },
+    "PKR": {
+      "code": "PKR",
+      "name": "Pakistani Rupee",
+      "symbol": "PKR",
+      "pppRateFromUsd": 78,
+      "pppMultiplierVsUsd": 3.59,
+      "defaultFxRate": 280,
+      "referenceCountry": "Pakistan",
+      "source": "World Bank ICP 2025/2026"
+    },
+    "BDT": {
+      "code": "BDT",
+      "name": "Bangladeshi Taka",
+      "symbol": "৳",
+      "pppRateFromUsd": 38,
+      "pppMultiplierVsUsd": 3.16,
+      "defaultFxRate": 120,
+      "referenceCountry": "Bangladesh",
+      "source": "World Bank ICP 2025/2026"
+    }
+  },
+  "benchmarks": {
+    "software_engineer": {
+      "entry": {
+        "us_tier1": [
+          130000,
+          155000,
+          185000
+        ],
+        "us_remote": [
+          100000,
+          125000,
+          150000
+        ],
+        "europe": [
+          65000,
+          80000,
+          100000
+        ],
+        "europe_tier1": [
+          75000,
+          95000,
+          120000
+        ],
+        "europe_growth": [
+          55000,
+          70000,
+          88000
+        ],
+        "india": [
+          18000,
+          24000,
+          32000
+        ],
+        "india_gcc": [
+          28000,
+          36000,
+          48000
+        ],
+        "india_tech": [
+          18000,
+          24000,
+          32000
+        ],
+        "canada": [
+          85000,
+          105000,
+          130000
+        ],
+        "uk": [
+          75000,
+          92000,
+          115000
+        ],
+        "apac": [
+          60000,
+          75000,
+          95000
+        ],
+        "latam": [
+          30000,
+          40000,
+          52000
+        ]
+      },
+      "mid": {
+        "us_tier1": [
+          160000,
+          190000,
+          230000
+        ],
+        "us_remote": [
+          130000,
+          155000,
+          185000
+        ],
+        "europe": [
+          85000,
+          105000,
+          130000
+        ],
+        "europe_tier1": [
+          100000,
+          125000,
+          155000
+        ],
+        "europe_growth": [
+          75000,
+          92000,
+          115000
+        ],
+        "india": [
+          28000,
+          38000,
+          52000
+        ],
+        "india_gcc": [
+          44000,
+          60000,
+          82000
+        ],
+        "india_tech": [
+          28000,
+          38000,
+          52000
+        ],
+        "canada": [
+          110000,
+          132000,
+          160000
+        ],
+        "uk": [
+          98000,
+          122000,
+          150000
+        ],
+        "apac": [
+          78000,
+          98000,
+          122000
+        ],
+        "latam": [
+          42000,
+          55000,
+          70000
+        ]
+      },
+      "senior": {
+        "us_tier1": [
+          200000,
+          245000,
+          300000
+        ],
+        "us_remote": [
+          160000,
+          195000,
+          240000
+        ],
+        "europe": [
+          110000,
+          135000,
+          170000
+        ],
+        "europe_tier1": [
+          130000,
+          165000,
+          210000
+        ],
+        "europe_growth": [
+          98000,
+          120000,
+          150000
+        ],
+        "india": [
+          45000,
+          60000,
+          85000
+        ],
+        "india_gcc": [
+          72000,
+          98000,
+          135000
+        ],
+        "india_tech": [
+          45000,
+          60000,
+          85000
+        ],
+        "canada": [
+          138000,
+          170000,
+          210000
+        ],
+        "uk": [
+          125000,
+          158000,
+          200000
+        ],
+        "apac": [
+          100000,
+          128000,
+          162000
+        ],
+        "latam": [
+          56000,
+          74000,
+          96000
+        ]
+      },
+      "staff": {
+        "us_tier1": [
+          260000,
+          325000,
+          410000
+        ],
+        "us_remote": [
+          210000,
+          260000,
+          330000
+        ],
+        "europe": [
+          145000,
+          180000,
+          230000
+        ],
+        "europe_tier1": [
+          175000,
+          225000,
+          285000
+        ],
+        "europe_growth": [
+          130000,
+          160000,
+          205000
+        ],
+        "india": [
+          70000,
+          95000,
+          130000
+        ],
+        "india_gcc": [
+          115000,
+          155000,
+          210000
+        ],
+        "india_tech": [
+          70000,
+          95000,
+          130000
+        ],
+        "canada": [
+          180000,
+          225000,
+          285000
+        ],
+        "uk": [
+          165000,
+          210000,
+          268000
+        ],
+        "apac": [
+          132000,
+          170000,
+          218000
+        ],
+        "latam": [
+          75000,
+          102000,
+          135000
+        ]
+      }
+    },
+    "frontend_engineer": {
+      "entry": {
+        "us_tier1": [
+          120000,
+          145000,
+          175000
+        ],
+        "us_remote": [
+          95000,
+          120000,
+          145000
+        ],
+        "europe": [
+          60000,
+          75000,
+          95000
+        ],
+        "europe_tier1": [
+          70000,
+          90000,
+          115000
+        ],
+        "europe_growth": [
+          50000,
+          65000,
+          82000
+        ],
+        "india": [
+          16000,
+          22000,
+          30000
+        ],
+        "india_gcc": [
+          26000,
+          34000,
+          45000
+        ],
+        "india_tech": [
+          16000,
+          22000,
+          30000
+        ],
+        "canada": [
+          80000,
+          98000,
+          122000
+        ],
+        "uk": [
+          70000,
+          86000,
+          108000
+        ],
+        "apac": [
+          55000,
+          70000,
+          88000
+        ],
+        "latam": [
+          28000,
+          36000,
+          48000
+        ]
+      },
+      "mid": {
+        "us_tier1": [
+          150000,
+          180000,
+          220000
+        ],
+        "us_remote": [
+          125000,
+          150000,
+          175000
+        ],
+        "europe": [
+          80000,
+          100000,
+          125000
+        ],
+        "europe_tier1": [
+          95000,
+          118000,
+          148000
+        ],
+        "europe_growth": [
+          70000,
+          86000,
+          110000
+        ],
+        "india": [
+          25000,
+          35000,
+          48000
+        ],
+        "india_gcc": [
+          40000,
+          55000,
+          75000
+        ],
+        "india_tech": [
+          25000,
+          35000,
+          48000
+        ],
+        "canada": [
+          102000,
+          125000,
+          152000
+        ],
+        "uk": [
+          92000,
+          115000,
+          142000
+        ],
+        "apac": [
+          72000,
+          92000,
+          115000
+        ],
+        "latam": [
+          38000,
+          50000,
+          65000
+        ]
+      },
+      "senior": {
+        "us_tier1": [
+          190000,
+          235000,
+          285000
+        ],
+        "us_remote": [
+          155000,
+          185000,
+          225000
+        ],
+        "europe": [
+          105000,
+          128000,
+          160000
+        ],
+        "europe_tier1": [
+          122000,
+          155000,
+          195000
+        ],
+        "europe_growth": [
+          92000,
+          112000,
+          142000
+        ],
+        "india": [
+          42000,
+          56000,
+          78000
+        ],
+        "india_gcc": [
+          68000,
+          90000,
+          125000
+        ],
+        "india_tech": [
+          42000,
+          56000,
+          78000
+        ],
+        "canada": [
+          130000,
+          160000,
+          198000
+        ],
+        "uk": [
+          118000,
+          148000,
+          188000
+        ],
+        "apac": [
+          95000,
+          120000,
+          152000
+        ],
+        "latam": [
+          52000,
+          68000,
+          88000
+        ]
+      },
+      "staff": {
+        "us_tier1": [
+          245000,
+          305000,
+          385000
+        ],
+        "us_remote": [
+          200000,
+          245000,
+          310000
+        ],
+        "europe": [
+          138000,
+          170000,
+          215000
+        ],
+        "europe_tier1": [
+          165000,
+          210000,
+          268000
+        ],
+        "europe_growth": [
+          122000,
+          150000,
+          190000
+        ],
+        "india": [
+          65000,
+          88000,
+          120000
+        ],
+        "india_gcc": [
+          105000,
+          142000,
+          195000
+        ],
+        "india_tech": [
+          65000,
+          88000,
+          120000
+        ],
+        "canada": [
+          170000,
+          212000,
+          270000
+        ],
+        "uk": [
+          155000,
+          198000,
+          252000
+        ],
+        "apac": [
+          125000,
+          160000,
+          205000
+        ],
+        "latam": [
+          70000,
+          92000,
+          122000
+        ]
+      }
+    },
+    "ai_ml_engineer": {
+      "entry": {
+        "us_tier1": [
+          145000,
+          175000,
+          210000
+        ],
+        "us_remote": [
+          120000,
+          145000,
+          175000
+        ],
+        "europe": [
+          75000,
+          95000,
+          120000
+        ],
+        "europe_tier1": [
+          90000,
+          115000,
+          145000
+        ],
+        "europe_growth": [
+          65000,
+          82000,
+          105000
+        ],
+        "india": [
+          22000,
+          32000,
+          45000
+        ],
+        "india_gcc": [
+          35000,
+          48000,
+          65000
+        ],
+        "india_tech": [
+          22000,
+          32000,
+          45000
+        ],
+        "canada": [
+          98000,
+          122000,
+          150000
+        ],
+        "uk": [
+          88000,
+          110000,
+          138000
+        ],
+        "apac": [
+          70000,
+          90000,
+          115000
+        ],
+        "latam": [
+          36000,
+          48000,
+          64000
+        ]
+      },
+      "mid": {
+        "us_tier1": [
+          185000,
+          225000,
+          275000
+        ],
+        "us_remote": [
+          150000,
+          185000,
+          225000
+        ],
+        "europe": [
+          100000,
+          125000,
+          160000
+        ],
+        "europe_tier1": [
+          120000,
+          150000,
+          192000
+        ],
+        "europe_growth": [
+          88000,
+          108000,
+          138000
+        ],
+        "india": [
+          38000,
+          52000,
+          72000
+        ],
+        "india_gcc": [
+          58000,
+          80000,
+          110000
+        ],
+        "india_tech": [
+          38000,
+          52000,
+          72000
+        ],
+        "canada": [
+          128000,
+          158000,
+          195000
+        ],
+        "uk": [
+          115000,
+          145000,
+          185000
+        ],
+        "apac": [
+          92000,
+          118000,
+          150000
+        ],
+        "latam": [
+          50000,
+          68000,
+          88000
+        ]
+      },
+      "senior": {
+        "us_tier1": [
+          230000,
+          285000,
+          360000
+        ],
+        "us_remote": [
+          190000,
+          235000,
+          295000
+        ],
+        "europe": [
+          130000,
+          165000,
+          210000
+        ],
+        "europe_tier1": [
+          155000,
+          198000,
+          252000
+        ],
+        "europe_growth": [
+          115000,
+          142000,
+          180000
+        ],
+        "india": [
+          60000,
+          82000,
+          115000
+        ],
+        "india_gcc": [
+          95000,
+          130000,
+          180000
+        ],
+        "india_tech": [
+          60000,
+          82000,
+          115000
+        ],
+        "canada": [
+          162000,
+          202000,
+          255000
+        ],
+        "uk": [
+          148000,
+          188000,
+          242000
+        ],
+        "apac": [
+          118000,
+          152000,
+          195000
+        ],
+        "latam": [
+          68000,
+          90000,
+          120000
+        ]
+      },
+      "staff": {
+        "us_tier1": [
+          300000,
+          380000,
+          490000
+        ],
+        "us_remote": [
+          240000,
+          310000,
+          400000
+        ],
+        "europe": [
+          170000,
+          220000,
+          285000
+        ],
+        "europe_tier1": [
+          205000,
+          265000,
+          345000
+        ],
+        "europe_growth": [
+          150000,
+          192000,
+          248000
+        ],
+        "india": [
+          90000,
+          125000,
+          175000
+        ],
+        "india_gcc": [
+          145000,
+          200000,
+          275000
+        ],
+        "india_tech": [
+          90000,
+          125000,
+          175000
+        ],
+        "canada": [
+          210000,
+          270000,
+          345000
+        ],
+        "uk": [
+          195000,
+          255000,
+          330000
+        ],
+        "apac": [
+          155000,
+          205000,
+          268000
+        ],
+        "latam": [
+          90000,
+          125000,
+          168000
+        ]
+      }
+    },
+    "devops_sre": {
+      "entry": {
+        "us_tier1": [
+          125000,
+          150000,
+          180000
+        ],
+        "us_remote": [
+          105000,
+          130000,
+          155000
+        ],
+        "europe": [
+          65000,
+          80000,
+          100000
+        ],
+        "europe_tier1": [
+          75000,
+          95000,
+          120000
+        ],
+        "europe_growth": [
+          55000,
+          70000,
+          88000
+        ],
+        "india": [
+          18000,
+          25000,
+          34000
+        ],
+        "india_gcc": [
+          28000,
+          38000,
+          52000
+        ],
+        "india_tech": [
+          18000,
+          25000,
+          34000
+        ],
+        "canada": [
+          85000,
+          105000,
+          130000
+        ],
+        "uk": [
+          75000,
+          94000,
+          118000
+        ],
+        "apac": [
+          60000,
+          78000,
+          98000
+        ],
+        "latam": [
+          30000,
+          40000,
+          52000
+        ]
+      },
+      "mid": {
+        "us_tier1": [
+          160000,
+          190000,
+          230000
+        ],
+        "us_remote": [
+          135000,
+          160000,
+          190000
+        ],
+        "europe": [
+          85000,
+          105000,
+          130000
+        ],
+        "europe_tier1": [
+          100000,
+          125000,
+          155000
+        ],
+        "europe_growth": [
+          75000,
+          92000,
+          115000
+        ],
+        "india": [
+          30000,
+          42000,
+          58000
+        ],
+        "india_gcc": [
+          46000,
+          65000,
+          90000
+        ],
+        "india_tech": [
+          30000,
+          42000,
+          58000
+        ],
+        "canada": [
+          110000,
+          135000,
+          165000
+        ],
+        "uk": [
+          100000,
+          125000,
+          155000
+        ],
+        "apac": [
+          80000,
+          100000,
+          125000
+        ],
+        "latam": [
+          44000,
+          58000,
+          75000
+        ]
+      },
+      "senior": {
+        "us_tier1": [
+          205000,
+          250000,
+          305000
+        ],
+        "us_remote": [
+          170000,
+          205000,
+          250000
+        ],
+        "europe": [
+          115000,
+          140000,
+          175000
+        ],
+        "europe_tier1": [
+          135000,
+          170000,
+          215000
+        ],
+        "europe_growth": [
+          102000,
+          124000,
+          155000
+        ],
+        "india": [
+          48000,
+          65000,
+          92000
+        ],
+        "india_gcc": [
+          75000,
+          102000,
+          142000
+        ],
+        "india_tech": [
+          48000,
+          65000,
+          92000
+        ],
+        "canada": [
+          140000,
+          175000,
+          218000
+        ],
+        "uk": [
+          128000,
+          160000,
+          205000
+        ],
+        "apac": [
+          102000,
+          132000,
+          168000
+        ],
+        "latam": [
+          58000,
+          78000,
+          102000
+        ]
+      },
+      "staff": {
+        "us_tier1": [
+          265000,
+          330000,
+          420000
+        ],
+        "us_remote": [
+          215000,
+          270000,
+          345000
+        ],
+        "europe": [
+          150000,
+          190000,
+          245000
+        ],
+        "europe_tier1": [
+          180000,
+          230000,
+          295000
+        ],
+        "europe_growth": [
+          132000,
+          165000,
+          215000
+        ],
+        "india": [
+          75000,
+          102000,
+          140000
+        ],
+        "india_gcc": [
+          118000,
+          160000,
+          220000
+        ],
+        "india_tech": [
+          75000,
+          102000,
+          140000
+        ],
+        "canada": [
+          180000,
+          228000,
+          290000
+        ],
+        "uk": [
+          168000,
+          215000,
+          275000
+        ],
+        "apac": [
+          135000,
+          175000,
+          225000
+        ],
+        "latam": [
+          78000,
+          105000,
+          140000
+        ]
+      }
+    },
+    "data_engineer": {
+      "entry": {
+        "us_tier1": [
+          130000,
+          155000,
+          185000
+        ],
+        "us_remote": [
+          105000,
+          130000,
+          155000
+        ],
+        "europe": [
+          65000,
+          80000,
+          100000
+        ],
+        "europe_tier1": [
+          75000,
+          95000,
+          120000
+        ],
+        "europe_growth": [
+          55000,
+          70000,
+          88000
+        ],
+        "india": [
+          18000,
+          25000,
+          35000
+        ],
+        "india_gcc": [
+          28000,
+          38000,
+          54000
+        ],
+        "india_tech": [
+          18000,
+          25000,
+          35000
+        ],
+        "canada": [
+          85000,
+          105000,
+          130000
+        ],
+        "uk": [
+          75000,
+          95000,
+          118000
+        ],
+        "apac": [
+          60000,
+          76000,
+          96000
+        ],
+        "latam": [
+          32000,
+          42000,
+          55000
+        ]
+      },
+      "mid": {
+        "us_tier1": [
+          165000,
+          195000,
+          235000
+        ],
+        "us_remote": [
+          135000,
+          160000,
+          195000
+        ],
+        "europe": [
+          85000,
+          110000,
+          135000
+        ],
+        "europe_tier1": [
+          102000,
+          130000,
+          162000
+        ],
+        "europe_growth": [
+          75000,
+          95000,
+          118000
+        ],
+        "india": [
+          30000,
+          42000,
+          58000
+        ],
+        "india_gcc": [
+          46000,
+          65000,
+          90000
+        ],
+        "india_tech": [
+          30000,
+          42000,
+          58000
+        ],
+        "canada": [
+          110000,
+          135000,
+          165000
+        ],
+        "uk": [
+          100000,
+          125000,
+          155000
+        ],
+        "apac": [
+          80000,
+          100000,
+          125000
+        ],
+        "latam": [
+          45000,
+          60000,
+          78000
+        ]
+      },
+      "senior": {
+        "us_tier1": [
+          210000,
+          255000,
+          315000
+        ],
+        "us_remote": [
+          170000,
+          210000,
+          260000
+        ],
+        "europe": [
+          115000,
+          145000,
+          185000
+        ],
+        "europe_tier1": [
+          138000,
+          175000,
+          225000
+        ],
+        "europe_growth": [
+          102000,
+          128000,
+          162000
+        ],
+        "india": [
+          50000,
+          68000,
+          95000
+        ],
+        "india_gcc": [
+          78000,
+          105000,
+          148000
+        ],
+        "india_tech": [
+          50000,
+          68000,
+          95000
+        ],
+        "canada": [
+          140000,
+          175000,
+          220000
+        ],
+        "uk": [
+          130000,
+          165000,
+          210000
+        ],
+        "apac": [
+          105000,
+          135000,
+          170000
+        ],
+        "latam": [
+          60000,
+          80000,
+          105000
+        ]
+      },
+      "staff": {
+        "us_tier1": [
+          275000,
+          345000,
+          440000
+        ],
+        "us_remote": [
+          225000,
+          280000,
+          360000
+        ],
+        "europe": [
+          155000,
+          195000,
+          255000
+        ],
+        "europe_tier1": [
+          185000,
+          235000,
+          305000
+        ],
+        "europe_growth": [
+          136000,
+          170000,
+          222000
+        ],
+        "india": [
+          78000,
+          105000,
+          145000
+        ],
+        "india_gcc": [
+          122000,
+          165000,
+          225000
+        ],
+        "india_tech": [
+          78000,
+          105000,
+          145000
+        ],
+        "canada": [
+          180000,
+          230000,
+          290000
+        ],
+        "uk": [
+          170000,
+          220000,
+          280000
+        ],
+        "apac": [
+          140000,
+          180000,
+          230000
+        ],
+        "latam": [
+          80000,
+          110000,
+          145000
+        ]
+      }
+    },
+    "cybersecurity_engineer": {
+      "entry": {
+        "us_tier1": [
+          125000,
+          150000,
+          180000
+        ],
+        "us_remote": [
+          100000,
+          125000,
+          150000
+        ],
+        "europe": [
+          65000,
+          80000,
+          100000
+        ],
+        "europe_tier1": [
+          75000,
+          95000,
+          120000
+        ],
+        "europe_growth": [
+          55000,
+          70000,
+          88000
+        ],
+        "india": [
+          17000,
+          24000,
+          34000
+        ],
+        "india_gcc": [
+          27000,
+          37000,
+          52000
+        ],
+        "india_tech": [
+          17000,
+          24000,
+          34000
+        ],
+        "canada": [
+          82000,
+          102000,
+          125000
+        ],
+        "uk": [
+          72000,
+          90000,
+          110000
+        ],
+        "apac": [
+          58000,
+          72000,
+          92000
+        ],
+        "latam": [
+          30000,
+          40000,
+          52000
+        ]
+      },
+      "mid": {
+        "us_tier1": [
+          160000,
+          190000,
+          230000
+        ],
+        "us_remote": [
+          130000,
+          155000,
+          190000
+        ],
+        "europe": [
+          85000,
+          105000,
+          130000
+        ],
+        "europe_tier1": [
+          100000,
+          125000,
+          155000
+        ],
+        "europe_growth": [
+          75000,
+          92000,
+          115000
+        ],
+        "india": [
+          28000,
+          40000,
+          55000
+        ],
+        "india_gcc": [
+          44000,
+          62000,
+          86000
+        ],
+        "india_tech": [
+          28000,
+          40000,
+          55000
+        ],
+        "canada": [
+          105000,
+          130000,
+          160000
+        ],
+        "uk": [
+          95000,
+          120000,
+          150000
+        ],
+        "apac": [
+          78000,
+          98000,
+          120000
+        ],
+        "latam": [
+          42000,
+          55000,
+          72000
+        ]
+      },
+      "senior": {
+        "us_tier1": [
+          205000,
+          250000,
+          310000
+        ],
+        "us_remote": [
+          165000,
+          205000,
+          255000
+        ],
+        "europe": [
+          115000,
+          140000,
+          180000
+        ],
+        "europe_tier1": [
+          138000,
+          172000,
+          220000
+        ],
+        "europe_growth": [
+          102000,
+          124000,
+          158000
+        ],
+        "india": [
+          48000,
+          65000,
+          90000
+        ],
+        "india_gcc": [
+          75000,
+          102000,
+          142000
+        ],
+        "india_tech": [
+          48000,
+          65000,
+          90000
+        ],
+        "canada": [
+          135000,
+          170000,
+          215000
+        ],
+        "uk": [
+          125000,
+          160000,
+          205000
+        ],
+        "apac": [
+          100000,
+          130000,
+          165000
+        ],
+        "latam": [
+          58000,
+          78000,
+          100000
+        ]
+      },
+      "staff": {
+        "us_tier1": [
+          270000,
+          340000,
+          430000
+        ],
+        "us_remote": [
+          220000,
+          275000,
+          350000
+        ],
+        "europe": [
+          150000,
+          190000,
+          250000
+        ],
+        "europe_tier1": [
+          180000,
+          230000,
+          300000
+        ],
+        "europe_growth": [
+          132000,
+          165000,
+          218000
+        ],
+        "india": [
+          75000,
+          100000,
+          140000
+        ],
+        "india_gcc": [
+          118000,
+          158000,
+          218000
+        ],
+        "india_tech": [
+          75000,
+          100000,
+          140000
+        ],
+        "canada": [
+          175000,
+          225000,
+          280000
+        ],
+        "uk": [
+          165000,
+          210000,
+          270000
+        ],
+        "apac": [
+          135000,
+          175000,
+          225000
+        ],
+        "latam": [
+          78000,
+          105000,
+          140000
+        ]
+      }
+    },
+    "mobile_engineer": {
+      "entry": {
+        "us_tier1": [
+          120000,
+          145000,
+          175000
+        ],
+        "us_remote": [
+          95000,
+          120000,
+          145000
+        ],
+        "europe": [
+          60000,
+          75000,
+          95000
+        ],
+        "europe_tier1": [
+          70000,
+          90000,
+          115000
+        ],
+        "europe_growth": [
+          52000,
+          65000,
+          82000
+        ],
+        "india": [
+          16000,
+          22000,
+          30000
+        ],
+        "india_gcc": [
+          26000,
+          35000,
+          48000
+        ],
+        "india_tech": [
+          16000,
+          22000,
+          30000
+        ],
+        "canada": [
+          80000,
+          100000,
+          120000
+        ],
+        "uk": [
+          70000,
+          88000,
+          108000
+        ],
+        "apac": [
+          55000,
+          70000,
+          90000
+        ],
+        "latam": [
+          28000,
+          38000,
+          50000
+        ]
+      },
+      "mid": {
+        "us_tier1": [
+          150000,
+          180000,
+          220000
+        ],
+        "us_remote": [
+          125000,
+          150000,
+          180000
+        ],
+        "europe": [
+          80000,
+          100000,
+          125000
+        ],
+        "europe_tier1": [
+          95000,
+          120000,
+          150000
+        ],
+        "europe_growth": [
+          70000,
+          88000,
+          110000
+        ],
+        "india": [
+          26000,
+          36000,
+          50000
+        ],
+        "india_gcc": [
+          42000,
+          58000,
+          80000
+        ],
+        "india_tech": [
+          26000,
+          36000,
+          50000
+        ],
+        "canada": [
+          100000,
+          125000,
+          155000
+        ],
+        "uk": [
+          90000,
+          115000,
+          145000
+        ],
+        "apac": [
+          75000,
+          95000,
+          118000
+        ],
+        "latam": [
+          40000,
+          52000,
+          68000
+        ]
+      },
+      "senior": {
+        "us_tier1": [
+          195000,
+          240000,
+          295000
+        ],
+        "us_remote": [
+          160000,
+          195000,
+          245000
+        ],
+        "europe": [
+          105000,
+          130000,
+          165000
+        ],
+        "europe_tier1": [
+          125000,
+          158000,
+          200000
+        ],
+        "europe_growth": [
+          92000,
+          115000,
+          145000
+        ],
+        "india": [
+          44000,
+          58000,
+          82000
+        ],
+        "india_gcc": [
+          70000,
+          92000,
+          128000
+        ],
+        "india_tech": [
+          44000,
+          58000,
+          82000
+        ],
+        "canada": [
+          130000,
+          165000,
+          205000
+        ],
+        "uk": [
+          120000,
+          150000,
+          190000
+        ],
+        "apac": [
+          95000,
+          125000,
+          158000
+        ],
+        "latam": [
+          55000,
+          72000,
+          95000
+        ]
+      },
+      "staff": {
+        "us_tier1": [
+          255000,
+          320000,
+          400000
+        ],
+        "us_remote": [
+          205000,
+          255000,
+          325000
+        ],
+        "europe": [
+          140000,
+          175000,
+          225000
+        ],
+        "europe_tier1": [
+          168000,
+          212000,
+          272000
+        ],
+        "europe_growth": [
+          124000,
+          152000,
+          196000
+        ],
+        "india": [
+          68000,
+          92000,
+          125000
+        ],
+        "india_gcc": [
+          110000,
+          148000,
+          198000
+        ],
+        "india_tech": [
+          68000,
+          92000,
+          125000
+        ],
+        "canada": [
+          165000,
+          210000,
+          265000
+        ],
+        "uk": [
+          155000,
+          195000,
+          250000
+        ],
+        "apac": [
+          125000,
+          160000,
+          210000
+        ],
+        "latam": [
+          72000,
+          98000,
+          130000
+        ]
+      }
+    },
+    "qa_sdet": {
+      "entry": {
+        "us_tier1": [
+          105000,
+          128000,
+          155000
+        ],
+        "us_remote": [
+          85000,
+          105000,
+          130000
+        ],
+        "europe": [
+          55000,
+          68000,
+          85000
+        ],
+        "europe_tier1": [
+          65000,
+          80000,
+          102000
+        ],
+        "europe_growth": [
+          48000,
+          60000,
+          75000
+        ],
+        "india": [
+          14000,
+          20000,
+          28000
+        ],
+        "india_gcc": [
+          22000,
+          30000,
+          42000
+        ],
+        "india_tech": [
+          14000,
+          20000,
+          28000
+        ],
+        "canada": [
+          72000,
+          90000,
+          110000
+        ],
+        "uk": [
+          62000,
+          78000,
+          98000
+        ],
+        "apac": [
+          48000,
+          62000,
+          80000
+        ],
+        "latam": [
+          25000,
+          34000,
+          45000
+        ]
+      },
+      "mid": {
+        "us_tier1": [
+          135000,
+          160000,
+          195000
+        ],
+        "us_remote": [
+          110000,
+          135000,
+          165000
+        ],
+        "europe": [
+          72000,
+          88000,
+          110000
+        ],
+        "europe_tier1": [
+          85000,
+          105000,
+          132000
+        ],
+        "europe_growth": [
+          62000,
+          78000,
+          98000
+        ],
+        "india": [
+          22000,
+          32000,
+          44000
+        ],
+        "india_gcc": [
+          35000,
+          48000,
+          68000
+        ],
+        "india_tech": [
+          22000,
+          32000,
+          44000
+        ],
+        "canada": [
+          90000,
+          112000,
+          140000
+        ],
+        "uk": [
+          80000,
+          100000,
+          128000
+        ],
+        "apac": [
+          65000,
+          82000,
+          105000
+        ],
+        "latam": [
+          35000,
+          46000,
+          60000
+        ]
+      },
+      "senior": {
+        "us_tier1": [
+          170000,
+          205000,
+          255000
+        ],
+        "us_remote": [
+          140000,
+          170000,
+          215000
+        ],
+        "europe": [
+          95000,
+          118000,
+          150000
+        ],
+        "europe_tier1": [
+          112000,
+          140000,
+          180000
+        ],
+        "europe_growth": [
+          84000,
+          104000,
+          132000
+        ],
+        "india": [
+          36000,
+          50000,
+          70000
+        ],
+        "india_gcc": [
+          56000,
+          78000,
+          108000
+        ],
+        "india_tech": [
+          36000,
+          50000,
+          70000
+        ],
+        "canada": [
+          115000,
+          145000,
+          185000
+        ],
+        "uk": [
+          105000,
+          132000,
+          170000
+        ],
+        "apac": [
+          85000,
+          110000,
+          140000
+        ],
+        "latam": [
+          48000,
+          64000,
+          84000
+        ]
+      },
+      "staff": {
+        "us_tier1": [
+          220000,
+          275000,
+          345000
+        ],
+        "us_remote": [
+          180000,
+          225000,
+          285000
+        ],
+        "europe": [
+          125000,
+          155000,
+          200000
+        ],
+        "europe_tier1": [
+          148000,
+          185000,
+          240000
+        ],
+        "europe_growth": [
+          110000,
+          136000,
+          175000
+        ],
+        "india": [
+          55000,
+          76000,
+          105000
+        ],
+        "india_gcc": [
+          88000,
+          120000,
+          165000
+        ],
+        "india_tech": [
+          55000,
+          76000,
+          105000
+        ],
+        "canada": [
+          145000,
+          185000,
+          235000
+        ],
+        "uk": [
+          135000,
+          170000,
+          220000
+        ],
+        "apac": [
+          110000,
+          140000,
+          185000
+        ],
+        "latam": [
+          62000,
+          84000,
+          112000
+        ]
+      }
+    },
+    "embedded_firmware": {
+      "entry": {
+        "us_tier1": [
+          125000,
+          150000,
+          180000
+        ],
+        "us_remote": [
+          100000,
+          125000,
+          150000
+        ],
+        "europe": [
+          65000,
+          80000,
+          102000
+        ],
+        "europe_tier1": [
+          75000,
+          95000,
+          122000
+        ],
+        "europe_growth": [
+          55000,
+          70000,
+          88000
+        ],
+        "india": [
+          16000,
+          24000,
+          34000
+        ],
+        "india_gcc": [
+          26000,
+          36000,
+          50000
+        ],
+        "india_tech": [
+          16000,
+          24000,
+          34000
+        ],
+        "canada": [
+          82000,
+          102000,
+          126000
+        ],
+        "uk": [
+          72000,
+          90000,
+          112000
+        ],
+        "apac": [
+          58000,
+          74000,
+          94000
+        ],
+        "latam": [
+          30000,
+          40000,
+          52000
+        ]
+      },
+      "mid": {
+        "us_tier1": [
+          155000,
+          185000,
+          225000
+        ],
+        "us_remote": [
+          130000,
+          155000,
+          185000
+        ],
+        "europe": [
+          85000,
+          105000,
+          132000
+        ],
+        "europe_tier1": [
+          100000,
+          125000,
+          158000
+        ],
+        "europe_growth": [
+          75000,
+          92000,
+          116000
+        ],
+        "india": [
+          26000,
+          38000,
+          52000
+        ],
+        "india_gcc": [
+          42000,
+          60000,
+          82000
+        ],
+        "india_tech": [
+          26000,
+          38000,
+          52000
+        ],
+        "canada": [
+          105000,
+          130000,
+          160000
+        ],
+        "uk": [
+          95000,
+          120000,
+          150000
+        ],
+        "apac": [
+          78000,
+          98000,
+          122000
+        ],
+        "latam": [
+          42000,
+          55000,
+          72000
+        ]
+      },
+      "senior": {
+        "us_tier1": [
+          200000,
+          245000,
+          305000
+        ],
+        "us_remote": [
+          165000,
+          200000,
+          250000
+        ],
+        "europe": [
+          110000,
+          138000,
+          175000
+        ],
+        "europe_tier1": [
+          130000,
+          165000,
+          210000
+        ],
+        "europe_growth": [
+          98000,
+          122000,
+          155000
+        ],
+        "india": [
+          44000,
+          60000,
+          85000
+        ],
+        "india_gcc": [
+          70000,
+          95000,
+          132000
+        ],
+        "india_tech": [
+          44000,
+          60000,
+          85000
+        ],
+        "canada": [
+          135000,
+          170000,
+          215000
+        ],
+        "uk": [
+          125000,
+          158000,
+          200000
+        ],
+        "apac": [
+          100000,
+          130000,
+          165000
+        ],
+        "latam": [
+          56000,
+          75000,
+          98000
+        ]
+      },
+      "staff": {
+        "us_tier1": [
+          265000,
+          330000,
+          420000
+        ],
+        "us_remote": [
+          215000,
+          270000,
+          345000
+        ],
+        "europe": [
+          148000,
+          185000,
+          240000
+        ],
+        "europe_tier1": [
+          175000,
+          222000,
+          288000
+        ],
+        "europe_growth": [
+          130000,
+          162000,
+          210000
+        ],
+        "india": [
+          70000,
+          95000,
+          132000
+        ],
+        "india_gcc": [
+          110000,
+          150000,
+          210000
+        ],
+        "india_tech": [
+          70000,
+          95000,
+          132000
+        ],
+        "canada": [
+          175000,
+          220000,
+          280000
+        ],
+        "uk": [
+          160000,
+          205000,
+          265000
+        ],
+        "apac": [
+          130000,
+          170000,
+          220000
+        ],
+        "latam": [
+          75000,
+          102000,
+          138000
+        ]
+      }
+    },
+    "product_manager": {
+      "entry": {
+        "us_tier1": [
+          135000,
+          160000,
+          190000
+        ],
+        "us_remote": [
+          110000,
+          135000,
+          160000
+        ],
+        "europe": [
+          70000,
+          88000,
+          110000
+        ],
+        "europe_tier1": [
+          82000,
+          105000,
+          132000
+        ],
+        "europe_growth": [
+          60000,
+          76000,
+          96000
+        ],
+        "india": [
+          20000,
+          28000,
+          38000
+        ],
+        "india_gcc": [
+          32000,
+          44000,
+          60000
+        ],
+        "india_tech": [
+          20000,
+          28000,
+          38000
+        ],
+        "canada": [
+          90000,
+          112000,
+          138000
+        ],
+        "uk": [
+          80000,
+          100000,
+          125000
+        ],
+        "apac": [
+          65000,
+          82000,
+          105000
+        ],
+        "latam": [
+          35000,
+          46000,
+          60000
+        ]
+      },
+      "mid": {
+        "us_tier1": [
+          170000,
+          205000,
+          250000
+        ],
+        "us_remote": [
+          140000,
+          170000,
+          210000
+        ],
+        "europe": [
+          95000,
+          120000,
+          150000
+        ],
+        "europe_tier1": [
+          112000,
+          142000,
+          180000
+        ],
+        "europe_growth": [
+          84000,
+          105000,
+          132000
+        ],
+        "india": [
+          34000,
+          48000,
+          68000
+        ],
+        "india_gcc": [
+          54000,
+          75000,
+          105000
+        ],
+        "india_tech": [
+          34000,
+          48000,
+          68000
+        ],
+        "canada": [
+          115000,
+          145000,
+          180000
+        ],
+        "uk": [
+          105000,
+          135000,
+          170000
+        ],
+        "apac": [
+          85000,
+          110000,
+          140000
+        ],
+        "latam": [
+          48000,
+          64000,
+          85000
+        ]
+      },
+      "senior": {
+        "us_tier1": [
+          215000,
+          265000,
+          330000
+        ],
+        "us_remote": [
+          180000,
+          220000,
+          275000
+        ],
+        "europe": [
+          125000,
+          158000,
+          200000
+        ],
+        "europe_tier1": [
+          148000,
+          188000,
+          240000
+        ],
+        "europe_growth": [
+          110000,
+          138000,
+          175000
+        ],
+        "india": [
+          55000,
+          75000,
+          105000
+        ],
+        "india_gcc": [
+          88000,
+          120000,
+          165000
+        ],
+        "india_tech": [
+          55000,
+          75000,
+          105000
+        ],
+        "canada": [
+          145000,
+          185000,
+          235000
+        ],
+        "uk": [
+          135000,
+          175000,
+          225000
+        ],
+        "apac": [
+          110000,
+          142000,
+          185000
+        ],
+        "latam": [
+          65000,
+          88000,
+          118000
+        ]
+      },
+      "staff": {
+        "us_tier1": [
+          280000,
+          355000,
+          460000
+        ],
+        "us_remote": [
+          230000,
+          295000,
+          380000
+        ],
+        "europe": [
+          160000,
+          210000,
+          275000
+        ],
+        "europe_tier1": [
+          190000,
+          250000,
+          325000
+        ],
+        "europe_growth": [
+          142000,
+          185000,
+          240000
+        ],
+        "india": [
+          85000,
+          118000,
+          165000
+        ],
+        "india_gcc": [
+          135000,
+          185000,
+          255000
+        ],
+        "india_tech": [
+          85000,
+          118000,
+          165000
+        ],
+        "canada": [
+          190000,
+          245000,
+          315000
+        ],
+        "uk": [
+          175000,
+          230000,
+          300000
+        ],
+        "apac": [
+          145000,
+          190000,
+          250000
+        ],
+        "latam": [
+          88000,
+          122000,
+          165000
+        ]
+      }
+    },
+    "engineering_manager": {
+      "entry": {
+        "us_tier1": [
+          190000,
+          230000,
+          280000
+        ],
+        "us_remote": [
+          160000,
+          195000,
+          240000
+        ],
+        "europe": [
+          105000,
+          130000,
+          165000
+        ],
+        "europe_tier1": [
+          125000,
+          155000,
+          198000
+        ],
+        "europe_growth": [
+          92000,
+          115000,
+          145000
+        ],
+        "india": [
+          45000,
+          62000,
+          85000
+        ],
+        "india_gcc": [
+          72000,
+          98000,
+          132000
+        ],
+        "india_tech": [
+          45000,
+          62000,
+          85000
+        ],
+        "canada": [
+          135000,
+          168000,
+          210000
+        ],
+        "uk": [
+          120000,
+          150000,
+          195000
+        ],
+        "apac": [
+          98000,
+          125000,
+          160000
+        ],
+        "latam": [
+          55000,
+          75000,
+          100000
+        ]
+      },
+      "mid": {
+        "us_tier1": [
+          230000,
+          280000,
+          345000
+        ],
+        "us_remote": [
+          195000,
+          240000,
+          300000
+        ],
+        "europe": [
+          130000,
+          165000,
+          210000
+        ],
+        "europe_tier1": [
+          155000,
+          198000,
+          252000
+        ],
+        "europe_growth": [
+          115000,
+          145000,
+          185000
+        ],
+        "india": [
+          65000,
+          88000,
+          120000
+        ],
+        "india_gcc": [
+          102000,
+          138000,
+          188000
+        ],
+        "india_tech": [
+          65000,
+          88000,
+          120000
+        ],
+        "canada": [
+          165000,
+          205000,
+          255000
+        ],
+        "uk": [
+          148000,
+          188000,
+          245000
+        ],
+        "apac": [
+          120000,
+          155000,
+          200000
+        ],
+        "latam": [
+          70000,
+          95000,
+          128000
+        ]
+      },
+      "senior": {
+        "us_tier1": [
+          275000,
+          340000,
+          430000
+        ],
+        "us_remote": [
+          235000,
+          290000,
+          370000
+        ],
+        "europe": [
+          160000,
+          205000,
+          265000
+        ],
+        "europe_tier1": [
+          190000,
+          245000,
+          318000
+        ],
+        "europe_growth": [
+          142000,
+          182000,
+          235000
+        ],
+        "india": [
+          85000,
+          118000,
+          160000
+        ],
+        "india_gcc": [
+          135000,
+          185000,
+          250000
+        ],
+        "india_tech": [
+          85000,
+          118000,
+          160000
+        ],
+        "canada": [
+          198000,
+          248000,
+          315000
+        ],
+        "uk": [
+          180000,
+          230000,
+          305000
+        ],
+        "apac": [
+          145000,
+          190000,
+          245000
+        ],
+        "latam": [
+          88000,
+          120000,
+          160000
+        ]
+      },
+      "staff": {
+        "us_tier1": [
+          340000,
+          425000,
+          550000
+        ],
+        "us_remote": [
+          285000,
+          360000,
+          460000
+        ],
+        "europe": [
+          200000,
+          255000,
+          330000
+        ],
+        "europe_tier1": [
+          240000,
+          305000,
+          395000
+        ],
+        "europe_growth": [
+          178000,
+          225000,
+          290000
+        ],
+        "india": [
+          115000,
+          155000,
+          215000
+        ],
+        "india_gcc": [
+          180000,
+          245000,
+          335000
+        ],
+        "india_tech": [
+          115000,
+          155000,
+          215000
+        ],
+        "canada": [
+          240000,
+          305000,
+          395000
+        ],
+        "uk": [
+          225000,
+          288000,
+          380000
+        ],
+        "apac": [
+          180000,
+          235000,
+          310000
+        ],
+        "latam": [
+          110000,
+          150000,
+          205000
+        ]
+      }
+    }
+  }
+}
