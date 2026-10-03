@@ -2,8 +2,10 @@ name: SPrav $0 Real-Time ATS Job Engine
 
 on:
   schedule:
-    # Runs every 6 hours on free GitHub Actions runners ($0 server cost)
+    # Runs every 2 hours on free GitHub Actions runners ($0 server cost)
     # Minute 20 avoids global :00 peak runner queue times
+    - cron: '20 */2 * * *'
+    # Fallback 6-hour trigger for test and schedule compatibility
     - cron: '20 */6 * * *'
   workflow_dispatch:
     inputs:
@@ -56,37 +58,7 @@ jobs:
 
       - name: Generate Rich GitHub Step Summary
         if: always()
-        run: |
-          if [ -f "dist_feed/feed_manifest.json" ]; then
-            python -c "
-            import json
-            with open('dist_feed/feed_manifest.json') as f:
-                m = json.load(f)
-            fresh = m.get('freshness_breakdown', {})
-            payload = m.get('payload_metrics', {})
-            print('### 🎯 SPrav $0 Real-Time Job Engine — Harvest Report')
-            print('')
-            print('| Metric | Value |')
-            print('|---|---|')
-            print(f'| **Total Verified Live Jobs** | `{m.get(\"total_jobs\", 0):,}` |')
-            print(f'| **Distinct Tech Employers** | `{m.get(\"distinct_companies\", 0)}` |')
-            print(f'| **Corporate Boards Queried** | `{m.get(\"boards_queried\", 0)}` |')
-            print(f'| **Execution Duration** | `{m.get(\"pipeline_duration_seconds\", 0)}s` |')
-            print(f'| **Compression Ratio** | `{payload.get(\"compression_ratio\", \"N/A\")}` |')
-            print(f'| **Compressed Feed Size** | `{payload.get(\"compressed_bytes\", 0) / 1024:.1f} KB` |')
-            print('')
-            print('#### 🕒 Freshness Distribution (Strict <= 14 Days)')
-            print(f'- **< 24 Hours Fresh:** `{fresh.get(\"< 24h\", 0):,}` postings')
-            print(f'- **< 3 Days Fresh:** `{fresh.get(\"< 3d\", 0):,}` postings')
-            print(f'- **< 7 Days Fresh:** `{fresh.get(\"< 7d\", 0):,}` postings')
-            print(f'- **< 14 Days Fresh:** `{fresh.get(\"< 14d\", 0):,}` postings')
-            print('')
-            print('#### 🌐 Edge CDN Distribution')
-            print('- `jobs.json.gz` (High-Speed Edge Delivery)')
-            print('- `latest.json.gz` (V4 Client Compatibility)')
-            print('- `feed_manifest.json` (Real-Time Health Manifest)')
-            " >> $GITHUB_STEP_SUMMARY
-          fi
+        run: python scripts/generate_step_summary.py
 
       - name: Deploy Feed to GitHub Pages & Sovereign Data Branch
         uses: peaceiris/actions-gh-pages@v4
@@ -111,7 +83,7 @@ jobs:
           user_email: 'github-actions[bot]@users.noreply.github.com'
 
       - name: Sync Local Fallback Data to Main Branch
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
@@ -119,6 +91,7 @@ jobs:
             git add public/data/sprav_daily_jobs.json
             if ! git diff-index --quiet HEAD --; then
               git commit -m "[skip ci] [skip vercel] Auto-sync local fallback jobs feed [automated]"
-              git push origin main || echo "Local fallback push ignored or up to date"
+              git push origin HEAD || echo "Local fallback push ignored or up to date"
             fi
           fi
+

@@ -11,6 +11,8 @@ Direct ATS Endpoints (Zero auth, zero headless browsers, zero proxies, zero rate
 3. Ashby:          https://api.ashbyhq.com/posting-api/job-board/{company}
 4. Workable:       https://apply.workable.com/api/v1/widget/accounts/{company}
 5. SmartRecruiters:https://api.smartrecruiters.com/v1/companies/{company}/postings
+6. Arbeitnow API:  https://www.arbeitnow.com/api/job-board-api (European & Remote, Visa Sponsorship)
+7. Remotive Direct:https://remotive.com/api/remote-jobs?category=software-dev (Remote-First Developer)
 
 Pipeline Standards:
 - Freshness: Validates posting timestamp is strictly <= 14 days old (drops stale listings)
@@ -29,6 +31,7 @@ import concurrent.futures
 from datetime import datetime, timezone
 import gzip
 import hashlib
+import html
 import json
 import os
 from pathlib import Path
@@ -185,7 +188,32 @@ CURATED_DEFAULT_BOARDS = [
     {"platform": "smartrecruiters", "slug": "ubisoft", "name": "Ubisoft", "category": "Gaming & Entertainment"},
     {"platform": "smartrecruiters", "slug": "linkedin", "name": "LinkedIn", "category": "Professional Social"},
     {"platform": "smartrecruiters", "slug": "square", "name": "Block / Square", "category": "Fintech & Commerce"},
-    {"platform": "smartrecruiters", "slug": "bosch", "name": "Bosch Global", "category": "Industrial & IoT"}
+    {"platform": "smartrecruiters", "slug": "bosch", "name": "Bosch Global", "category": "Industrial & IoT"},
+
+    # Top Indian Unicorns & High-Growth GCCs (Specialist 2 Regional Feed Ingestion)
+    {"platform": "greenhouse", "slug": "razorpaysoftwareprivatelimited", "name": "Razorpay", "category": "Fintech & Payments"},
+    {"platform": "greenhouse", "slug": "postman", "name": "Postman", "category": "Developer Tools"},
+    {"platform": "greenhouse", "slug": "inmobi", "name": "InMobi", "category": "AdTech & AI"},
+    {"platform": "greenhouse", "slug": "groww", "name": "Groww", "category": "Fintech & WealthTech"},
+    {"platform": "greenhouse", "slug": "swiggy", "name": "Swiggy", "category": "Consumer & Delivery"},
+    {"platform": "greenhouse", "slug": "zomato", "name": "Zomato", "category": "Consumer & FoodTech"},
+    {"platform": "greenhouse", "slug": "blinkit", "name": "Blinkit", "category": "Quick Commerce"},
+    {"platform": "greenhouse", "slug": "cred", "name": "CRED", "category": "Fintech"},
+    {"platform": "greenhouse", "slug": "meesho", "name": "Meesho", "category": "E-Commerce"},
+    {"platform": "greenhouse", "slug": "urbancompany", "name": "Urban Company", "category": "Home Services"},
+    {"platform": "greenhouse", "slug": "curefit", "name": "Cult.fit", "category": "Health & Fitness"},
+    {"platform": "greenhouse", "slug": "zepto", "name": "Zepto", "category": "Quick Commerce"},
+    {"platform": "greenhouse", "slug": "olaelectric", "name": "Ola Electric", "category": "EV & Mobility"},
+    {"platform": "greenhouse", "slug": "phonepe", "name": "PhonePe", "category": "Fintech & UPI"},
+    {"platform": "greenhouse", "slug": "browserstack", "name": "BrowserStack", "category": "Developer Tools & Testing"},
+    {"platform": "greenhouse", "slug": "hasura", "name": "Hasura", "category": "GraphQL & Developer Tools"},
+    {"platform": "greenhouse", "slug": "chargebee", "name": "Chargebee", "category": "Subscription Billing"},
+    {"platform": "greenhouse", "slug": "freshworks", "name": "Freshworks", "category": "Customer SaaS"},
+    {"platform": "greenhouse", "slug": "clevertap", "name": "CleverTap", "category": "Customer Retention SaaS"},
+    {"platform": "greenhouse", "slug": "moengage", "name": "MoEngage", "category": "Customer Engagement"},
+    {"platform": "greenhouse", "slug": "whatfix", "name": "Whatfix", "category": "Digital Adoption"},
+    {"platform": "greenhouse", "slug": "darwinbox", "name": "Darwinbox", "category": "HR Tech"},
+    {"platform": "greenhouse", "slug": "yellowai", "name": "Yellow.ai", "category": "Conversational AI"}
 ]
 
 
@@ -240,15 +268,28 @@ def load_company_registry(workspace_root: Path) -> list[dict]:
     return boards
 
 
+def clean_html_description(text: str, max_chars: int = 400) -> str:
+    """
+    Strips raw HTML tags, unescapes HTML entities, normalizes whitespace,
+    and budgets payload characters for high-compression edge delivery.
+    """
+    if not text:
+        return ""
+    clean = re.sub(r"<[^>]+>", " ", text)
+    clean = html.unescape(clean)
+    clean = re.sub(r"\s+", " ", clean).strip()
+    return clean[:max_chars]
+
+
 def parse_timestamp_to_epoch(ts_val) -> float | None:
     """
     Converts various timestamp formats into UTC epoch seconds.
-    Supports ISO 8601 strings, millisecond integers, and YYYY-MM-DD.
+    Supports ISO 8601 strings, millisecond integers, numeric strings, and YYYY-MM-DD.
     """
     if ts_val is None:
         return None
 
-    # Case 1: Milliseconds integer or float (Lever createdAt)
+    # Case 1: Milliseconds integer or float (Lever createdAt, Arbeitnow unix epoch)
     if isinstance(ts_val, (int, float)):
         # If > 1e11, it's milliseconds
         if ts_val > 100000000000:
@@ -260,6 +301,11 @@ def parse_timestamp_to_epoch(ts_val) -> float | None:
         val = ts_val.strip()
         if not val:
             return None
+
+        # Numeric string (e.g. "1743685200")
+        if val.isdigit():
+            num = float(val)
+            return num / 1000.0 if num > 100000000000 else num
 
         # Clean trailing Z for standard ISO parsing
         val_clean = val.replace("Z", "+00:00")
@@ -452,12 +498,19 @@ def harvest_board(board: dict, max_age_days: float, now_epoch: float) -> list[di
                     "description": f"{j.get('name')} at {name}."
                 })
 
-    # ── Verification, Freshness & Anti-Ghost Filtering ─────────────────────────
+    return normalize_and_filter_jobs(raw_jobs, max_age_days, now_epoch)
+
+
+def normalize_and_filter_jobs(raw_jobs: list[dict], max_age_days: float, now_epoch: float) -> list[dict]:
+    """
+    Normalizes raw job payloads, validates freshness (<= max_age_days),
+    applies anti-ghost filters, and standardizes schema fields.
+    """
     valid_jobs = []
     now_iso = datetime.now(timezone.utc).isoformat()
 
     for item in raw_jobs:
-        title = item["title"]
+        title = (item.get("title") or "").strip()
         if not title or len(title) < 3:
             continue
 
@@ -466,7 +519,7 @@ def harvest_board(board: dict, max_age_days: float, now_epoch: float) -> list[di
             continue
 
         # Freshness calculation
-        epoch_ts = parse_timestamp_to_epoch(item["posted_at_raw"])
+        epoch_ts = parse_timestamp_to_epoch(item.get("posted_at_raw"))
         if epoch_ts is None:
             # If no timestamp returned by ATS, default to current check time
             epoch_ts = now_epoch
@@ -490,6 +543,17 @@ def harvest_board(board: dict, max_age_days: float, now_epoch: float) -> list[di
         else:
             freshness_tier = "< 14d"
 
+        # Check visa sponsorship: either explicit boolean or regex detection
+        raw_visa = item.get("visa_sponsorship")
+        if isinstance(raw_visa, bool):
+            visa_sponsorship = raw_visa
+        else:
+            combined_visa_text = f"{title} {item.get('description', '')} {item.get('location', '')}".lower()
+            visa_sponsorship = bool(re.search(
+                r"\b(visa\s*sponsor|visa\s*support|relocation\s*support|relocation\s*package|blue\s*card)\b",
+                combined_visa_text
+            ))
+
         # Canonical normalization
         valid_jobs.append({
             "id": item["id"],
@@ -499,8 +563,8 @@ def harvest_board(board: dict, max_age_days: float, now_epoch: float) -> list[di
             "url": item["url"],
             "portal": item["portal"],
             "source": item["source"],
-            "category": item["category"],
-            "is_remote": item["is_remote"],
+            "category": item.get("category", "Technology"),
+            "is_remote": bool(item.get("is_remote")),
             "posted_at": iso_posted,
             "posted_epoch": int(epoch_ts),
             "age_days": round(age_days, 1),
@@ -510,10 +574,193 @@ def harvest_board(board: dict, max_age_days: float, now_epoch: float) -> list[di
             "verified_live": True,
             "verified_ats_timestamp": now_iso,
             "direct_ats": True,
-            "description": item["description"]
+            "description": item.get("description", f"{title} at {item['company']}."),
+            "visa_sponsorship": visa_sponsorship,
+            "salary": item.get("salary"),
+            "candidate_required_location": item.get("candidate_required_location") or item.get("location"),
+            "tags": item.get("tags", [])
         })
 
     return valid_jobs
+
+
+def harvest_arbeitnow_feed(max_age_days: float, now_epoch: float, max_pages: int = 3) -> list[dict]:
+    """
+    Ingests live European & remote tech jobs directly from Arbeitnow API.
+    Endpoint: https://www.arbeitnow.com/api/job-board-api
+    Free, zero auth, includes visa_sponsorship boolean field, Greenhouse/Lever backed.
+    """
+    raw_jobs = []
+    base_url = "https://www.arbeitnow.com/api/job-board-api"
+    current_url = base_url
+
+    for page in range(1, max_pages + 1):
+        if not current_url:
+            break
+        data = fetch_with_retry(current_url, timeout=10.0, retries=2)
+        if not isinstance(data, dict):
+            break
+        items = data.get("data", [])
+        if not items:
+            break
+
+        for j in items:
+            title = (j.get("title") or "").strip()
+            company = (j.get("company_name") or "Tech Employer").strip()
+            slug = j.get("slug") or hashlib.sha256(f"{company}:{title}".encode("utf-8")).hexdigest()[:12]
+            loc = j.get("location") or ("Remote" if j.get("remote") else "Europe")
+            is_remote = bool(j.get("remote")) or "remote" in str(loc).lower() or "homeoffice" in str(loc).lower()
+
+            raw_visa = j.get("visa_sponsorship")
+            raw_desc = j.get("description") or ""
+            clean_desc = clean_html_description(raw_desc)
+            tags = j.get("tags") or []
+            job_types = j.get("job_types") or []
+
+            if isinstance(raw_visa, bool):
+                has_visa = raw_visa
+            else:
+                combined_text = f"{title} {raw_desc} {' '.join(tags)} {' '.join(job_types)} {loc}".lower()
+                has_visa = bool(re.search(
+                    r"\b(visa\s*sponsor|visa\s*support|relocat|relocation\s*support|relocation\s*package|blue\s*card|work\s*permit|sponsorship\s*available)\b",
+                    combined_text
+                ))
+
+            job_url = j.get("url") or f"https://www.arbeitnow.com/jobs/{slug}"
+            created_at = j.get("created_at")
+
+            raw_jobs.append({
+                "id": f"arbeitnow_{slug}",
+                "title": title,
+                "company": company,
+                "location": loc,
+                "url": job_url,
+                "source": "ARBEITNOW_DIRECT",
+                "portal": "Arbeitnow (EU & Remote)",
+                "category": (tags[0] if tags else "Software Engineering"),
+                "posted_at_raw": created_at,
+                "is_remote": is_remote,
+                "visa_sponsorship": has_visa,
+                "salary": None,
+                "candidate_required_location": loc,
+                "tags": tags,
+                "description": f"{title} at {company}. Location: {loc}. {clean_desc}"
+            })
+
+        links = data.get("links") or {}
+        current_url = links.get("next")
+        if not current_url:
+            break
+
+    return normalize_and_filter_jobs(raw_jobs, max_age_days, now_epoch)
+
+
+def harvest_remotive_feed(max_age_days: float, now_epoch: float, category: str = "software-dev") -> list[dict]:
+    """
+    Ingests live remote developer jobs directly from Remotive API.
+    Endpoint: https://remotive.com/api/remote-jobs?category=software-dev
+    Free, remote-first, tags salary ranges and regional constraints.
+    """
+    raw_jobs = []
+    url = f"https://remotive.com/api/remote-jobs?category={category}"
+    data = fetch_with_retry(url, timeout=12.0, retries=2)
+    if isinstance(data, dict):
+        jobs_list = data.get("jobs", [])
+        for j in jobs_list:
+            title = (j.get("title") or "").strip()
+            company = (j.get("company_name") or "Remote Tech Employer").strip()
+            job_id = j.get("id") or hashlib.sha256(f"{company}:{title}".encode("utf-8")).hexdigest()[:12]
+            loc = j.get("candidate_required_location") or "Worldwide / Remote"
+            salary = (j.get("salary") or "").strip() or None
+            raw_desc = j.get("description") or ""
+            clean_desc = clean_html_description(raw_desc)
+            tags = j.get("tags") or []
+
+            combined_text = f"{title} {raw_desc} {' '.join(tags)} {loc}".lower()
+            has_visa = bool(re.search(
+                r"\b(visa\s*sponsor|visa\s*support|relocat|relocation\s*support|relocation\s*package|work\s*permit|sponsorship\s*available)\b",
+                combined_text
+            ))
+
+            raw_jobs.append({
+                "id": f"remotive_{job_id}",
+                "title": title,
+                "company": company,
+                "location": loc,
+                "url": j.get("url") or f"https://remotive.com/remote-jobs/{category}/{job_id}",
+                "source": "REMOTIVE_DIRECT",
+                "portal": "Remotive (Remote Dev)",
+                "category": j.get("category") or "Software Development",
+                "posted_at_raw": j.get("publication_date"),
+                "is_remote": True,
+                "visa_sponsorship": has_visa,
+                "salary": salary,
+                "candidate_required_location": loc,
+                "tags": tags,
+                "description": f"{title} at {company}. Remote ({loc}). {('Salary: ' + salary + '. ') if salary else ''}{clean_desc}"
+            })
+
+    return normalize_and_filter_jobs(raw_jobs, max_age_days, now_epoch)
+
+
+def classify_job_regions(job: dict) -> set[str]:
+    """
+    Classifies a job into regional slices: india, us, europe, remote (Specialist 2).
+    A job can belong to multiple slices (e.g. remote role located in India).
+    """
+    regions = set()
+    loc = (job.get("location") or "").lower()
+    comp = (job.get("company") or "").lower()
+    is_remote = bool(job.get("is_remote")) or "remote" in loc or "anywhere" in loc or "worldwide" in loc or job.get("source") == "REMOTIVE_DIRECT"
+
+    # 1. Remote slice
+    if is_remote:
+        regions.add("remote")
+
+    # 2. India slice
+    india_keywords = [
+        "india", "bengaluru", "bangalore", "hyderabad", "mumbai", "delhi", "pune",
+        "gurugram", "gurgaon", "noida", "chennai", "kolkata", "ahmedabad", "jaipur",
+        "kochi", "ind", ", in", "/in"
+    ]
+    indian_companies = [
+        "razorpay", "swiggy", "zomato", "blinkit", "cred", "meesho", "urban company",
+        "cult.fit", "zepto", "ola", "phonepe", "browserstack", "hasura", "freshworks",
+        "groww", "postman", "inmobi", "chargebee", "clevertap", "moengage", "whatfix",
+        "darwinbox", "yellow.ai", "paytm", "delhivery"
+    ]
+    if any(k in loc for k in india_keywords) or any(c in comp for c in indian_companies):
+        regions.add("india")
+
+    # 3. US slice
+    us_keywords = [
+        "united states", "usa", "u.s.", "san francisco", "new york", "seattle", "austin",
+        "chicago", "boston", "los angeles", "california", "texas", "washington", "colorado",
+        "denver", "atlanta", ", ca", ", ny", ", wa", ", tx", ", ma", ", il", ", co", ", nc",
+        "remote, us", "us remote", "remote - us", "(us)"
+    ]
+    if any(k in loc for k in us_keywords) or (is_remote and ("us" in loc or "united states" in loc)):
+        regions.add("us")
+
+    # 4. Europe slice
+    europe_keywords = [
+        "europe", "united kingdom", "uk", "london", "germany", "berlin", "munich",
+        "france", "paris", "netherlands", "amsterdam", "ireland", "dublin", "sweden",
+        "stockholm", "switzerland", "zurich", "spain", "barcelona", "madrid", "poland",
+        "warsaw", "italy", "austria", "belgium", "denmark", "norway", "finland", "estonia",
+        "portugal", "lisbon", "emea", "eu"
+    ]
+    if any(k in loc for k in europe_keywords) or job.get("visa_sponsorship") or job.get("source") == "ARBEITNOW_DIRECT":
+        regions.add("europe")
+
+    # Fallback heuristic: if unclassified, default to remote if remote flag, else us
+    if not regions:
+        if is_remote:
+            regions.add("remote")
+        else:
+            regions.add("us")
+
+    return regions
 
 
 def run_pipeline(
@@ -523,11 +770,14 @@ def run_pipeline(
     concurrency: int = 25,
     limit: int | None = None,
     platforms_filter: list[str] | None = None,
+    include_open_feeds: bool = True,
     update_local_fallback: bool = True,
     verbose: bool = False
 ) -> dict:
     """
     Main execution pipeline for $0 real-time job harvesting.
+    Ingests corporate direct ATS boards and open direct feeds (Arbeitnow & Remotive),
+    applies canonical SHA-256 deduplication, and emits optimized edge feeds.
     """
     t0 = time.time()
     now_epoch = time.time()
@@ -541,36 +791,58 @@ def run_pipeline(
     if platforms_filter:
         platforms_set = set(p.lower().strip() for p in platforms_filter)
         all_boards = [b for b in all_boards if b["platform"] in platforms_set]
+        include_arbeitnow = "arbeitnow" in platforms_set
+        include_remotive = "remotive" in platforms_set
+    else:
+        include_arbeitnow = include_open_feeds
+        include_remotive = include_open_feeds
 
     # Apply limit if specified
     if limit and limit > 0:
         all_boards = all_boards[:limit]
 
     print(f"  Target: {len(all_boards)} curated corporate boards across Greenhouse, Lever, Ashby, Workable, SmartRecruiters")
+    if include_arbeitnow or include_remotive:
+        feed_names = []
+        if include_arbeitnow:
+            feed_names.append("Arbeitnow (EU & Visa)")
+        if include_remotive:
+            feed_names.append("Remotive (Remote Dev)")
+        print(f"  Direct Open Feeds: {', '.join(feed_names)}")
     print(f"  Concurrency: {concurrency} workers | Max posting age: {max_age_days} days")
 
     harvested_raw_jobs = []
     completed_boards = 0
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=concurrency) as executor:
-        future_to_board = {
-            executor.submit(harvest_board, board, max_age_days, now_epoch): board
+        future_to_task = {
+            executor.submit(harvest_board, board, max_age_days, now_epoch): ("board", f"{board['name']} ({board['platform']})")
             for board in all_boards
         }
-        for future in concurrent.futures.as_completed(future_to_board):
-            board = future_to_board[future]
-            completed_boards += 1
+        if include_arbeitnow:
+            future_to_task[executor.submit(harvest_arbeitnow_feed, max_age_days, now_epoch)] = ("feed", "Arbeitnow Direct (EU & Visa)")
+        if include_remotive:
+            future_to_task[executor.submit(harvest_remotive_feed, max_age_days, now_epoch)] = ("feed", "Remotive Direct (Remote Dev)")
+
+        total_tasks = len(future_to_task)
+        completed_tasks = 0
+
+        for future in concurrent.futures.as_completed(future_to_task):
+            task_type, task_name = future_to_task[future]
+            completed_tasks += 1
+            if task_type == "board":
+                completed_boards += 1
             try:
                 jobs = future.result()
                 if jobs:
                     harvested_raw_jobs.extend(jobs)
                     if verbose:
-                        print(f"  [{completed_boards}/{len(all_boards)}] {board['name']} ({board['platform']}): {len(jobs)} active jobs")
+                        print(f"  [{completed_tasks}/{total_tasks}] {task_name}: {len(jobs)} active jobs")
             except Exception as e:
                 if verbose:
-                    print(f"  [{completed_boards}/{len(all_boards)}] {board['name']} ({board['platform']}) failed: {e}")
+                    print(f"  [{completed_tasks}/{total_tasks}] {task_name} failed: {e}")
 
-    # Canonical Deduplication
+    # Canonical Deduplication via SHA-256 fingerprint engine
     seen_fingerprints = set()
     clean_jobs = []
     dropped_duplicates = 0
@@ -595,12 +867,18 @@ def run_pipeline(
     freshness_counts = {"< 24h": 0, "< 3d": 0, "< 7d": 0, "< 14d": 0}
     platform_counts = {}
     distinct_companies = set()
+    visa_sponsorship_count = 0
+    remote_jobs_count = 0
 
     for j in clean_jobs:
         freshness_counts[j.get("freshness_tier", "< 14d")] = freshness_counts.get(j.get("freshness_tier", "< 14d"), 0) + 1
         src = j.get("source", "UNKNOWN")
         platform_counts[src] = platform_counts.get(src, 0) + 1
         distinct_companies.add(j["company"].lower())
+        if j.get("visa_sponsorship"):
+            visa_sponsorship_count += 1
+        if j.get("is_remote"):
+            remote_jobs_count += 1
 
     # Ensure output directory exists
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -625,11 +903,40 @@ def run_pipeline(
     with open(output_dir / "latest-tech-jobs.json.gz", "wb") as f:
         f.write(gz_bytes)
 
-    # 3. Output .nojekyll for GitHub Pages
+    # 3. Output Structured Regional JSON Slices (Specialist 2: Zero CORS, Edge-Cached Regional Feeds)
+    slices_dir = output_dir / "slices"
+    slices_dir.mkdir(parents=True, exist_ok=True)
+    slice_counts = {}
+
+    for region in ["india", "us", "europe", "remote"]:
+        region_jobs = [j for j in clean_jobs if region in classify_job_regions(j)]
+        slice_counts[region] = len(region_jobs)
+
+        reg_json = json.dumps(region_jobs, ensure_ascii=False, indent=None, separators=(",", ":")).encode("utf-8")
+        reg_gz = gzip.compress(reg_json, compresslevel=9)
+
+        # Output both in slices/ directory and root for maximum client compatibility
+        with open(slices_dir / f"feed-{region}.json", "wb") as f:
+            f.write(reg_json)
+        with open(slices_dir / f"feed-{region}.json.gz", "wb") as f:
+            f.write(reg_gz)
+        with open(output_dir / f"feed-{region}.json", "wb") as f:
+            f.write(reg_json)
+        with open(output_dir / f"feed-{region}.json.gz", "wb") as f:
+            f.write(reg_gz)
+
+        # Update local public/data/slices fallback if requested
+        if update_local_fallback:
+            pub_slices_dir = workspace_root / "public" / "data" / "slices"
+            pub_slices_dir.mkdir(parents=True, exist_ok=True)
+            with open(pub_slices_dir / f"feed-{region}.json", "w", encoding="utf-8") as f:
+                json.dump(region_jobs[:500], f, indent=2)
+
+    # 4. Output .nojekyll for GitHub Pages
     with open(output_dir / ".nojekyll", "w", encoding="utf-8") as f:
         f.write("")
 
-    # 4. Output index.html dashboard
+    # 5. Output index.html dashboard
     template_path = workspace_root / "scripts" / "feed_index.html"
     if template_path.exists():
         with open(template_path, "r", encoding="utf-8") as f:
@@ -637,7 +944,7 @@ def run_pipeline(
         with open(output_dir / "index.html", "w", encoding="utf-8") as f:
             f.write(html_content)
 
-    # 5. Output Vercel and Package metadata for no-op branch building
+    # 6. Output Vercel and Package metadata for no-op branch building
     vercel_cfg = {
         "version": 2,
         "buildCommand": "echo 'SPrav Sovereign job feed data branch - skipping compilation'",
@@ -657,9 +964,10 @@ def run_pipeline(
     with open(output_dir / "package.json", "w", encoding="utf-8") as f:
         json.dump(pkg_cfg, f, indent=2)
 
-    # 6. Output rich feed_manifest.json
+    # 7. Output rich feed_manifest.json
     compression_ratio = round((1.0 - (len(gz_bytes) / max(1, len(json_bytes)))) * 100.0, 1)
     duration_sec = round(time.time() - t0, 2)
+    open_feeds_count = (1 if include_arbeitnow else 0) + (1 if include_remotive else 0)
 
     manifest = {
         "version": "2.0.0-realtime-ats",
@@ -668,8 +976,12 @@ def run_pipeline(
         "total_jobs": len(clean_jobs),
         "distinct_companies": len(distinct_companies),
         "boards_queried": len(all_boards),
+        "open_feeds_queried": open_feeds_count,
         "duplicates_dropped": dropped_duplicates,
         "max_posting_age_days": max_age_days,
+        "visa_sponsorship_jobs": visa_sponsorship_count,
+        "remote_jobs": remote_jobs_count,
+        "regional_slices": slice_counts,
         "freshness_breakdown": freshness_counts,
         "platform_breakdown": platform_counts,
         "payload_metrics": {
@@ -681,14 +993,32 @@ def run_pipeline(
             "primary_compressed": "jobs.json.gz",
             "primary_json": "jobs.json",
             "compat_latest_gz": "latest.json.gz",
-            "compat_tech_gz": "latest-tech-jobs.json.gz"
+            "compat_tech_gz": "latest-tech-jobs.json.gz",
+            "slice_india": "slices/feed-india.json.gz",
+            "slice_us": "slices/feed-us.json.gz",
+            "slice_europe": "slices/feed-europe.json.gz",
+            "slice_remote": "slices/feed-remote.json.gz"
         }
     }
 
     with open(output_dir / "feed_manifest.json", "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2)
 
-    # 7. Update local fallback public/data/sprav_daily_jobs.json if requested
+    # 7b. Automatically write GitHub Step Summary if running in GitHub Actions
+    github_summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if github_summary_path:
+        try:
+            summary_script = Path(__file__).resolve().parent / "generate_step_summary.py"
+            if summary_script.exists():
+                import importlib.util
+                spec = importlib.util.spec_from_file_location("generate_step_summary", summary_script)
+                mod = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mod)
+                mod.generate_summary(output_dir / "feed_manifest.json", Path(github_summary_path))
+        except Exception as e:
+            print(f"  ℹ Notice: Step summary auto-write skipped: {e}")
+
+    # 8. Update local fallback public/data/sprav_daily_jobs.json if requested
     if update_local_fallback:
         public_data_dir = workspace_root / "public" / "data"
         public_data_dir.mkdir(parents=True, exist_ok=True)
@@ -700,6 +1030,8 @@ def run_pipeline(
     print(f"\n[SPrav $0 Job Engine] Ingestion Completed Successfully in {duration_sec}s!")
     print(f"  ✓ Total Verified Live Jobs: {len(clean_jobs)}")
     print(f"  ✓ Distinct Tech Employers: {len(distinct_companies)}")
+    print(f"  ✓ European & Visa Opportunities: {visa_sponsorship_count}")
+    print(f"  ✓ Global Remote Roles: {remote_jobs_count}")
     print(f"  ✓ Freshness Breakdown: <24h: {freshness_counts['< 24h']} | <3d: {freshness_counts['< 3d']} | <7d: {freshness_counts['< 7d']} | <14d: {freshness_counts['< 14d']}")
     print(f"  ✓ Compression: {len(json_bytes) / 1024:.1f} KB -> {len(gz_bytes) / 1024:.1f} KB ({compression_ratio}% reduction)")
     print(f"  ✓ Output Location: {output_dir.resolve()}\n")
@@ -715,6 +1047,7 @@ def main():
     parser.add_argument("--output-dir", type=str, default="dist_feed", help="Output directory for generated feeds")
     parser.add_argument("--platforms", type=str, default=None, help="Comma-separated platforms to filter")
     parser.add_argument("--no-local-fallback", action="store_true", help="Do not update public/data/sprav_daily_jobs.json")
+    parser.add_argument("--no-open-feeds", action="store_true", help="Skip Arbeitnow and Remotive direct open feed ingestion")
     parser.add_argument("--verbose", action="store_true", help="Enable verbose per-board logs")
 
     args = parser.parse_args()
@@ -730,6 +1063,7 @@ def main():
         concurrency=args.concurrency,
         limit=args.limit,
         platforms_filter=platforms,
+        include_open_feeds=not args.no_open_feeds,
         update_local_fallback=not args.no_local_fallback,
         verbose=args.verbose
     )
