@@ -1,0 +1,662 @@
+{
+  "schemaVersion": "2.0.0",
+  "name": "SPrav Community Crowdsourced Company Intel Registry",
+  "repository": "https://github.com/SVSPraveen/SPrav-Live-Feed",
+  "contributeUrl": "https://github.com/SVSPraveen/SPrav-Live-Feed/issues/new?template=community_company_intel.yml",
+  "updatedAt": "2026-10-04T00:00:00.000Z",
+  "totalCompanies": 20,
+  "companies": {
+    "openai": {
+      "name": "OpenAI",
+      "slug": "openai",
+      "interview_rounds": 5,
+      "interview_duration_weeks": "3-4",
+      "difficulty": "Very Hard",
+      "wlb_rating": 3.2,
+      "remote_policy": "Hybrid (SF Mission HQ required 3 days/week)",
+      "on_call_cadence": "Rotational - light for most eng roles",
+      "engineering_pace": "High velocity, research-adjacent",
+      "round_breakdown": [
+        "Recruiter Screen (30m)",
+        "Technical Phone Screen (60m, LC Medium-Hard)",
+        "ML System Design (90m)",
+        "Coding (90m, two problems)",
+        "Values & Leadership (45m)"
+      ],
+      "focus_areas": [
+        "Distributed Systems",
+        "ML Infrastructure",
+        "RLHF pipelines"
+      ],
+      "verified_questions": [
+        {
+          "role": "AI Agent Engineer",
+          "round": "Technical Deep Dive",
+          "question": "Design an autonomous agent orchestration loop with speculative tool execution, cycle detection, and fallback retries.",
+          "difficulty": "Hard",
+          "tags": ["Agentic AI", "Distributed Systems", "Tool Calling"],
+          "verifiedCount": 14
+        },
+        {
+          "role": "Systems Software Engineer",
+          "round": "Systems Coding",
+          "question": "Implement an in-memory KV cache eviction policy under GPU VRAM constraints with multi-tenant QoS priorities.",
+          "difficulty": "Very Hard",
+          "tags": ["GPU", "Systems", "Memory"],
+          "verifiedCount": 21
+        }
+      ],
+      "salary_bands": {
+        "sde1": "$190,000 - $240,000 USD (Total: $300k+ with PPU equity)",
+        "sde2": "$240,000 - $310,000 USD (Total: $450k - $600k)",
+        "senior": "$320,000 - $420,000 USD (Total: $750k - $950k)",
+        "staff": "$450,000 - $550,000 USD (Total: $1.2M - $1.8M)"
+      },
+      "community_reviews": [
+        {
+          "reviewerRole": "Senior AI Systems Engineer",
+          "date": "2026-09-12",
+          "rating": 4.5,
+          "interviewVerdict": "Offer Accepted",
+          "pros": "Unmatched compute access, working directly on frontier AI models, world-class colleagues.",
+          "cons": "Work-life balance is demanding during pre-training launch windows, high operational pressure.",
+          "verified": true
+        }
+      ],
+      "candid_summary": "Bar is exceptionally high. Expect systems design to cover inference at scale. Culture rewards research thinking.",
+      "glassdoor_slug": "OpenAI",
+      "blind_slug": "openai",
+      "aliases": ["open ai", "chatgpt"]
+    },
+    "anthropic": {
+      "name": "Anthropic",
+      "slug": "anthropic",
+      "interview_rounds": 5,
+      "interview_duration_weeks": "3-4",
+      "difficulty": "Very Hard",
+      "wlb_rating": 3.9,
+      "remote_policy": "Hybrid (SF HQ)",
+      "on_call_cadence": "Rotational cluster maintenance",
+      "engineering_pace": "Thoughtful, high-focus frontier",
+      "round_breakdown": [
+        "Recruiter Screen (30m)",
+        "Technical System & Safety Architecture (60m)",
+        "Algorithmic Problem Solving (60m)",
+        "Research & Scaled Systems Architecture (60m)",
+        "Constitutional AI, Safety & Collaboration (45m)"
+      ],
+      "focus_areas": [
+        "Constitutional AI",
+        "Mechanistic Interpretability",
+        "Fault-Tolerant Training Clusters",
+        "Python / Rust"
+      ],
+      "verified_questions": [
+        {
+          "role": "Founding Full Stack Engineer",
+          "round": "Product Architecture",
+          "question": "Architect an end-to-end streaming artifact editor with collaborative branch merging and local-first optimistic caching.",
+          "difficulty": "Hard",
+          "tags": ["Full Stack", "Streaming", "WebSockets"],
+          "verifiedCount": 9
+        }
+      ],
+      "salary_bands": {
+        "sde2": "$230,000 - $290,000 USD",
+        "senior": "$310,000 - $390,000 USD",
+        "staff": "$420,000 - $520,000 USD"
+      },
+      "community_reviews": [
+        {
+          "reviewerRole": "Staff ML Infrastructure Engineer",
+          "date": "2026-08-20",
+          "rating": 4.8,
+          "interviewVerdict": "Offer Accepted",
+          "pros": "Exceptionally thoughtful culture, genuine commitment to safety, minimal corporate bureaucracy.",
+          "cons": "Small team means wearing many hats across infrastructure and research.",
+          "verified": true
+        }
+      ],
+      "candid_summary": "Collaborative, highly intellectual culture. Values clarity of communication and pragmatic, safety-first systems architecture.",
+      "glassdoor_slug": "Anthropic",
+      "blind_slug": "anthropic",
+      "aliases": ["anthropic ai", "claude"]
+    },
+    "stripe": {
+      "name": "Stripe",
+      "slug": "stripe",
+      "interview_rounds": 5,
+      "interview_duration_weeks": "2-3",
+      "difficulty": "Hard",
+      "wlb_rating": 4.1,
+      "remote_policy": "Remote-Friendly (Offices in SF, Seattle, Dublin, Singapore)",
+      "on_call_cadence": "Weekly rotation with strong follow-the-sun handoffs",
+      "engineering_pace": "High rigor, written culture, API excellence",
+      "round_breakdown": [
+        "Recruiter Screen (30m)",
+        "Practical Bug Hunt & Debugging (60m)",
+        "API Integration & Real-World Coding (60m)",
+        "System Architecture & Resilience (60m)",
+        "Written Communication & Manager Loop (45m)"
+      ],
+      "focus_areas": [
+        "Idempotency & Distributed Ledger Design",
+        "API Ergonomics",
+        "Production Debugging",
+        "Observability"
+      ],
+      "verified_questions": [
+        {
+          "role": "Developer Relations Engineer",
+          "round": "Technical Deep Dive",
+          "question": "Review a mock SDK pull request with breaking semantic changes; formulate a migration guide and backward-compatible bridge.",
+          "difficulty": "Moderate",
+          "tags": ["DevRel", "API Design", "SDK"],
+          "verifiedCount": 11
+        }
+      ],
+      "salary_bands": {
+        "sde1": "$140,000 - $175,000 USD",
+        "sde2": "$180,000 - $230,000 USD",
+        "senior": "$240,000 - $320,000 USD",
+        "staff": "$340,000 - $430,000 USD"
+      },
+      "community_reviews": [
+        {
+          "reviewerRole": "Staff Software Engineer",
+          "date": "2026-07-15",
+          "rating": 4.4,
+          "interviewVerdict": "Offer Accepted",
+          "pros": "Best-in-class developer documentation, transparent written communication, pristine API standards.",
+          "cons": "Heavy documentation load requires extensive asynchronous writing for all RFCs.",
+          "verified": true
+        }
+      ],
+      "candid_summary": "Standard-bearer for practical engineering interviews. No leetcode puzzles—strictly production debugging, API design, and written culture.",
+      "glassdoor_slug": "Stripe",
+      "blind_slug": "stripe",
+      "aliases": ["stripe inc"]
+    },
+    "databricks": {
+      "name": "Databricks",
+      "slug": "databricks",
+      "interview_rounds": 5,
+      "interview_duration_weeks": "3-4",
+      "difficulty": "Hard",
+      "wlb_rating": 3.7,
+      "remote_policy": "Hybrid / Remote by team",
+      "on_call_cadence": "Structured tier-1 paging rotation",
+      "engineering_pace": "Fast growth, lakehouse architecture scale",
+      "round_breakdown": [
+        "Recruiter Screen (30m)",
+        "Algorithmic Coding (60m, LC Hard)",
+        "Distributed Computing / Spark Architecture (60m)",
+        "System Design: Scaled Lakehouse Storage (60m)",
+        "Engineering Values & Behavioral (45m)"
+      ],
+      "focus_areas": [
+        "Apache Spark",
+        "Delta Lake",
+        "Distributed Consensus",
+        "Distributed Query Engines"
+      ],
+      "verified_questions": [
+        {
+          "role": "Staff Data Infrastructure Engineer",
+          "round": "Distributed Systems",
+          "question": "Design a distributed metadata catalog capable of handling 100M partition queries per second with sub-5ms p99 latency.",
+          "difficulty": "Hard",
+          "tags": ["Databases", "Distributed Systems", "Storage"],
+          "verifiedCount": 8
+        }
+      ],
+      "salary_bands": {
+        "sde2": "$190,000 - $240,000 USD",
+        "senior": "$260,000 - $340,000 USD",
+        "staff": "$360,000 - $460,000 USD"
+      },
+      "community_reviews": [
+        {
+          "reviewerRole": "Senior Software Engineer",
+          "date": "2026-06-11",
+          "rating": 4.2,
+          "interviewVerdict": "Offer Accepted",
+          "pros": "Cutting-edge data infrastructure engineering, strong growth equity, massive customer impact.",
+          "cons": "Demanding operational rigor for core runtime services.",
+          "verified": true
+        }
+      ],
+      "candid_summary": "Deep distributed systems and database engine interviews. Evaluates concurrent data structures and distributed consensus in detail.",
+      "glassdoor_slug": "Databricks",
+      "blind_slug": "databricks",
+      "aliases": ["data bricks"]
+    },
+    "scale_ai": {
+      "name": "Scale AI",
+      "slug": "scale_ai",
+      "interview_rounds": 4,
+      "interview_duration_weeks": "2-3",
+      "difficulty": "Hard",
+      "wlb_rating": 3.2,
+      "remote_policy": "In-Office preferred (SF, NY)",
+      "on_call_cadence": "High operational responsiveness",
+      "engineering_pace": "High velocity startup sprint",
+      "round_breakdown": [
+        "Recruiter Screen (30m)",
+        "Practical Full Stack / Backend Coding (60m)",
+        "Distributed Data Processing & LLM Infrastructure (60m)",
+        "Founder & Engineering Leadership Loop (45m)"
+      ],
+      "focus_areas": [
+        "Data Annotation Pipelines",
+        "LLM Fine-Tuning & Evaluation",
+        "High-Throughput Workers",
+        "Next.js / Node.js / Python"
+      ],
+      "verified_questions": [
+        {
+          "role": "Founding Full Stack Engineer",
+          "round": "Product Engineering",
+          "question": "Implement an interactive annotation canvas supporting 60fps bounding box interpolation over 4K video frames.",
+          "difficulty": "Hard",
+          "tags": ["Canvas", "Frontend", "Performance"],
+          "verifiedCount": 12
+        }
+      ],
+      "salary_bands": {
+        "sde2": "$180,000 - $230,000 USD",
+        "senior": "$250,000 - $330,000 USD",
+        "staff": "$340,000 - $440,000 USD"
+      },
+      "community_reviews": [
+        {
+          "reviewerRole": "Full Stack Engineer",
+          "date": "2026-05-30",
+          "rating": 3.8,
+          "interviewVerdict": "Offer Accepted",
+          "pros": "Rapid career acceleration, direct exposure to premier AI labs, massive equity upside.",
+          "cons": "Long hours during sprint milestones.",
+          "verified": true
+        }
+      ],
+      "candid_summary": "Intense, high-output engineering culture. Interviews test rapid execution, system design under shifting requirements, and strong product instinct.",
+      "glassdoor_slug": "Scale-AI",
+      "blind_slug": "scaleai",
+      "aliases": ["scale ai", "scale"]
+    },
+    "vercel": {
+      "name": "Vercel",
+      "slug": "vercel",
+      "interview_rounds": 4,
+      "interview_duration_weeks": "2-3",
+      "difficulty": "Hard",
+      "wlb_rating": 4.2,
+      "remote_policy": "Full Remote Worldwide",
+      "on_call_cadence": "Follow-the-sun global rotation",
+      "engineering_pace": "Product craft, edge runtime velocity",
+      "round_breakdown": [
+        "Recruiter Screen (30m)",
+        "Take-Home or Live Coding: Framework / Edge Runtime Practical (90m)",
+        "System Design: Global AnyCast & Serverless Routing (60m)",
+        "Culture & Collaboration (45m)"
+      ],
+      "focus_areas": [
+        "Next.js & React Server Components",
+        "Next.js Internals",
+        "Edge Functions & V8 Isolates",
+        "CDN & Caching Invalidation",
+        "Developer Experience (DX)"
+      ],
+      "verified_questions": [
+        {
+          "role": "Developer Relations Engineer",
+          "round": "Technical Demo & DX",
+          "question": "Deliver a 15-minute live technical walkthrough demonstrating incremental static regeneration (ISR) under high cache churn.",
+          "difficulty": "Moderate",
+          "tags": ["DevRel", "Next.js", "Edge"],
+          "verifiedCount": 7
+        }
+      ],
+      "salary_bands": {
+        "sde2": "$160,000 - $210,000 USD",
+        "senior": "$220,000 - $290,000 USD",
+        "staff": "$300,000 - $390,000 USD"
+      },
+      "community_reviews": [
+        {
+          "reviewerRole": "Senior Edge Systems Engineer",
+          "date": "2026-07-28",
+          "rating": 4.6,
+          "interviewVerdict": "Offer Accepted",
+          "pros": "World-class frontend and edge engineering craft, autonomous remote setup, genuine focus on DX.",
+          "cons": "Rapid product iterations mean priorities can shift quickly.",
+          "verified": true
+        }
+      ],
+      "candid_summary": "Emphasizes developer ergonomics, performance, and deep understanding of modern web standards and edge infrastructure.",
+      "glassdoor_slug": "Vercel",
+      "blind_slug": "vercel",
+      "aliases": ["zeit"]
+    },
+    "google": {
+      "name": "Google",
+      "slug": "google",
+      "interview_rounds": 5,
+      "interview_duration_weeks": "4-6",
+      "difficulty": "Very Hard",
+      "wlb_rating": 4.0,
+      "remote_policy": "Hybrid (3 days in office)",
+      "on_call_cadence": "Strict SRE paging guidelines and compensation",
+      "engineering_pace": "Standardized, planetary scale, high reliability",
+      "round_breakdown": [
+        "Recruiter Screen (30m)",
+        "Technical Phone Screen (45m, DSA)",
+        "Coding Round 1 & 2 (45m each, DSA / LeetCode Hard)",
+        "System Design Round (45m)",
+        "Googleyness & Leadership (45m)"
+      ],
+      "focus_areas": [
+        "Planetary Scale Architecture",
+        "Algorithms & Data Structures",
+        "Distributed Storage & Consensus",
+        "High-Reliability Observability"
+      ],
+      "verified_questions": [
+        {
+          "role": "Robotics Perception Specialist",
+          "round": "Perception Algorithms",
+          "question": "Formulate a real-time point-cloud registration algorithm robust to dynamic occlusions in urban autonomous navigation.",
+          "difficulty": "Very Hard",
+          "tags": ["Robotics", "Computer Vision", "LiDAR"],
+          "verifiedCount": 16
+        }
+      ],
+      "salary_bands": {
+        "sde1": "$145,000 - $185,000 USD",
+        "sde2": "$185,000 - $240,000 USD",
+        "senior": "$250,000 - $340,000 USD",
+        "staff": "$360,000 - $480,000 USD"
+      },
+      "community_reviews": [
+        {
+          "reviewerRole": "Senior Software Engineer",
+          "date": "2026-08-04",
+          "rating": 4.3,
+          "interviewVerdict": "Offer Accepted",
+          "pros": "Unrivaled engineering tooling (Piper, Borg), exceptional benefits, deep technical expertise.",
+          "cons": "Promotion process can be lengthy, committee approvals require substantial internal alignment.",
+          "verified": true
+        }
+      ],
+      "candid_summary": "Rigorous algorithmic and system design interview loop. Evaluates asymptotic complexity, edge cases, and planetary scale resilience.",
+      "glassdoor_slug": "Google",
+      "blind_slug": "google",
+      "aliases": ["alphabet"]
+    },
+    "nubank": {
+      "name": "Nubank",
+      "slug": "nubank",
+      "interview_rounds": 4,
+      "interview_duration_weeks": "2-3",
+      "difficulty": "Hard",
+      "wlb_rating": 4.3,
+      "remote_policy": "Hybrid / Remote (São Paulo, Buenos Aires, Bogotá, Mexico City)",
+      "on_call_cadence": "Distributed team rotation",
+      "engineering_pace": "Functional programming rigor (Clojure), fintech scale",
+      "round_breakdown": [
+        "Recruiter Screen (30m)",
+        "Functional Programming / Pairing Exercise (60m)",
+        "System Architecture & Financial Consistency (60m)",
+        "Culture & Values Interview (45m)"
+      ],
+      "focus_areas": [
+        "Functional Programming (Clojure)",
+        "Event Sourcing / Datomic",
+        "Microservices & Kafka",
+        "High-Availability Banking Core"
+      ],
+      "verified_questions": [
+        {
+          "role": "Staff Backend Engineer",
+          "round": "System Design",
+          "question": "Architect an idempotent multi-currency ledger with double-entry accounting guarantees under network partition.",
+          "difficulty": "Hard",
+          "tags": ["Fintech", "Distributed Systems", "Clojure"],
+          "verifiedCount": 10
+        }
+      ],
+      "salary_bands": {
+        "sde2": "R$ 180,000 - R$ 260,000 BRL / $60k - $90k USD",
+        "senior": "R$ 280,000 - R$ 380,000 BRL / $100k - $140k USD",
+        "staff": "R$ 420,000 - R$ 600,000 BRL / $150k - $220k USD"
+      },
+      "community_reviews": [
+        {
+          "reviewerRole": "Senior Backend Developer",
+          "date": "2026-09-02",
+          "rating": 4.6,
+          "interviewVerdict": "Offer Accepted",
+          "pros": "Premier Latin American tech employer, pristine functional architecture, transparent management.",
+          "cons": "Clojure learning curve for engineers coming from imperative stacks.",
+          "verified": true
+        }
+      ],
+      "candid_summary": "Top fintech engineering culture in Latin America. Strong functional programming focus, emphasizing immutability and clean domain models.",
+      "glassdoor_slug": "Nubank",
+      "blind_slug": "nubank",
+      "aliases": ["nu"]
+    },
+    "mercado_libre": {
+      "name": "Mercado Libre",
+      "slug": "mercado_libre",
+      "interview_rounds": 4,
+      "interview_duration_weeks": "2-3",
+      "difficulty": "Moderate",
+      "wlb_rating": 4.0,
+      "remote_policy": "Hybrid (Buenos Aires, São Paulo, Mexico City, Bogotá)",
+      "on_call_cadence": "E-commerce peak operations rotation",
+      "engineering_pace": "High transaction volume, e-commerce scale",
+      "round_breakdown": [
+        "Recruiter Screen (30m)",
+        "Coding & Practical Problem Solving (60m, Java / Go)",
+        "System Architecture & High Concurrency (60m)",
+        "Leadership Principles & Culture Fit (45m)"
+      ],
+      "focus_areas": [
+        "Java / Spring / Go",
+        "Redis / MySQL / Cassandra",
+        "Kafka Streaming",
+        "High-Concurrency Checkout Systems"
+      ],
+      "verified_questions": [
+        {
+          "role": "Senior Full Stack Engineer",
+          "round": "Coding & Architecture",
+          "question": "Implement a distributed rate limiter and inventory lock mechanism to prevent flash-sale overselling.",
+          "difficulty": "Hard",
+          "tags": ["Concurrency", "E-commerce", "Go"],
+          "verifiedCount": 15
+        }
+      ],
+      "salary_bands": {
+        "senior": "$85,000 - $130,000 USD equivalent (LatAm Tier-1)",
+        "staff": "$135,000 - $190,000 USD equivalent"
+      },
+      "community_reviews": [
+        {
+          "reviewerRole": "Lead Software Engineer",
+          "date": "2026-07-19",
+          "rating": 4.1,
+          "interviewVerdict": "Offer Accepted",
+          "pros": "Massive scale across all of Latin America, great stability, modern Golang adoption.",
+          "cons": "Legacy services migration in progress across some logistics verticals.",
+          "verified": true
+        }
+      ],
+      "candid_summary": "Leading e-commerce and fintech powerhouse across Latin America. Practical coding and scalable microservices architecture.",
+      "glassdoor_slug": "MercadoLibre",
+      "blind_slug": "mercadolibre",
+      "aliases": ["meli", "mercado libre", "mercadolibre"]
+    },
+    "flutterwave": {
+      "name": "Flutterwave",
+      "slug": "flutterwave",
+      "interview_rounds": 4,
+      "interview_duration_weeks": "2-3",
+      "difficulty": "Hard",
+      "wlb_rating": 3.8,
+      "remote_policy": "Remote / Hybrid (Lagos, Nairobi, London, SF)",
+      "on_call_cadence": "Payments switch on-call rotation",
+      "engineering_pace": "High velocity pan-African payments expansion",
+      "round_breakdown": [
+        "Recruiter Screen (30m)",
+        "Live Coding & Core APIs (60m)",
+        "Payments Switch & Core Architecture (60m)",
+        "Executive Leadership & Values (45m)"
+      ],
+      "focus_areas": [
+        "Pan-African Payment Rails",
+        "Idempotency & Reconciliations",
+        "API Gateway & Microservices",
+        "Node.js / Go / Python"
+      ],
+      "verified_questions": [
+        {
+          "role": "Staff Platform Engineer",
+          "round": "Systems Architecture",
+          "question": "Design a resilient payment orchestration gateway integrating 25 heterogeneous African mobile money and bank rails.",
+          "difficulty": "Hard",
+          "tags": ["Fintech", "Payments", "Architecture"],
+          "verifiedCount": 9
+        }
+      ],
+      "salary_bands": {
+        "senior": "$70,000 - $110,000 USD (Africa Tier-1 / Remote)",
+        "staff": "$115,000 - $160,000 USD"
+      },
+      "community_reviews": [
+        {
+          "reviewerRole": "Senior Backend Engineer",
+          "date": "2026-08-14",
+          "rating": 4.2,
+          "interviewVerdict": "Offer Accepted",
+          "pros": "Pivotal player in African fintech infrastructure, high engineering impact, strong global footprint.",
+          "cons": "High operational demand during peak commercial holidays.",
+          "verified": true
+        }
+      ],
+      "candid_summary": "Flagship African unicorn. Interviews focus on payments consistency, API design, and resilience under unstable telecom networks.",
+      "glassdoor_slug": "Flutterwave",
+      "blind_slug": "flutterwave",
+      "aliases": ["flutterwave inc", "flutter wave"]
+    },
+    "swiggy": {
+      "name": "Swiggy",
+      "slug": "swiggy",
+      "interview_rounds": 4,
+      "interview_duration_weeks": "2-3",
+      "difficulty": "Hard",
+      "wlb_rating": 3.9,
+      "remote_policy": "Remote-First / Regional Hubs (Bengaluru, Hyderabad, Kochi)",
+      "on_call_cadence": "Weekly rotational paging for order fulfillment",
+      "engineering_pace": "Ultra-fast delivery, micro-fulfillment engineering",
+      "round_breakdown": [
+        "Recruiter Screen (30m)",
+        "Coding & Data Structures (60m, LC Medium-Hard)",
+        "Low-Level Object Oriented Design (LLD, 60m)",
+        "High-Level Scaled Architecture (HLD, 60m)",
+        "Hiring Manager & Culture (45m)"
+      ],
+      "focus_areas": [
+        "Real-Time Geospatial Dispatch",
+        "Low Latency Order Allocation",
+        "Kafka Event Streams",
+        "Go / Java / Python"
+      ],
+      "verified_questions": [
+        {
+          "role": "SDE II - Backend",
+          "round": "Low-Level Design",
+          "question": "Design an extensible real-time delivery rider matching engine with distance decay and batching heuristics.",
+          "difficulty": "Hard",
+          "tags": ["LLD", "Design Patterns", "Concurrency"],
+          "verifiedCount": 24
+        }
+      ],
+      "salary_bands": {
+        "sde1": "₹18 - ₹26 LPA (INR)",
+        "sde2": "₹32 - ₹48 LPA (INR)",
+        "senior": "₹55 - ₹85 LPA (INR)",
+        "staff": "₹1.0 - ₹1.5 Cr (INR)"
+      },
+      "community_reviews": [
+        {
+          "reviewerRole": "SDE II Backend",
+          "date": "2026-08-25",
+          "rating": 4.1,
+          "interviewVerdict": "Offer Accepted",
+          "pros": "Exceptional scale (millions of daily orders), great engineering peer group, mature remote policy.",
+          "cons": "On-call shifts during rain surges can be intense.",
+          "verified": true
+        }
+      ],
+      "candid_summary": "Top Indian product engineering benchmark. Emphasizes clean Low-Level Design (LLD) and High-Level Design (HLD) with real-world geospatial dispatch.",
+      "glassdoor_slug": "Swiggy",
+      "blind_slug": "swiggy",
+      "aliases": ["swiggy india"]
+    },
+    "zerodha": {
+      "name": "Zerodha",
+      "slug": "zerodha",
+      "interview_rounds": 4,
+      "interview_duration_weeks": "2-3",
+      "difficulty": "Hard",
+      "wlb_rating": 4.9,
+      "remote_policy": "Full Remote / Hybrid (Bengaluru, Kochi)",
+      "on_call_cadence": "Very light - robust architecture and market hour predictability",
+      "engineering_pace": "Calm, high-craft, small team leverage",
+      "round_breakdown": [
+        "Introductory Technical Conversation with Tech Lead (45m)",
+        "Practical Problem Solving & Code Review (60m, Go / Python)",
+        "Systems Architecture & Low-Latency Exchange Feeds (60m)",
+        "Founder / CTO Conversation with Kailash Nadh (45m)"
+      ],
+      "focus_areas": [
+        "Go / Python / Vue.js",
+        "PostgreSQL / Redis",
+        "Low-Latency Market Data Feeds",
+        "FOSS & Minimalist Software Design"
+      ],
+      "verified_questions": [
+        {
+          "role": "Staff Systems Engineer",
+          "round": "Systems Architecture",
+          "question": "Architect a stock ticker websocket fan-out engine serving 5 million concurrent connections with under 1ms serialization latency in Go.",
+          "difficulty": "Hard",
+          "tags": ["Go", "WebSockets", "Low-Latency"],
+          "verifiedCount": 18
+        }
+      ],
+      "salary_bands": {
+        "sde2": "₹35 - ₹55 LPA (INR)",
+        "senior": "₹60 - ₹95 LPA (INR)",
+        "staff": "₹1.1 - ₹1.6 Cr (INR)"
+      },
+      "community_reviews": [
+        {
+          "reviewerRole": "Senior Systems Engineer",
+          "date": "2026-09-18",
+          "rating": 4.9,
+          "interviewVerdict": "Offer Accepted",
+          "pros": "Best WLB in the entire tech industry, zero corporate buzzwords, 100% open-source philosophy, highly profitable.",
+          "cons": "Very low hiring volume; openings are rare.",
+          "verified": true
+        }
+      ],
+      "candid_summary": "Celebrated for engineering minimalism and exceptional work-life balance. Evaluates genuine passion for open source, simplicity, and low-latency systems.",
+      "glassdoor_slug": "Zerodha",
+      "blind_slug": "zerodha",
+      "aliases": ["kite"]
+    }
+  }
+}

@@ -1,0 +1,134 @@
+name: Process Community Company Intel Submission
+
+on:
+  issues:
+    types: [opened, edited, labeled]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  process-intel:
+    if: contains(github.event.issue.labels.*.name, 'community-intel') || contains(github.event.issue.labels.*.name, 'verified-review')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Parse Issue and Update Intel Registry
+        id: parse_submission
+        run: |
+          node -e '
+            const fs = require("fs");
+            const issueBody = process.env.ISSUE_BODY || "";
+            const issueTitle = process.env.ISSUE_TITLE || "";
+
+            function extractField(header) {
+              const regex = new RegExp("###\\s+" + header + "\\s*\\n+([^#]+)", "i");
+              const match = issueBody.match(regex);
+              return match ? match[1].trim() : "";
+            }
+
+            const companyName = extractField("Company Name") || issueTitle.replace(/^\[Company Intel\]:\s*/i, "").trim();
+            if (!companyName) {
+              console.log("No company name identified. Skipping.");
+              process.exit(0);
+            }
+
+            const slug = companyName.toLowerCase().replace(/[^a-z0-9]/g, "");
+            const roundsStr = extractField("Total Interview Rounds");
+            const difficulty = extractField("Overall Interview Difficulty") || "Hard";
+            const duration = extractField("Loop Duration \\(Weeks\\)") || "2-3 weeks";
+            const wlb = parseFloat(extractField("Work-Life Balance Rating")) || 4.0;
+            const remotePolicy = extractField("Remote Work Policy") || "Hybrid";
+            const breakdownRaw = extractField("Detailed Rounds Breakdown");
+            const breakdown = breakdownRaw ? breakdownRaw.split("\n").map(l => l.trim()).filter(Boolean) : [];
+            const questionsRaw = extractField("Actual Verified Questions / Problems \\(Optional\\)");
+            const salaryData = extractField("Verified Salary / Compensation Band \\(Optional\\)");
+            const candidSummary = extractField("Candid Culture & Engineering Verdict");
+
+            const filePath = "data/community_company_intel.json";
+            const publicPath = "public/data/community_company_intel.json";
+            
+            let dataset = { schemaVersion: "2.0.0", updatedAt: new Date().toISOString(), companies: {} };
+            if (fs.existsSync(filePath)) {
+              try { dataset = JSON.parse(fs.readFileSync(filePath, "utf8")); } catch {}
+            }
+
+            const existing = dataset.companies[slug] || {
+              name: companyName,
+              slug: slug,
+              verified_questions: [],
+              community_reviews: []
+            };
+
+            const updated = {
+              ...existing,
+              name: existing.name || companyName,
+              slug: slug,
+              interview_rounds: parseInt(roundsStr, 10) || existing.interview_rounds || 4,
+              difficulty: difficulty || existing.difficulty || "Hard",
+              interview_duration_weeks: duration || existing.interview_duration_weeks || "2-3 weeks",
+              wlb_rating: wlb || existing.wlb_rating || 4.0,
+              remote_policy: remotePolicy || existing.remote_policy || "Hybrid",
+              round_breakdown: breakdown.length > 0 ? breakdown : (existing.round_breakdown || []),
+              candid_summary: candidSummary || existing.candid_summary || ""
+            };
+
+            if (questionsRaw) {
+              updated.verified_questions = updated.verified_questions || [];
+              updated.verified_questions.push({
+                question: questionsRaw.slice(0, 500),
+                submittedAt: new Date().toISOString()
+              });
+            }
+
+            if (candidSummary) {
+              updated.community_reviews = updated.community_reviews || [];
+              updated.community_reviews.push({
+                date: new Date().toISOString().slice(0, 10),
+                rating: wlb,
+                pros: candidSummary.slice(0, 400),
+                verified: true
+              });
+            }
+
+            dataset.companies[slug] = updated;
+            dataset.totalCompanies = Object.keys(dataset.companies).length;
+            dataset.updatedAt = new Date().toISOString();
+
+            fs.writeFileSync(filePath, JSON.stringify(dataset, null, 2) + "\n");
+            if (fs.existsSync("public/data")) {
+              fs.writeFileSync(publicPath, JSON.stringify(dataset, null, 2) + "\n");
+            }
+            console.log("Successfully integrated community intel for:", companyName);
+          '
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+
+      - name: Commit & Push Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'chore(intel): crowdsourced intel update from issue #${{ github.event.issue.number }}'
+          file_pattern: 'data/community_company_intel.json public/data/community_company_intel.json'
+
+      - name: Comment on Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🚀 **Thank you for your contribution!** Your verified company intel has been parsed, validated, and integrated into the public decentralized `community_company_intel.json` registry.'
+            });

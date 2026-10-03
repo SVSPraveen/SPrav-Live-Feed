@@ -1,0 +1,118 @@
+name: '🏢 Community Company Intel Submission'
+description: 'Submit verified interview loop breakdown, culture metrics, verified questions, or salary data ($0 Sovereign Crowdsourcing).'
+title: '[Company Intel]: '
+labels: ['community-intel', 'verified-review']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Thank you for contributing to the Decentralized SPrav Company Intel Registry!
+        Your anonymous submission helps thousands of software engineers negotiate compensation, prepare for realistic interview loops, and understand engineering culture.
+  - type: input
+    id: company_name
+    attributes:
+      label: Company Name
+      description: The official name of the company (e.g. OpenAI, Stripe, Swiggy, Nubank).
+      placeholder: 'e.g. Databricks'
+    validations:
+      required: true
+  - type: input
+    id: role_title
+    attributes:
+      label: Role Title / Seniority
+      description: The engineering role you interviewed for or worked in.
+      placeholder: 'e.g. Senior AI Agent Engineer, Staff Full Stack Engineer'
+    validations:
+      required: true
+  - type: dropdown
+    id: interview_rounds
+    attributes:
+      label: Total Interview Rounds
+      description: Total number of screening, coding, system design, and behavioral loops.
+      options:
+        - '1-2 Rounds (Rapid)'
+        - '3 Rounds'
+        - '4 Rounds'
+        - '5 Rounds (Standard FAANG/Tier-1)'
+        - '6+ Rounds (Heavy)'
+    validations:
+      required: true
+  - type: dropdown
+    id: difficulty
+    attributes:
+      label: Overall Interview Difficulty
+      options:
+        - 'Easy'
+        - 'Moderate'
+        - 'Hard'
+        - 'Very Hard'
+    validations:
+      required: true
+  - type: input
+    id: interview_duration
+    attributes:
+      label: Loop Duration (Weeks)
+      description: Approximate duration from initial recruiter screen to final offer/verdict.
+      placeholder: 'e.g. 2-3 weeks, 4 weeks'
+    validations:
+      required: true
+  - type: dropdown
+    id: wlb_rating
+    attributes:
+      label: Work-Life Balance Rating
+      options:
+        - '5.0 - Exceptional (Calm, 35-40h/wk, strictly preserved)'
+        - '4.5 - Very Good (Respectful hours, rare overtime)'
+        - '4.0 - Good / Balanced (Predictable sprints)'
+        - '3.5 - Moderate (Some late nights during release sprints)'
+        - '3.0 - Demanding (High velocity, regular crunch)'
+        - '2.0 - Poor (Persistent burn-out pressure)'
+    validations:
+      required: true
+  - type: dropdown
+    id: remote_policy
+    attributes:
+      label: Remote Work Policy
+      options:
+        - 'Full Remote Worldwide'
+        - 'Remote (Country Specific)'
+        - 'Hybrid (1-2 days/week in office)'
+        - 'Hybrid (3 days/week in office)'
+        - 'Onsite (Full time office)'
+    validations:
+      required: true
+  - type: textarea
+    id: round_breakdown
+    attributes:
+      label: Detailed Rounds Breakdown
+      description: Please describe each stage in the interview pipeline (timing, format, expectations).
+      placeholder: |
+        1. Recruiter Screen (30m): Background and compensation alignment
+        2. Technical Phone Screen (60m): Leetcode medium / live coding
+        3. System Design (60m): High-throughput distributed caching
+        4. Behavioral / Values (45m): Conflict resolution and team leadership
+    validations:
+      required: true
+  - type: textarea
+    id: verified_questions
+    attributes:
+      label: Actual Verified Questions / Problems (Optional)
+      description: Specific technical problems, system design architectures, or domain questions asked.
+      placeholder: |
+        - System Design: Design a real-time rate limiter for 10M requests/second.
+        - Coding: Implement a LRU cache with expiration and asynchronous flush.
+  - type: input
+    id: salary_data
+    attributes:
+      label: Verified Salary / Compensation Band (Optional)
+      description: Base salary, equity/RSU, or bonus details observed.
+      placeholder: 'e.g. $190,000 Base + $80,000 Equity/yr (Senior)'
+  - type: textarea
+    id: candid_summary
+    attributes:
+      label: Candid Culture & Engineering Verdict
+      description: Honest assessment of the engineering standards, management transparency, on-call paging intensity, and tooling quality.
+      placeholder: |
+        Strong engineering peers, high autonomy. On-call is light with good runbooks. CI/CD runs under 5 minutes. Highly recommend for engineers who value technical rigor.
+    validations:
+      required: true
