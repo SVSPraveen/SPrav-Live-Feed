@@ -1,39 +1,39 @@
 {
   "version": "2.0.0-realtime-ats",
-  "harvested_at": "2026-10-04T12:25:13.992505+00:00",
-  "pipeline_duration_seconds": 8.11,
-  "total_jobs": 11316,
-  "distinct_companies": 444,
+  "harvested_at": "2026-10-04T15:25:00.859374+00:00",
+  "pipeline_duration_seconds": 10.28,
+  "total_jobs": 11320,
+  "distinct_companies": 450,
   "boards_queried": 590,
   "open_feeds_queried": 2,
-  "duplicates_dropped": 302,
+  "duplicates_dropped": 300,
   "max_posting_age_days": 14.0,
-  "visa_sponsorship_jobs": 14,
+  "visa_sponsorship_jobs": 18,
   "remote_jobs": 1901,
   "regional_slices": {
     "india": 658,
-    "us": 8414,
-    "europe": 1986,
+    "us": 8416,
+    "europe": 1988,
     "remote": 1910
   },
   "freshness_breakdown": {
-    "< 24h": 750,
-    "< 3d": 3096,
-    "< 7d": 2371,
-    "< 14d": 5099
+    "< 24h": 735,
+    "< 3d": 3033,
+    "< 7d": 2451,
+    "< 14d": 5101
   },
   "platform_breakdown": {
+    "GREENHOUSE_ATS": 9646,
+    "ASHBY_ATS": 614,
+    "ARBEITNOW_DIRECT": 698,
     "SMARTRECRUITERS_ATS": 164,
-    "ARBEITNOW_DIRECT": 696,
-    "GREENHOUSE_ATS": 9645,
-    "ASHBY_ATS": 613,
     "LEVER_ATS": 184,
     "REMOTIVE_DIRECT": 4,
     "WORKABLE_ATS": 10
   },
   "payload_metrics": {
-    "uncompressed_bytes": 9360989,
-    "compressed_bytes": 786302,
+    "uncompressed_bytes": 9364911,
+    "compressed_bytes": 788295,
     "compression_ratio": "91.6%"
   },
   "endpoints": {
