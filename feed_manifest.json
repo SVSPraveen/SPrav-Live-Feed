@@ -1,54 +1,54 @@
 {
   "version": "2.0.0-realtime-ats",
-  "harvested_at": "2026-10-05T14:55:25.858873+00:00",
-  "pipeline_duration_seconds": 16.41,
-  "total_jobs": 11345,
-  "distinct_companies": 474,
+  "harvested_at": "2026-10-05T22:44:23.309065+00:00",
+  "pipeline_duration_seconds": 9.39,
+  "total_jobs": 10519,
+  "distinct_companies": 503,
   "boards_queried": 590,
   "open_feeds_queried": 2,
-  "duplicates_dropped": 295,
+  "duplicates_dropped": 239,
   "max_posting_age_days": 14.0,
-  "visa_sponsorship_jobs": 16,
-  "remote_jobs": 1929,
+  "visa_sponsorship_jobs": 18,
+  "remote_jobs": 1878,
   "regional_slices": {
-    "india": 651,
-    "us": 8441,
-    "europe": 1987,
-    "remote": 1938
+    "india": 527,
+    "us": 7848,
+    "europe": 1887,
+    "remote": 1888
   },
   "freshness_breakdown": {
-    "< 24h": 956,
-    "< 3d": 1831,
-    "< 7d": 3450,
-    "< 14d": 5108
+    "< 24h": 1551,
+    "< 3d": 407,
+    "< 7d": 4347,
+    "< 14d": 4214
   },
   "platform_breakdown": {
-    "GREENHOUSE_ATS": 9653,
-    "ASHBY_ATS": 631,
-    "SMARTRECRUITERS_ATS": 162,
-    "LEVER_ATS": 184,
-    "ARBEITNOW_DIRECT": 706,
-    "WORKABLE_ATS": 6,
+    "GREENHOUSE_ATS": 8833,
+    "ASHBY_ATS": 608,
+    "SMARTRECRUITERS_ATS": 163,
+    "ARBEITNOW_DIRECT": 726,
+    "LEVER_ATS": 179,
+    "WORKABLE_ATS": 7,
     "REMOTIVE_DIRECT": 3
   },
   "payload_metrics": {
-    "uncompressed_bytes": 10022364,
-    "compressed_bytes": 865454,
-    "compression_ratio": "91.4%"
+    "uncompressed_bytes": 9320871,
+    "compressed_bytes": 835821,
+    "compression_ratio": "91.0%"
   },
   "shards": {
     "roles": {
-      "frontend": 120,
-      "backend": 322,
-      "fullstack": 121,
-      "aiml": 1527,
-      "devops": 1097
+      "frontend": 98,
+      "backend": 270,
+      "fullstack": 101,
+      "aiml": 1445,
+      "devops": 1019
     },
     "cities": {
-      "bengaluru": 492,
-      "london": 573,
-      "san_francisco": 3613,
-      "remote": 1938
+      "bengaluru": 364,
+      "london": 549,
+      "san_francisco": 3393,
+      "remote": 1888
     }
   },
   "endpoints": {
