@@ -382,8 +382,10 @@ def harvest_board(board: dict, max_age_days: float, now_epoch: float) -> list[di
             for j in data.get("jobs", []):
                 updated_at_val = j.get("updated_at")
                 loc = (j.get("location") or {}).get("name", "Remote")
+                job_id = str(j.get("id"))
                 raw_jobs.append({
-                    "id": f"gh_{slug}_{j.get('id')}",
+                    "id": f"gh_{slug}_{job_id}",
+                    "gh_jid": job_id,
                     "title": (j.get("title") or "").strip(),
                     "company": name,
                     "location": loc or "Remote",
@@ -405,12 +407,14 @@ def harvest_board(board: dict, max_age_days: float, now_epoch: float) -> list[di
                 loc = (j.get("categories") or {}).get("location", "Remote")
                 team = (j.get("categories") or {}).get("team", "")
                 created_at_val = j.get("createdAt")
+                job_id = str(j.get("id"))
                 raw_jobs.append({
-                    "id": f"lever_{slug}_{j.get('id')}",
+                    "id": f"lever_{slug}_{job_id}",
+                    "lever_jid": job_id,
                     "title": (j.get("text") or "").strip(),
                     "company": name,
                     "location": loc or "Remote",
-                    "url": j.get("hostedUrl") or f"https://jobs.lever.co/{slug}/{j.get('id')}",
+                    "url": j.get("hostedUrl") or f"https://jobs.lever.co/{slug}/{job_id}",
                     "source": "LEVER_ATS",
                     "portal": "Lever (Official)",
                     "category": team or category,
@@ -427,12 +431,14 @@ def harvest_board(board: dict, max_age_days: float, now_epoch: float) -> list[di
             for j in data.get("jobs", []):
                 loc = j.get("location") or "Remote"
                 pub_at_val = j.get("publishedAt")
+                job_id = str(j.get("id"))
                 raw_jobs.append({
-                    "id": f"ashby_{slug}_{j.get('id')}",
+                    "id": f"ashby_{slug}_{job_id}",
+                    "ashby_jid": job_id,
                     "title": (j.get("title") or "").strip(),
                     "company": name,
                     "location": loc,
-                    "url": j.get("jobUrl") or f"https://jobs.ashbyhq.com/{slug}/{j.get('id')}",
+                    "url": j.get("jobUrl") or f"https://jobs.ashbyhq.com/{slug}/{job_id}",
                     "source": "ASHBY_ATS",
                     "portal": "Ashby (Official)",
                     "category": j.get("department") or category,
@@ -574,6 +580,9 @@ def normalize_and_filter_jobs(raw_jobs: list[dict], max_age_days: float, now_epo
             "verified_live": True,
             "verified_ats_timestamp": now_iso,
             "direct_ats": True,
+            "gh_jid": item.get("gh_jid"),
+            "lever_jid": item.get("lever_jid"),
+            "ashby_jid": item.get("ashby_jid"),
             "description": item.get("description", f"{title} at {item['company']}."),
             "visa_sponsorship": visa_sponsorship,
             "salary": item.get("salary"),
@@ -932,6 +941,75 @@ def run_pipeline(
             with open(pub_slices_dir / f"feed-{region}.json", "w", encoding="utf-8") as f:
                 json.dump(region_jobs[:500], f, indent=2)
 
+    # 3b. Specialist 5: Partitioned Role & City Shards (Zero-Backend Sharding)
+    # Output to both output_dir / "data" / "shards" and workspace_root / "data" / "shards"
+    shards_dir = output_dir / "data" / "shards"
+    shards_roles_dir = shards_dir / "roles"
+    shards_cities_dir = shards_dir / "cities"
+    shards_roles_dir.mkdir(parents=True, exist_ok=True)
+    shards_cities_dir.mkdir(parents=True, exist_ok=True)
+
+    local_shards_dir = workspace_root / "data" / "shards"
+    local_roles_dir = local_shards_dir / "roles"
+    local_cities_dir = local_shards_dir / "cities"
+    local_roles_dir.mkdir(parents=True, exist_ok=True)
+    local_cities_dir.mkdir(parents=True, exist_ok=True)
+
+    ROLE_PARTITIONS = {
+        "frontend": re.compile(r"\b(frontend|front-end|react|vue|angular|ui|web|javascript|typescript|nextjs|css|html)\b", re.IGNORECASE),
+        "backend": re.compile(r"\b(backend|back-end|api|golang|go|python|django|fastapi|java|spring|node|express|ruby|rails|c\+\+|rust|database|sql)\b", re.IGNORECASE),
+        "fullstack": re.compile(r"\b(fullstack|full-stack|full\s*stack)\b", re.IGNORECASE),
+        "aiml": re.compile(r"\b(ai|ml|machine\s*learning|deep\s*learning|data\s*scientist|nlp|llm|computer\s*vision|pytorch|tensorflow|genai)\b", re.IGNORECASE),
+        "devops": re.compile(r"\b(devops|sre|site\s*reliability|infrastructure|cloud|platform|kubernetes|docker|aws|gcp|azure|terraform|ci/cd)\b", re.IGNORECASE),
+    }
+
+    CITY_PARTITIONS = {
+        "bengaluru": re.compile(r"\b(bengaluru|bangalore|karnataka|india)\b", re.IGNORECASE),
+        "london": re.compile(r"\b(london|uk|united\s*kingdom|england)\b", re.IGNORECASE),
+        "san_francisco": re.compile(r"\b(san\s*francisco|sf|bay\s*area|california|ca)\b", re.IGNORECASE),
+        "remote": re.compile(r"\b(remote|anywhere|virtual|worldwide|work\s*from\s*home)\b", re.IGNORECASE),
+    }
+
+    shard_metrics = {"roles": {}, "cities": {}}
+
+    for role_name, pattern in ROLE_PARTITIONS.items():
+        role_jobs = [
+            j for j in clean_jobs
+            if pattern.search(j.get("title", "")) or pattern.search(j.get("description", "")) or any(pattern.search(str(tag)) for tag in j.get("tags", []))
+        ]
+        shard_metrics["roles"][role_name] = len(role_jobs)
+        r_json = json.dumps(role_jobs, ensure_ascii=False, indent=None, separators=(",", ":")).encode("utf-8")
+        r_gz = gzip.compress(r_json, compresslevel=9)
+
+        # Write to dist_feed/data/shards/roles/{role_name}.json.gz and .json
+        with open(shards_roles_dir / f"{role_name}.json", "wb") as f:
+            f.write(r_json)
+        with open(shards_roles_dir / f"{role_name}.json.gz", "wb") as f:
+            f.write(r_gz)
+
+        # Mirror to local data/shards/roles/
+        with open(local_roles_dir / f"{role_name}.json.gz", "wb") as f:
+            f.write(r_gz)
+
+    for city_name, pattern in CITY_PARTITIONS.items():
+        if city_name == "remote":
+            city_jobs = [j for j in clean_jobs if j.get("is_remote") or pattern.search(j.get("location", "")) or pattern.search(j.get("workplace_type", ""))]
+        else:
+            city_jobs = [j for j in clean_jobs if pattern.search(j.get("location", ""))]
+        shard_metrics["cities"][city_name] = len(city_jobs)
+        c_json = json.dumps(city_jobs, ensure_ascii=False, indent=None, separators=(",", ":")).encode("utf-8")
+        c_gz = gzip.compress(c_json, compresslevel=9)
+
+        # Write to dist_feed/data/shards/cities/{city_name}.json.gz and .json
+        with open(shards_cities_dir / f"{city_name}.json", "wb") as f:
+            f.write(c_json)
+        with open(shards_cities_dir / f"{city_name}.json.gz", "wb") as f:
+            f.write(c_gz)
+
+        # Mirror to local data/shards/cities/
+        with open(local_cities_dir / f"{city_name}.json.gz", "wb") as f:
+            f.write(c_gz)
+
     # 4. Output .nojekyll for GitHub Pages
     with open(output_dir / ".nojekyll", "w", encoding="utf-8") as f:
         f.write("")
@@ -989,6 +1067,7 @@ def run_pipeline(
             "compressed_bytes": len(gz_bytes),
             "compression_ratio": f"{compression_ratio}%"
         },
+        "shards": shard_metrics,
         "endpoints": {
             "primary_compressed": "jobs.json.gz",
             "primary_json": "jobs.json",
@@ -997,7 +1076,20 @@ def run_pipeline(
             "slice_india": "slices/feed-india.json.gz",
             "slice_us": "slices/feed-us.json.gz",
             "slice_europe": "slices/feed-europe.json.gz",
-            "slice_remote": "slices/feed-remote.json.gz"
+            "slice_remote": "slices/feed-remote.json.gz",
+            "shards_roles": {
+                "frontend": "data/shards/roles/frontend.json.gz",
+                "backend": "data/shards/roles/backend.json.gz",
+                "fullstack": "data/shards/roles/fullstack.json.gz",
+                "aiml": "data/shards/roles/aiml.json.gz",
+                "devops": "data/shards/roles/devops.json.gz"
+            },
+            "shards_cities": {
+                "bengaluru": "data/shards/cities/bengaluru.json.gz",
+                "london": "data/shards/cities/london.json.gz",
+                "san_francisco": "data/shards/cities/san_francisco.json.gz",
+                "remote": "data/shards/cities/remote.json.gz"
+            }
         }
     }
 

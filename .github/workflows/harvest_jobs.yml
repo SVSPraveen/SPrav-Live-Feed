@@ -87,11 +87,14 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
+          if [ -d "data/shards" ]; then
+            git add data/shards
+          fi
           if [ -f "public/data/sprav_daily_jobs.json" ]; then
             git add public/data/sprav_daily_jobs.json
-            if ! git diff-index --quiet HEAD --; then
-              git commit -m "[skip ci] [skip vercel] Auto-sync local fallback jobs feed [automated]"
-              git push origin HEAD || echo "Local fallback push ignored or up to date"
-            fi
+          fi
+          if ! git diff-index --quiet HEAD --; then
+            git commit -m "[skip ci] [skip vercel] Auto-sync local fallback jobs feed and partitioned shards [automated]"
+            git push origin HEAD || echo "Local fallback push ignored or up to date"
           fi
 
