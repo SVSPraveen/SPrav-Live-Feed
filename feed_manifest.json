@@ -1,0 +1,49 @@
+{
+  "version": "2.0.0-realtime-ats",
+  "harvested_at": "2026-10-05T05:45:40.145783+00:00",
+  "pipeline_duration_seconds": 14.23,
+  "total_jobs": 11339,
+  "distinct_companies": 467,
+  "boards_queried": 590,
+  "open_feeds_queried": 2,
+  "duplicates_dropped": 285,
+  "max_posting_age_days": 14.0,
+  "visa_sponsorship_jobs": 17,
+  "remote_jobs": 1935,
+  "regional_slices": {
+    "india": 651,
+    "us": 8422,
+    "europe": 2003,
+    "remote": 1944
+  },
+  "freshness_breakdown": {
+    "< 24h": 719,
+    "< 3d": 2106,
+    "< 7d": 3393,
+    "< 14d": 5121
+  },
+  "platform_breakdown": {
+    "SMARTRECRUITERS_ATS": 162,
+    "GREENHOUSE_ATS": 9650,
+    "ASHBY_ATS": 622,
+    "ARBEITNOW_DIRECT": 714,
+    "LEVER_ATS": 183,
+    "REMOTIVE_DIRECT": 4,
+    "WORKABLE_ATS": 4
+  },
+  "payload_metrics": {
+    "uncompressed_bytes": 9388515,
+    "compressed_bytes": 798742,
+    "compression_ratio": "91.5%"
+  },
+  "endpoints": {
+    "primary_compressed": "jobs.json.gz",
+    "primary_json": "jobs.json",
+    "compat_latest_gz": "latest.json.gz",
+    "compat_tech_gz": "latest-tech-jobs.json.gz",
+    "slice_india": "slices/feed-india.json.gz",
+    "slice_us": "slices/feed-us.json.gz",
+    "slice_europe": "slices/feed-europe.json.gz",
+    "slice_remote": "slices/feed-remote.json.gz"
+  }
+}
