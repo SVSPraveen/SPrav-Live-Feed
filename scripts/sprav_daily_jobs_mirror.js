@@ -5,7 +5,7 @@
  * Designed to execute inside a free GitHub Actions cron job ($0 server cost).
  *
  * Ingests and normalizes:
- * 1. 350+ Direct ATS Career Boards (Ashby, Greenhouse, Lever, SmartRecruiters)
+ * 1. Direct ATS Career Boards (Ashby, Greenhouse, Lever, SmartRecruiters)
  * 2. SimplifyJobs Verified Community Feeds (New-Grad & Summer Internships)
  * 3. Open Global Tech Feeds (Himalayas, Arbeitnow, Remotive, Jobicy, RemoteOK, Hacker News)
  *
@@ -21,8 +21,8 @@ import path from 'path';
 import zlib from 'zlib';
 import { fileURLToPath } from 'url';
 import { ALL_SOVEREIGN_TECH_COMPANIES, WORKDAY_ENTERPRISE_TENANTS, SMARTRECRUITERS_ENTERPRISE_TENANTS } from '../src/utils/top_tech_companies_catalog.js';
-import { CURATED_ATS_COMPANIES } from '../src/utils/browser_ats_scanner.js';
-import { filterCleanActiveJobs, chunkAndCompressJobs } from './sprav_universe_chunker.js';
+import { CURATED_ATS_COMPANIES } from '../src/utils/curated_ats_companies.js';
+import { filterCleanActiveJobs, chunkAndCompressJobs, writePartitionedShards } from './sprav_universe_chunker.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -949,6 +949,10 @@ export async function runDailyMirror() {
   if (chunkResult.indexStats) {
     console.log(`  ✓ Phase 8: Built Chunked Inverted Index: ${chunkResult.indexStats.totalTerms} terms, ${(chunkResult.indexStats.compressedBytes / 1024).toFixed(1)} KB gzipped.`);
   }
+
+  // Phase 9: Partition & Compress into Role & City Shards (shards/roles/*.json.gz & shards/cities/*.json.gz)
+  const shardResult = writePartitionedShards(aggregatedJobs, outputDir);
+  console.log(`  ✓ Phase 9: Partitioned ${shardResult.totalPartitioned} jobs into Git-as-a-Database Role & City shards.`);
 
   const manifest = {
     updated_at: new Date().toISOString(),

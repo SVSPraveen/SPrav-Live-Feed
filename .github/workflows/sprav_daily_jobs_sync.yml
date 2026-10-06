@@ -1,4 +1,4 @@
-﻿name: SPrav Sovereign Daily Jobs Mirror
+name: SPrav Sovereign Daily Jobs Mirror
 
 on:
   schedule:
@@ -17,12 +17,14 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
       - name: Setup Node.js 22.x
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v4
         with:
           node-version: 22
+          # Notice: 'cache: npm' removed because this mirror script runs on native Node.js
+          # without requiring external npm packages or a root package-lock.json
 
       - name: Run Sovereign Universe Mirror & Chunker
         env:
@@ -30,22 +32,22 @@ jobs:
         run: |
           node scripts/sprav_daily_jobs_mirror.js
 
+      - name: Deploy Mirror Feed to Job-Feed Branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist_mirror
+          publish_branch: sovereign-job-feed
+          commit_message: "[skip ci] [skip vercel] [vercel skip] Automated Hourly ATS Mirror Ingestion"
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+
       - name: Deploy Mirror Feed to gh-pages Branch
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist_mirror
           publish_branch: gh-pages
-          commit_message: "[skip ci] [skip vercel] [vercel skip] Automated Hourly ATS Mirror Ingestion"
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
-
-      - name: Deploy Mirror Feed to sovereign-job-feed Branch
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist_mirror
-          publish_branch: sovereign-job-feed
           commit_message: "[skip ci] [skip vercel] [vercel skip] Automated Hourly ATS Mirror Ingestion"
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'

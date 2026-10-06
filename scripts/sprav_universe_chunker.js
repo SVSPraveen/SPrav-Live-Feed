@@ -463,7 +463,7 @@ export function tokenizeForSearch(text) {
   s = s.replace(/[^a-z0-9\s_-]/g, ' ');
 
   // 3. Extract tokens
-  const words = s.split(/[\s_\/-]+/);
+  const words = s.split(/[\s_/-]+/);
   const tokens = new Set();
 
   for (const w of words) {
@@ -626,4 +626,117 @@ export function buildInvertedIndex(jobs, chunkFilenames, outputDir, options = {}
     indexPath: path.join(indexDir, 'search_index.json.gz')
   };
 }
+
+/**
+ * Partitions jobs into role-discipline and city/location shards,
+ * compressing each partition into standard 120KB-200KB gzipped bundles.
+ * Writes to both `shards/` and `data/shards/` for CDN routing flexibility.
+ *
+ * @param {Array<Object>} jobs - Cleaned and active job listings
+ * @param {string} outputDir - Base output directory
+ * @returns {{ roleShards: Object, cityShards: Object, totalPartitioned: number }}
+ */
+export function writePartitionedShards(jobs = [], outputDir) {
+  const shardsBase = path.join(outputDir, 'shards');
+  const dataShardsBase = path.join(outputDir, 'data', 'shards');
+
+  const rolesDir = path.join(shardsBase, 'roles');
+  const citiesDir = path.join(shardsBase, 'cities');
+  const dataRolesDir = path.join(dataShardsBase, 'roles');
+  const dataCitiesDir = path.join(dataShardsBase, 'cities');
+
+  for (const dir of [rolesDir, citiesDir, dataRolesDir, dataCitiesDir]) {
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  }
+
+  const roleDefinitions = {
+    frontend: /\b(front|react|vue|angular|ui|web|css|next)\b/i,
+    backend: /\b(back|api|go|golang|python|django|fastapi|java|spring|node|ruby|rust|c\+\+)\b/i,
+    fullstack: /\b(full|fullstack|full-stack)\b/i,
+    aiml: /\b(ai|ml|machine|learning|deep|nlp|llm|vision|pytorch|tensorflow|genai)\b/i,
+    devops: /\b(devops|sre|infra|cloud|platform|k8s|kubernetes|docker|aws|gcp|azure|ci\/cd)\b/i,
+    internships: /\b(intern|internship|campus|co-?op|student|fresher|graduate)\b/i,
+    security: /\b(sec|security|cyber|infosec|appsec|soc|penetration|cryptograph)\b/i,
+    data: /\b(data|analytics|bi|warehouse|etl|sql|tableau|powerbi)\b/i
+  };
+
+  const cityDefinitions = {
+    bengaluru: /\b(bengaluru|bangalore|karnataka|india)\b/i,
+    london: /\b(london|uk|united\s*kingdom|england)\b/i,
+    san_francisco: /\b(san\s*francisco|sf|bay\s*area|california|ca)\b/i,
+    remote: /\b(remote|anywhere|virtual|worldwide|work\s*from\s*home)\b/i
+  };
+
+  const roleBuckets = {};
+  for (const roleKey of Object.keys(roleDefinitions)) {
+    roleBuckets[roleKey] = [];
+  }
+
+  const cityBuckets = {};
+  for (const cityKey of Object.keys(cityDefinitions)) {
+    cityBuckets[cityKey] = [];
+  }
+
+  for (const job of jobs) {
+    const title = String(job.title || '');
+    const desc = String(job.description || '');
+    const location = String(job.location || '');
+    const isRemote = job.is_remote !== false && (job.is_remote === true || /remote/i.test(location));
+
+    // Role categorization
+    for (const [roleKey, regex] of Object.entries(roleDefinitions)) {
+      if (regex.test(title) || (roleKey === 'internships' && (job.job_type === 'internship' || /intern/i.test(title)))) {
+        roleBuckets[roleKey].push(job);
+      }
+    }
+
+    // City categorization
+    if (isRemote) {
+      cityBuckets.remote.push(job);
+    }
+    for (const [cityKey, regex] of Object.entries(cityDefinitions)) {
+      if (cityKey !== 'remote' && regex.test(location)) {
+        cityBuckets[cityKey].push(job);
+      }
+    }
+  }
+
+  const roleShardsStats = {};
+  for (const [roleKey, bucketJobs] of Object.entries(roleBuckets)) {
+    const jsonStr = JSON.stringify(bucketJobs);
+    const gzipped = zlib.gzipSync(Buffer.from(jsonStr, 'utf-8'));
+    
+    fs.writeFileSync(path.join(rolesDir, `${roleKey}.json.gz`), gzipped);
+    fs.writeFileSync(path.join(dataRolesDir, `${roleKey}.json.gz`), gzipped);
+    roleShardsStats[roleKey] = { count: bucketJobs.length, bytes: gzipped.length };
+  }
+
+  const cityShardsStats = {};
+  for (const [cityKey, bucketJobs] of Object.entries(cityBuckets)) {
+    const jsonStr = JSON.stringify(bucketJobs);
+    const gzipped = zlib.gzipSync(Buffer.from(jsonStr, 'utf-8'));
+    
+    fs.writeFileSync(path.join(citiesDir, `${cityKey}.json.gz`), gzipped);
+    fs.writeFileSync(path.join(dataCitiesDir, `${cityKey}.json.gz`), gzipped);
+    cityShardsStats[cityKey] = { count: bucketJobs.length, bytes: gzipped.length };
+  }
+
+  const manifest = {
+    version: '1.0.0-sharded-git-db',
+    last_updated: new Date().toISOString(),
+    total_jobs: jobs.length,
+    roles: roleShardsStats,
+    cities: cityShardsStats
+  };
+
+  fs.writeFileSync(path.join(shardsBase, 'shards_manifest.json'), JSON.stringify(manifest, null, 2));
+  fs.writeFileSync(path.join(dataShardsBase, 'shards_manifest.json'), JSON.stringify(manifest, null, 2));
+
+  return {
+    roleShards: roleShardsStats,
+    cityShards: cityShardsStats,
+    totalPartitioned: jobs.length
+  };
+}
+
 
