@@ -1,12 +1,12 @@
 {
   "version": "2.0.0-realtime-ats",
-  "harvested_at": "2026-10-06T06:25:00.822978+00:00",
-  "pipeline_duration_seconds": 11.73,
+  "harvested_at": "2026-10-06T06:30:52.476253+00:00",
+  "pipeline_duration_seconds": 8.81,
   "total_jobs": 10475,
   "distinct_companies": 503,
   "boards_queried": 590,
   "open_feeds_queried": 2,
-  "duplicates_dropped": 262,
+  "duplicates_dropped": 261,
   "max_posting_age_days": 14.0,
   "visa_sponsorship_jobs": 20,
   "remote_jobs": 1876,
@@ -17,10 +17,10 @@
     "remote": 1883
   },
   "freshness_breakdown": {
-    "< 24h": 4208,
+    "< 24h": 4211,
     "< 3d": 257,
-    "< 7d": 3967,
-    "< 14d": 2043
+    "< 7d": 3965,
+    "< 14d": 2042
   },
   "platform_breakdown": {
     "GREENHOUSE_ATS": 8825,
@@ -32,8 +32,8 @@
     "REMOTIVE_DIRECT": 3
   },
   "payload_metrics": {
-    "uncompressed_bytes": 9265225,
-    "compressed_bytes": 811206,
+    "uncompressed_bytes": 9265072,
+    "compressed_bytes": 811121,
     "compression_ratio": "91.2%"
   },
   "shards": {
@@ -47,7 +47,7 @@
     "cities": {
       "bengaluru": 365,
       "london": 551,
-      "san_francisco": 3405,
+      "san_francisco": 3404,
       "remote": 1883
     }
   },
