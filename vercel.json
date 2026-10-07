@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "echo 'SPrav Sovereign job feed data branch - skipping compilation'",
+  "buildCommand": "echo 'Sovereign job feed data branch - skipping compilation'",
   "outputDirectory": ".",
   "ignoreCommand": "exit 0"
 }
