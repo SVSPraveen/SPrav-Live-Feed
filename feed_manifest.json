@@ -1,8 +1,8 @@
 {
   "version": "2.0.0-realtime-ats",
-  "harvested_at": "2026-10-08T06:09:29.676996+00:00",
-  "pipeline_duration_seconds": 8.74,
-  "total_jobs": 10958,
+  "harvested_at": "2026-10-08T06:17:04.544522+00:00",
+  "pipeline_duration_seconds": 17.18,
+  "total_jobs": 10959,
   "distinct_companies": 457,
   "boards_queried": 590,
   "open_feeds_queried": 2,
@@ -11,19 +11,19 @@
   "visa_sponsorship_jobs": 12,
   "remote_jobs": 1861,
   "regional_slices": {
-    "india": 576,
+    "india": 577,
     "us": 8171,
     "europe": 1932,
     "remote": 1869
   },
   "freshness_breakdown": {
-    "< 24h": 2193,
-    "< 3d": 4526,
-    "< 7d": 2193,
-    "< 14d": 2046
+    "< 24h": 2190,
+    "< 3d": 4534,
+    "< 7d": 2190,
+    "< 14d": 2045
   },
   "platform_breakdown": {
-    "GREENHOUSE_ATS": 9346,
+    "GREENHOUSE_ATS": 9347,
     "SMARTRECRUITERS_ATS": 167,
     "ARBEITNOW_DIRECT": 685,
     "ASHBY_ATS": 585,
@@ -32,8 +32,8 @@
     "REMOTIVE_DIRECT": 4
   },
   "payload_metrics": {
-    "uncompressed_bytes": 9671554,
-    "compressed_bytes": 837202,
+    "uncompressed_bytes": 9672299,
+    "compressed_bytes": 837511,
     "compression_ratio": "91.3%"
   },
   "shards": {
@@ -45,7 +45,7 @@
       "devops": 988
     },
     "cities": {
-      "bengaluru": 415,
+      "bengaluru": 416,
       "london": 557,
       "san_francisco": 3486,
       "remote": 1869
