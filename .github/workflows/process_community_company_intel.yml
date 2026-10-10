@@ -117,7 +117,7 @@ jobs:
           ISSUE_TITLE: ${{ github.event.issue.title }}
 
       - name: Commit & Push Changes
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: 'chore(intel): crowdsourced intel update from issue #${{ github.event.issue.number }}'
           file_pattern: 'data/community_company_intel.json public/data/community_company_intel.json'
