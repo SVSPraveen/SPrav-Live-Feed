@@ -1,0 +1,9 @@
+{
+  "name": "sprav-sovereign-job-feed",
+  "private": true,
+  "version": "2.0.0",
+  "description": "SPrav Sovereign Daily Real-Time ATS Jobs Feed",
+  "scripts": {
+    "build": "echo 'Data branch - no-op'"
+  }
+}
