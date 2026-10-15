@@ -405,14 +405,11 @@
   </div>
 
   <script>
-    // Live client-side hydration from the manifest
+    // Live client-side hydration from the mirror manifest
     async function hydrateFeed() {
       const startTime = performance.now();
       try {
-        let res = await fetch('feed_manifest.json', { cache: 'no-store' });
-        if (!res.ok) {
-          res = await fetch('mirror_manifest.json', { cache: 'no-store' });
-        }
+        const res = await fetch('mirror_manifest.json', { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           const latency = Math.round(performance.now() - startTime);
@@ -420,12 +417,11 @@
           if (data.total_jobs) {
             document.getElementById('metric-jobs').textContent = data.total_jobs.toLocaleString();
           }
-          if (data.boards_queried || data.boards_scraped) {
-            document.getElementById('metric-boards').textContent = data.boards_queried || data.boards_scraped;
+          if (data.boards_scraped) {
+            document.getElementById('metric-boards').textContent = data.boards_scraped;
           }
-          const updatedTime = data.harvested_at || data.updated_at;
-          if (updatedTime) {
-            const date = new Date(updatedTime);
+          if (data.updated_at) {
+            const date = new Date(data.updated_at);
             document.getElementById('metric-updated').textContent = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           }
           document.getElementById('metric-latency').textContent = latency + 'ms';
