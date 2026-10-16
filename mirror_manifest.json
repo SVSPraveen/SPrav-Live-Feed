@@ -1,0 +1,30 @@
+{
+  "updated_at": "2026-10-16T17:24:43.426Z",
+  "total_jobs": 165937,
+  "companies_count": 8767,
+  "boards_scraped": 820,
+  "chunks_count": 7,
+  "hygiene_metrics": {
+    "totalRaw": 425596,
+    "cleanCount": 165937,
+    "droppedInactive": 162333,
+    "droppedGhost": 189,
+    "droppedSpam": 2,
+    "droppedDuplicates": 97135
+  },
+  "index_metrics": {
+    "total_terms": 40483,
+    "compressed_bytes": 225850
+  },
+  "sources_breakdown": {
+    "direct_ats_boards": 31483,
+    "workday_enterprise": 1700,
+    "smartrecruiters_enterprise": 300,
+    "simplify_community": 12654,
+    "open_apis": 4459,
+    "universe_stream": 375000,
+    "unique_published": 165937,
+    "distinct_companies": 8767
+  },
+  "version": "1.0.0-universe"
+}
