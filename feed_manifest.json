@@ -1,7 +1,7 @@
 {
   "version": "2.0.0-realtime-ats",
-  "harvested_at": "2026-10-18T04:38:26.591347+00:00",
-  "pipeline_duration_seconds": 12.15,
+  "harvested_at": "2026-10-18T04:44:28.600332+00:00",
+  "pipeline_duration_seconds": 13.89,
   "total_jobs": 10278,
   "distinct_companies": 481,
   "boards_queried": 590,
@@ -17,10 +17,10 @@
     "remote": 2112
   },
   "freshness_breakdown": {
-    "< 24h": 779,
-    "< 3d": 2557,
+    "< 24h": 773,
+    "< 3d": 2558,
     "< 7d": 2378,
-    "< 14d": 4564
+    "< 14d": 4569
   },
   "platform_breakdown": {
     "ARBEITNOW_DIRECT": 874,
@@ -32,8 +32,8 @@
     "REMOTIVE_DIRECT": 5
   },
   "payload_metrics": {
-    "uncompressed_bytes": 9231391,
-    "compressed_bytes": 849247,
+    "uncompressed_bytes": 9231398,
+    "compressed_bytes": 848667,
     "compression_ratio": "90.8%"
   },
   "shards": {
