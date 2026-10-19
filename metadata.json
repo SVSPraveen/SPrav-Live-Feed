@@ -1,7 +1,7 @@
 {
-  "last_updated": "2026-10-18T23:13:03.950Z",
-  "total_companies": 8837,
-  "active_companies": 8837,
+  "last_updated": "2026-10-19T01:19:12.089Z",
+  "total_companies": 8830,
+  "active_companies": 8830,
   "total_jobs": 162717,
   "recruiter_jobs": 0,
   "source_type": "sprav_sovereign_universe",
@@ -13,7 +13,7 @@
     "max_age_days": 45
   },
   "index_metrics": {
-    "total_terms": 40370,
-    "compressed_bytes": 224626
+    "total_terms": 40373,
+    "compressed_bytes": 224724
   }
 }
