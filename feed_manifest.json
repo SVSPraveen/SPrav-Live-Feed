@@ -1,7 +1,7 @@
 {
   "version": "2.0.0-realtime-ats",
-  "harvested_at": "2026-10-22T04:52:53.782529+00:00",
-  "pipeline_duration_seconds": 20.76,
+  "harvested_at": "2026-10-22T05:01:15.594301+00:00",
+  "pipeline_duration_seconds": 19.59,
   "total_jobs": 10297,
   "distinct_companies": 596,
   "boards_queried": 590,
@@ -17,10 +17,10 @@
     "remote": 2112
   },
   "freshness_breakdown": {
-    "< 24h": 5015,
+    "< 24h": 5013,
     "< 3d": 1652,
-    "< 7d": 1695,
-    "< 14d": 1935
+    "< 7d": 1696,
+    "< 14d": 1936
   },
   "platform_breakdown": {
     "SMARTRECRUITERS_ATS": 166,
@@ -32,8 +32,8 @@
     "REMOTIVE_DIRECT": 4
   },
   "payload_metrics": {
-    "uncompressed_bytes": 9231405,
-    "compressed_bytes": 864467,
+    "uncompressed_bytes": 9231403,
+    "compressed_bytes": 865234,
     "compression_ratio": "90.6%"
   },
   "shards": {
