@@ -1,54 +1,54 @@
 {
   "version": "2.0.0-realtime-ats",
-  "harvested_at": "2026-10-23T17:11:43.111663+00:00",
-  "pipeline_duration_seconds": 15.71,
-  "total_jobs": 10374,
-  "distinct_companies": 543,
+  "harvested_at": "2026-10-23T18:28:12.434920+00:00",
+  "pipeline_duration_seconds": 16.08,
+  "total_jobs": 10276,
+  "distinct_companies": 497,
   "boards_queried": 590,
   "open_feeds_queried": 2,
-  "duplicates_dropped": 234,
+  "duplicates_dropped": 316,
   "max_posting_age_days": 14.0,
-  "visa_sponsorship_jobs": 17,
-  "remote_jobs": 2013,
+  "visa_sponsorship_jobs": 16,
+  "remote_jobs": 1999,
   "regional_slices": {
     "india": 479,
-    "us": 7634,
-    "europe": 1925,
-    "remote": 2027
+    "us": 7619,
+    "europe": 1841,
+    "remote": 2013
   },
   "freshness_breakdown": {
-    "< 24h": 2509,
-    "< 3d": 4852,
-    "< 7d": 1114,
-    "< 14d": 1899
+    "< 24h": 4425,
+    "< 3d": 2838,
+    "< 7d": 1131,
+    "< 14d": 1882
   },
   "platform_breakdown": {
-    "GREENHOUSE_ATS": 8470,
-    "SMARTRECRUITERS_ATS": 167,
-    "ASHBY_ATS": 682,
-    "LEVER_ATS": 160,
-    "ARBEITNOW_DIRECT": 870,
+    "GREENHOUSE_ATS": 8452,
+    "ASHBY_ATS": 683,
+    "SMARTRECRUITERS_ATS": 168,
+    "LEVER_ATS": 161,
+    "ARBEITNOW_DIRECT": 787,
     "WORKABLE_ATS": 22,
     "REMOTIVE_DIRECT": 3
   },
   "payload_metrics": {
-    "uncompressed_bytes": 9273703,
-    "compressed_bytes": 862083,
-    "compression_ratio": "90.7%"
+    "uncompressed_bytes": 9154645,
+    "compressed_bytes": 830208,
+    "compression_ratio": "90.9%"
   },
   "shards": {
     "roles": {
-      "frontend": 103,
-      "backend": 323,
-      "fullstack": 140,
-      "aiml": 1440,
-      "devops": 1021
+      "frontend": 101,
+      "backend": 320,
+      "fullstack": 138,
+      "aiml": 1422,
+      "devops": 1004
     },
     "cities": {
       "bengaluru": 346,
-      "london": 550,
-      "san_francisco": 3290,
-      "remote": 2027
+      "london": 551,
+      "san_francisco": 3293,
+      "remote": 2013
     }
   },
   "endpoints": {
