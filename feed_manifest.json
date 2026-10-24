@@ -1,8 +1,8 @@
 {
   "version": "2.0.0-realtime-ats",
-  "harvested_at": "2026-10-24T11:05:52.361986+00:00",
-  "pipeline_duration_seconds": 12.86,
-  "total_jobs": 10363,
+  "harvested_at": "2026-10-24T11:14:57.328358+00:00",
+  "pipeline_duration_seconds": 9.9,
+  "total_jobs": 10362,
   "distinct_companies": 511,
   "boards_queried": 590,
   "open_feeds_queried": 2,
@@ -12,18 +12,18 @@
   "remote_jobs": 1991,
   "regional_slices": {
     "india": 481,
-    "us": 7607,
+    "us": 7606,
     "europe": 1916,
     "remote": 2005
   },
   "freshness_breakdown": {
-    "< 24h": 4373,
-    "< 3d": 2637,
-    "< 7d": 1243,
+    "< 24h": 4372,
+    "< 3d": 2635,
+    "< 7d": 1245,
     "< 14d": 2110
   },
   "platform_breakdown": {
-    "GREENHOUSE_ATS": 8471,
+    "GREENHOUSE_ATS": 8470,
     "ARBEITNOW_DIRECT": 857,
     "ASHBY_ATS": 686,
     "LEVER_ATS": 153,
@@ -32,8 +32,8 @@
     "REMOTIVE_DIRECT": 4
   },
   "payload_metrics": {
-    "uncompressed_bytes": 9246317,
-    "compressed_bytes": 847393,
+    "uncompressed_bytes": 9245614,
+    "compressed_bytes": 847540,
     "compression_ratio": "90.8%"
   },
   "shards": {
