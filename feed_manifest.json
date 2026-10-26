@@ -1,54 +1,54 @@
 {
   "version": "2.0.0-realtime-ats",
-  "harvested_at": "2026-10-26T07:54:18.168187+00:00",
-  "pipeline_duration_seconds": 14.47,
-  "total_jobs": 10414,
-  "distinct_companies": 524,
+  "harvested_at": "2026-10-26T13:08:36.337651+00:00",
+  "pipeline_duration_seconds": 15.83,
+  "total_jobs": 10402,
+  "distinct_companies": 554,
   "boards_queried": 590,
   "open_feeds_queried": 2,
-  "duplicates_dropped": 242,
+  "duplicates_dropped": 223,
   "max_posting_age_days": 14.0,
   "visa_sponsorship_jobs": 23,
-  "remote_jobs": 2004,
+  "remote_jobs": 1994,
   "regional_slices": {
-    "india": 541,
-    "us": 7621,
-    "europe": 1904,
-    "remote": 2024
+    "india": 534,
+    "us": 7614,
+    "europe": 1910,
+    "remote": 2014
   },
   "freshness_breakdown": {
-    "< 24h": 924,
-    "< 3d": 3916,
-    "< 7d": 3465,
-    "< 14d": 2109
+    "< 24h": 851,
+    "< 3d": 4024,
+    "< 7d": 3437,
+    "< 14d": 2090
   },
   "platform_breakdown": {
+    "ASHBY_ATS": 675,
+    "GREENHOUSE_ATS": 8493,
+    "ARBEITNOW_DIRECT": 882,
+    "LEVER_ATS": 156,
     "SMARTRECRUITERS_ATS": 167,
-    "GREENHOUSE_ATS": 8522,
-    "ARBEITNOW_DIRECT": 863,
-    "ASHBY_ATS": 681,
-    "LEVER_ATS": 155,
-    "WORKABLE_ATS": 23,
+    "WORKABLE_ATS": 26,
     "REMOTIVE_DIRECT": 3
   },
   "payload_metrics": {
-    "uncompressed_bytes": 9279104,
-    "compressed_bytes": 844587,
-    "compression_ratio": "90.9%"
+    "uncompressed_bytes": 9275809,
+    "compressed_bytes": 852168,
+    "compression_ratio": "90.8%"
   },
   "shards": {
     "roles": {
-      "frontend": 102,
-      "backend": 337,
-      "fullstack": 137,
-      "aiml": 1429,
-      "devops": 1066
+      "frontend": 105,
+      "backend": 345,
+      "fullstack": 133,
+      "aiml": 1401,
+      "devops": 1058
     },
     "cities": {
-      "bengaluru": 372,
-      "london": 548,
-      "san_francisco": 3302,
-      "remote": 2024
+      "bengaluru": 371,
+      "london": 545,
+      "san_francisco": 3304,
+      "remote": 2014
     }
   },
   "endpoints": {
