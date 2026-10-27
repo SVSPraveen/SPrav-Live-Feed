@@ -1,54 +1,54 @@
 {
   "version": "2.0.0-realtime-ats",
-  "harvested_at": "2026-10-27T12:16:35.609772+00:00",
-  "pipeline_duration_seconds": 20.59,
-  "total_jobs": 10415,
-  "distinct_companies": 580,
+  "harvested_at": "2026-10-27T14:38:21.127718+00:00",
+  "pipeline_duration_seconds": 14.03,
+  "total_jobs": 10429,
+  "distinct_companies": 556,
   "boards_queried": 590,
   "open_feeds_queried": 2,
-  "duplicates_dropped": 236,
+  "duplicates_dropped": 235,
   "max_posting_age_days": 14.0,
-  "visa_sponsorship_jobs": 28,
-  "remote_jobs": 2022,
+  "visa_sponsorship_jobs": 36,
+  "remote_jobs": 2048,
   "regional_slices": {
-    "india": 490,
-    "us": 7673,
-    "europe": 1888,
-    "remote": 2033
+    "india": 493,
+    "us": 7671,
+    "europe": 1902,
+    "remote": 2059
   },
   "freshness_breakdown": {
-    "< 24h": 4040,
-    "< 3d": 530,
-    "< 7d": 3698,
-    "< 14d": 2147
+    "< 24h": 4118,
+    "< 3d": 522,
+    "< 7d": 3644,
+    "< 14d": 2145
   },
   "platform_breakdown": {
-    "GREENHOUSE_ATS": 8504,
+    "GREENHOUSE_ATS": 8514,
+    "ASHBY_ATS": 706,
+    "ARBEITNOW_DIRECT": 877,
     "LEVER_ATS": 152,
-    "ASHBY_ATS": 704,
-    "ARBEITNOW_DIRECT": 875,
-    "SMARTRECRUITERS_ATS": 164,
-    "WORKABLE_ATS": 13,
+    "SMARTRECRUITERS_ATS": 163,
+    "WORKABLE_ATS": 14,
     "REMOTIVE_DIRECT": 3
   },
   "payload_metrics": {
-    "uncompressed_bytes": 9287273,
-    "compressed_bytes": 866517,
+    "uncompressed_bytes": 9305763,
+    "compressed_bytes": 862532,
     "compression_ratio": "90.7%"
   },
   "shards": {
     "roles": {
-      "frontend": 100,
-      "backend": 321,
-      "fullstack": 145,
-      "aiml": 1445,
-      "devops": 1059
+      "frontend": 98,
+      "backend": 318,
+      "fullstack": 149,
+      "aiml": 1462,
+      "devops": 1043
     },
     "cities": {
-      "bengaluru": 336,
-      "london": 538,
-      "san_francisco": 3343,
-      "remote": 2033
+      "bengaluru": 340,
+      "london": 528,
+      "san_francisco": 3346,
+      "remote": 2059
     }
   },
   "endpoints": {
