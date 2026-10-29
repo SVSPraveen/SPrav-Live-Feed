@@ -1,0 +1,17 @@
+{
+  "chunks": [
+    "jobs_chunk_0.json.gz",
+    "jobs_chunk_1.json.gz",
+    "jobs_chunk_2.json.gz",
+    "jobs_chunk_3.json.gz",
+    "jobs_chunk_4.json.gz",
+    "jobs_chunk_5.json.gz",
+    "jobs_chunk_6.json.gz"
+  ],
+  "totalJobs": 163841,
+  "chunkSize": 25000,
+  "totalChunks": 7,
+  "distinctCompanies": 8778,
+  "last_updated": "2026-10-29T14:19:41.060Z",
+  "version": "1.0.0-sovereign"
+}
