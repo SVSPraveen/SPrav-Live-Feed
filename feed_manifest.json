@@ -1,7 +1,7 @@
 {
   "version": "2.0.0-realtime-ats",
-  "harvested_at": "2026-10-30T05:53:05.166155+00:00",
-  "pipeline_duration_seconds": 14.19,
+  "harvested_at": "2026-10-30T05:59:29.689902+00:00",
+  "pipeline_duration_seconds": 12.64,
   "total_jobs": 10558,
   "distinct_companies": 595,
   "boards_queried": 590,
@@ -33,7 +33,7 @@
   },
   "payload_metrics": {
     "uncompressed_bytes": 9423104,
-    "compressed_bytes": 872058,
+    "compressed_bytes": 871839,
     "compression_ratio": "90.7%"
   },
   "shards": {
