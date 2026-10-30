@@ -1,57 +1,57 @@
 {
   "version": "1.0.0-sharded-git-db",
-  "last_updated": "2026-10-30T14:08:34.636Z",
-  "total_jobs": 164834,
+  "last_updated": "2026-10-30T19:22:53.898Z",
+  "total_jobs": 167001,
   "roles": {
     "frontend": {
-      "count": 1143,
-      "bytes": 109585
+      "count": 1149,
+      "bytes": 109778
     },
     "backend": {
-      "count": 1132,
-      "bytes": 103413
+      "count": 1134,
+      "bytes": 103937
     },
     "fullstack": {
-      "count": 3255,
-      "bytes": 317774
+      "count": 3295,
+      "bytes": 320592
     },
     "aiml": {
-      "count": 4665,
-      "bytes": 438373
+      "count": 4699,
+      "bytes": 437600
     },
     "devops": {
-      "count": 2902,
-      "bytes": 265117
+      "count": 2947,
+      "bytes": 266610
     },
     "internships": {
-      "count": 7964,
-      "bytes": 731821
+      "count": 8056,
+      "bytes": 736280
     },
     "security": {
-      "count": 2672,
-      "bytes": 236617
+      "count": 2717,
+      "bytes": 239913
     },
     "data": {
-      "count": 6324,
-      "bytes": 595884
+      "count": 6358,
+      "bytes": 598428
     }
   },
   "cities": {
     "bengaluru": {
-      "count": 3715,
-      "bytes": 276564
+      "count": 3817,
+      "bytes": 283153
     },
     "london": {
-      "count": 4215,
-      "bytes": 353734
+      "count": 4233,
+      "bytes": 355294
     },
     "san_francisco": {
-      "count": 14366,
-      "bytes": 1069800
+      "count": 14513,
+      "bytes": 1076064
     },
     "remote": {
-      "count": 12061,
-      "bytes": 1150866
+      "count": 12275,
+      "bytes": 1149066
     }
   }
 }
