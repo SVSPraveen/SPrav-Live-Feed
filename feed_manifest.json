@@ -1,0 +1,77 @@
+{
+  "version": "2.0.0-realtime-ats",
+  "harvested_at": "2026-10-31T05:48:07.080282+00:00",
+  "pipeline_duration_seconds": 15.27,
+  "total_jobs": 11191,
+  "distinct_companies": 505,
+  "boards_queried": 590,
+  "open_feeds_queried": 2,
+  "duplicates_dropped": 263,
+  "max_posting_age_days": 14.0,
+  "visa_sponsorship_jobs": 18,
+  "remote_jobs": 2184,
+  "regional_slices": {
+    "india": 555,
+    "us": 8252,
+    "europe": 2010,
+    "remote": 2190
+  },
+  "freshness_breakdown": {
+    "< 24h": 6188,
+    "< 3d": 2339,
+    "< 7d": 839,
+    "< 14d": 1825
+  },
+  "platform_breakdown": {
+    "GREENHOUSE_ATS": 9324,
+    "ASHBY_ATS": 678,
+    "ARBEITNOW_DIRECT": 885,
+    "LEVER_ATS": 115,
+    "SMARTRECRUITERS_ATS": 173,
+    "WORKABLE_ATS": 12,
+    "REMOTIVE_DIRECT": 4
+  },
+  "payload_metrics": {
+    "uncompressed_bytes": 9922752,
+    "compressed_bytes": 856117,
+    "compression_ratio": "91.4%"
+  },
+  "shards": {
+    "roles": {
+      "frontend": 110,
+      "backend": 335,
+      "fullstack": 156,
+      "aiml": 1547,
+      "devops": 1138
+    },
+    "cities": {
+      "bengaluru": 390,
+      "london": 596,
+      "san_francisco": 3670,
+      "remote": 2190
+    }
+  },
+  "endpoints": {
+    "primary_compressed": "jobs.json.gz",
+    "primary_json": "jobs.json",
+    "compat_latest_gz": "latest.json.gz",
+    "compat_tech_gz": "latest-tech-jobs.json.gz",
+    "slice_india": "slices/feed-india.json.gz",
+    "slice_us": "slices/feed-us.json.gz",
+    "slice_europe": "slices/feed-europe.json.gz",
+    "slice_remote": "slices/feed-remote.json.gz",
+    "shards_roles": {
+      "frontend": "data/shards/roles/frontend.json.gz",
+      "backend": "data/shards/roles/backend.json.gz",
+      "fullstack": "data/shards/roles/fullstack.json.gz",
+      "aiml": "data/shards/roles/aiml.json.gz",
+      "devops": "data/shards/roles/devops.json.gz"
+    },
+    "shards_cities": {
+      "bengaluru": "data/shards/cities/bengaluru.json.gz",
+      "london": "data/shards/cities/london.json.gz",
+      "san_francisco": "data/shards/cities/san_francisco.json.gz",
+      "remote": "data/shards/cities/remote.json.gz"
+    }
+  }
+}
