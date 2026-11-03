@@ -1,0 +1,57 @@
+{
+  "version": "1.0.0-sharded-git-db",
+  "last_updated": "2026-11-03T20:59:51.851Z",
+  "total_jobs": 162983,
+  "roles": {
+    "frontend": {
+      "count": 1078,
+      "bytes": 103711
+    },
+    "backend": {
+      "count": 1133,
+      "bytes": 104336
+    },
+    "fullstack": {
+      "count": 3174,
+      "bytes": 310935
+    },
+    "aiml": {
+      "count": 4660,
+      "bytes": 436047
+    },
+    "devops": {
+      "count": 2844,
+      "bytes": 260552
+    },
+    "internships": {
+      "count": 7797,
+      "bytes": 714833
+    },
+    "security": {
+      "count": 2663,
+      "bytes": 237468
+    },
+    "data": {
+      "count": 6130,
+      "bytes": 578782
+    }
+  },
+  "cities": {
+    "bengaluru": {
+      "count": 3767,
+      "bytes": 279273
+    },
+    "london": {
+      "count": 4139,
+      "bytes": 351075
+    },
+    "san_francisco": {
+      "count": 14391,
+      "bytes": 1064664
+    },
+    "remote": {
+      "count": 12046,
+      "bytes": 1129194
+    }
+  }
+}
