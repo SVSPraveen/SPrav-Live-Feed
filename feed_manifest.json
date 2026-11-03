@@ -1,54 +1,54 @@
 {
   "version": "2.0.0-realtime-ats",
-  "harvested_at": "2026-11-03T01:00:06.652076+00:00",
-  "pipeline_duration_seconds": 15.57,
-  "total_jobs": 11169,
-  "distinct_companies": 584,
+  "harvested_at": "2026-11-03T03:30:00.247627+00:00",
+  "pipeline_duration_seconds": 9.0,
+  "total_jobs": 11123,
+  "distinct_companies": 583,
   "boards_queried": 590,
   "open_feeds_queried": 2,
-  "duplicates_dropped": 263,
+  "duplicates_dropped": 292,
   "max_posting_age_days": 14.0,
-  "visa_sponsorship_jobs": 14,
-  "remote_jobs": 2208,
+  "visa_sponsorship_jobs": 18,
+  "remote_jobs": 2206,
   "regional_slices": {
-    "india": 542,
-    "us": 8196,
-    "europe": 2044,
-    "remote": 2213
+    "india": 541,
+    "us": 8180,
+    "europe": 2014,
+    "remote": 2211
   },
   "freshness_breakdown": {
-    "< 24h": 4637,
-    "< 3d": 319,
-    "< 7d": 4495,
-    "< 14d": 1718
+    "< 24h": 4624,
+    "< 3d": 312,
+    "< 7d": 4478,
+    "< 14d": 1709
   },
   "platform_breakdown": {
-    "GREENHOUSE_ATS": 9298,
-    "SMARTRECRUITERS_ATS": 183,
-    "ASHBY_ATS": 687,
-    "ARBEITNOW_DIRECT": 890,
-    "LEVER_ATS": 104,
+    "GREENHOUSE_ATS": 9283,
+    "ARBEITNOW_DIRECT": 861,
+    "ASHBY_ATS": 684,
+    "SMARTRECRUITERS_ATS": 182,
+    "LEVER_ATS": 106,
     "WORKABLE_ATS": 3,
     "REMOTIVE_DIRECT": 4
   },
   "payload_metrics": {
-    "uncompressed_bytes": 9909775,
-    "compressed_bytes": 890750,
+    "uncompressed_bytes": 9854535,
+    "compressed_bytes": 882622,
     "compression_ratio": "91.0%"
   },
   "shards": {
     "roles": {
-      "frontend": 110,
-      "backend": 339,
-      "fullstack": 136,
-      "aiml": 1552,
-      "devops": 1162
+      "frontend": 107,
+      "backend": 334,
+      "fullstack": 139,
+      "aiml": 1541,
+      "devops": 1150
     },
     "cities": {
-      "bengaluru": 385,
-      "london": 588,
-      "san_francisco": 3626,
-      "remote": 2213
+      "bengaluru": 384,
+      "london": 582,
+      "san_francisco": 3619,
+      "remote": 2211
     }
   },
   "endpoints": {
