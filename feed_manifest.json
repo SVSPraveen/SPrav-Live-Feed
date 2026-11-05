@@ -1,54 +1,54 @@
 {
   "version": "2.0.0-realtime-ats",
-  "harvested_at": "2026-11-05T16:31:59.104537+00:00",
-  "pipeline_duration_seconds": 14.76,
-  "total_jobs": 11071,
-  "distinct_companies": 592,
+  "harvested_at": "2026-11-05T19:59:13.611278+00:00",
+  "pipeline_duration_seconds": 12.23,
+  "total_jobs": 11322,
+  "distinct_companies": 603,
   "boards_queried": 590,
   "open_feeds_queried": 2,
-  "duplicates_dropped": 287,
+  "duplicates_dropped": 305,
   "max_posting_age_days": 14.0,
-  "visa_sponsorship_jobs": 32,
-  "remote_jobs": 2250,
+  "visa_sponsorship_jobs": 34,
+  "remote_jobs": 2306,
   "regional_slices": {
-    "india": 565,
-    "us": 8101,
-    "europe": 2046,
-    "remote": 2251
+    "india": 573,
+    "us": 8277,
+    "europe": 2106,
+    "remote": 2307
   },
   "freshness_breakdown": {
-    "< 24h": 2160,
-    "< 3d": 4050,
-    "< 7d": 2582,
-    "< 14d": 2279
+    "< 24h": 2555,
+    "< 3d": 4191,
+    "< 7d": 2579,
+    "< 14d": 1997
   },
   "platform_breakdown": {
-    "GREENHOUSE_ATS": 9189,
-    "ASHBY_ATS": 714,
+    "GREENHOUSE_ATS": 9444,
+    "ASHBY_ATS": 707,
+    "LEVER_ATS": 106,
     "SMARTRECRUITERS_ATS": 165,
-    "ARBEITNOW_DIRECT": 895,
-    "LEVER_ATS": 97,
+    "ARBEITNOW_DIRECT": 890,
     "WORKABLE_ATS": 6,
-    "REMOTIVE_DIRECT": 5
+    "REMOTIVE_DIRECT": 4
   },
   "payload_metrics": {
-    "uncompressed_bytes": 9832242,
-    "compressed_bytes": 905805,
-    "compression_ratio": "90.8%"
+    "uncompressed_bytes": 10036446,
+    "compressed_bytes": 913234,
+    "compression_ratio": "90.9%"
   },
   "shards": {
     "roles": {
-      "frontend": 114,
-      "backend": 342,
-      "fullstack": 153,
-      "aiml": 1477,
-      "devops": 1132
+      "frontend": 120,
+      "backend": 344,
+      "fullstack": 152,
+      "aiml": 1484,
+      "devops": 1140
     },
     "cities": {
-      "bengaluru": 403,
-      "london": 588,
-      "san_francisco": 3511,
-      "remote": 2251
+      "bengaluru": 409,
+      "london": 599,
+      "san_francisco": 3483,
+      "remote": 2307
     }
   },
   "endpoints": {
