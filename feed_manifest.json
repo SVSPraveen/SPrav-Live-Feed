@@ -1,54 +1,54 @@
 {
   "version": "2.0.0-realtime-ats",
-  "harvested_at": "2026-11-13T17:51:28.072112+00:00",
-  "pipeline_duration_seconds": 7.95,
-  "total_jobs": 10477,
-  "distinct_companies": 585,
+  "harvested_at": "2026-11-13T19:45:22.950209+00:00",
+  "pipeline_duration_seconds": 17.59,
+  "total_jobs": 10402,
+  "distinct_companies": 563,
   "boards_queried": 590,
   "open_feeds_queried": 2,
-  "duplicates_dropped": 272,
+  "duplicates_dropped": 261,
   "max_posting_age_days": 14.0,
-  "visa_sponsorship_jobs": 16,
-  "remote_jobs": 2046,
+  "visa_sponsorship_jobs": 11,
+  "remote_jobs": 2032,
   "regional_slices": {
-    "india": 399,
-    "us": 7740,
-    "europe": 1949,
-    "remote": 2052
+    "india": 397,
+    "us": 7662,
+    "europe": 1956,
+    "remote": 2038
   },
   "freshness_breakdown": {
-    "< 24h": 1806,
-    "< 3d": 1672,
-    "< 7d": 2338,
-    "< 14d": 4661
+    "< 24h": 1804,
+    "< 3d": 1651,
+    "< 7d": 2341,
+    "< 14d": 4606
   },
   "platform_breakdown": {
-    "GREENHOUSE_ATS": 8520,
-    "ASHBY_ATS": 823,
-    "ARBEITNOW_DIRECT": 868,
-    "SMARTRECRUITERS_ATS": 174,
-    "LEVER_ATS": 79,
+    "GREENHOUSE_ATS": 8482,
+    "ASHBY_ATS": 819,
+    "ARBEITNOW_DIRECT": 879,
+    "SMARTRECRUITERS_ATS": 173,
+    "LEVER_ATS": 36,
     "REMOTIVE_DIRECT": 10,
     "WORKABLE_ATS": 3
   },
   "payload_metrics": {
-    "uncompressed_bytes": 9393833,
-    "compressed_bytes": 903782,
-    "compression_ratio": "90.4%"
+    "uncompressed_bytes": 9329536,
+    "compressed_bytes": 890864,
+    "compression_ratio": "90.5%"
   },
   "shards": {
     "roles": {
-      "frontend": 108,
-      "backend": 321,
-      "fullstack": 134,
-      "aiml": 1374,
-      "devops": 1055
+      "frontend": 104,
+      "backend": 318,
+      "fullstack": 132,
+      "aiml": 1328,
+      "devops": 1028
     },
     "cities": {
-      "bengaluru": 267,
-      "london": 523,
-      "san_francisco": 3375,
-      "remote": 2052
+      "bengaluru": 264,
+      "london": 524,
+      "san_francisco": 3358,
+      "remote": 2038
     }
   },
   "endpoints": {
