@@ -1,54 +1,54 @@
 {
   "version": "2.0.0-realtime-ats",
-  "harvested_at": "2026-11-17T13:36:47.065726+00:00",
-  "pipeline_duration_seconds": 9.04,
-  "total_jobs": 10965,
-  "distinct_companies": 497,
+  "harvested_at": "2026-11-17T20:58:04.253794+00:00",
+  "pipeline_duration_seconds": 18.73,
+  "total_jobs": 10846,
+  "distinct_companies": 534,
   "boards_queried": 590,
   "open_feeds_queried": 2,
-  "duplicates_dropped": 268,
+  "duplicates_dropped": 354,
   "max_posting_age_days": 14.0,
-  "visa_sponsorship_jobs": 28,
-  "remote_jobs": 1922,
+  "visa_sponsorship_jobs": 37,
+  "remote_jobs": 1939,
   "regional_slices": {
-    "india": 505,
-    "us": 8108,
-    "europe": 2029,
-    "remote": 1929
+    "india": 518,
+    "us": 8051,
+    "europe": 1951,
+    "remote": 1945
   },
   "freshness_breakdown": {
-    "< 24h": 5516,
-    "< 3d": 350,
-    "< 7d": 2098,
-    "< 14d": 3001
+    "< 24h": 5351,
+    "< 3d": 834,
+    "< 7d": 1591,
+    "< 14d": 3070
   },
   "platform_breakdown": {
-    "SMARTRECRUITERS_ATS": 167,
-    "ASHBY_ATS": 805,
-    "GREENHOUSE_ATS": 9049,
-    "ARBEITNOW_DIRECT": 878,
+    "GREENHOUSE_ATS": 9018,
+    "ASHBY_ATS": 802,
+    "ARBEITNOW_DIRECT": 797,
+    "SMARTRECRUITERS_ATS": 166,
     "LEVER_ATS": 39,
-    "WORKABLE_ATS": 16,
+    "WORKABLE_ATS": 13,
     "REMOTIVE_DIRECT": 11
   },
   "payload_metrics": {
-    "uncompressed_bytes": 9801888,
-    "compressed_bytes": 844334,
-    "compression_ratio": "91.4%"
+    "uncompressed_bytes": 9676540,
+    "compressed_bytes": 853983,
+    "compression_ratio": "91.2%"
   },
   "shards": {
     "roles": {
-      "frontend": 98,
-      "backend": 312,
-      "fullstack": 140,
-      "aiml": 1567,
-      "devops": 1011
+      "frontend": 103,
+      "backend": 330,
+      "fullstack": 138,
+      "aiml": 1430,
+      "devops": 1023
     },
     "cities": {
-      "bengaluru": 379,
-      "london": 587,
-      "san_francisco": 3572,
-      "remote": 1929
+      "bengaluru": 391,
+      "london": 575,
+      "san_francisco": 3512,
+      "remote": 1945
     }
   },
   "endpoints": {
