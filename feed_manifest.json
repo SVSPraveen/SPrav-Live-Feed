@@ -1,54 +1,54 @@
 {
   "version": "2.0.0-realtime-ats",
-  "harvested_at": "2026-11-16T22:08:16.117184+00:00",
-  "pipeline_duration_seconds": 16.52,
-  "total_jobs": 9130,
-  "distinct_companies": 634,
+  "harvested_at": "2026-11-17T02:58:39.946669+00:00",
+  "pipeline_duration_seconds": 11.39,
+  "total_jobs": 10967,
+  "distinct_companies": 653,
   "boards_queried": 590,
   "open_feeds_queried": 2,
-  "duplicates_dropped": 206,
+  "duplicates_dropped": 266,
   "max_posting_age_days": 14.0,
-  "visa_sponsorship_jobs": 49,
-  "remote_jobs": 1932,
+  "visa_sponsorship_jobs": 66,
+  "remote_jobs": 1939,
   "regional_slices": {
-    "india": 510,
-    "us": 6323,
-    "europe": 2001,
-    "remote": 1940
+    "india": 516,
+    "us": 8116,
+    "europe": 2035,
+    "remote": 1946
   },
   "freshness_breakdown": {
-    "< 24h": 2888,
-    "< 3d": 376,
-    "< 7d": 2904,
-    "< 14d": 2962
+    "< 24h": 5474,
+    "< 3d": 263,
+    "< 7d": 2233,
+    "< 14d": 2997
   },
   "platform_breakdown": {
-    "GREENHOUSE_ATS": 7246,
-    "ASHBY_ATS": 787,
-    "SMARTRECRUITERS_ATS": 165,
-    "ARBEITNOW_DIRECT": 866,
-    "WORKABLE_ATS": 13,
+    "GREENHOUSE_ATS": 9060,
+    "ASHBY_ATS": 796,
+    "SMARTRECRUITERS_ATS": 166,
+    "ARBEITNOW_DIRECT": 880,
+    "WORKABLE_ATS": 15,
     "REMOTIVE_DIRECT": 11,
-    "LEVER_ATS": 42
+    "LEVER_ATS": 39
   },
   "payload_metrics": {
-    "uncompressed_bytes": 8130054,
-    "compressed_bytes": 830457,
-    "compression_ratio": "89.8%"
+    "uncompressed_bytes": 9828286,
+    "compressed_bytes": 893239,
+    "compression_ratio": "90.9%"
   },
   "shards": {
     "roles": {
       "frontend": 106,
-      "backend": 317,
-      "fullstack": 133,
-      "aiml": 1321,
-      "devops": 987
+      "backend": 334,
+      "fullstack": 136,
+      "aiml": 1350,
+      "devops": 1030
     },
     "cities": {
-      "bengaluru": 375,
-      "london": 534,
-      "san_francisco": 2374,
-      "remote": 1940
+      "bengaluru": 379,
+      "london": 553,
+      "san_francisco": 3566,
+      "remote": 1946
     }
   },
   "endpoints": {
