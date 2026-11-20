@@ -1,54 +1,54 @@
 {
   "version": "2.0.0-realtime-ats",
-  "harvested_at": "2026-11-20T03:29:11.660680+00:00",
-  "pipeline_duration_seconds": 7.64,
-  "total_jobs": 11110,
-  "distinct_companies": 545,
+  "harvested_at": "2026-11-20T07:20:46.315136+00:00",
+  "pipeline_duration_seconds": 7.31,
+  "total_jobs": 11042,
+  "distinct_companies": 496,
   "boards_queried": 590,
   "open_feeds_queried": 2,
-  "duplicates_dropped": 264,
+  "duplicates_dropped": 329,
   "max_posting_age_days": 14.0,
-  "visa_sponsorship_jobs": 18,
-  "remote_jobs": 1899,
+  "visa_sponsorship_jobs": 17,
+  "remote_jobs": 1887,
   "regional_slices": {
-    "india": 579,
-    "us": 8154,
-    "europe": 2084,
-    "remote": 1905
+    "india": 580,
+    "us": 8152,
+    "europe": 2020,
+    "remote": 1893
   },
   "freshness_breakdown": {
-    "< 24h": 3628,
-    "< 3d": 1586,
-    "< 7d": 3306,
-    "< 14d": 2590
+    "< 24h": 3576,
+    "< 3d": 1553,
+    "< 7d": 3321,
+    "< 14d": 2592
   },
   "platform_breakdown": {
-    "GREENHOUSE_ATS": 9205,
-    "ASHBY_ATS": 776,
-    "ARBEITNOW_DIRECT": 874,
-    "LEVER_ATS": 42,
-    "SMARTRECRUITERS_ATS": 193,
+    "GREENHOUSE_ATS": 9201,
+    "SMARTRECRUITERS_ATS": 192,
+    "ARBEITNOW_DIRECT": 813,
+    "ASHBY_ATS": 775,
+    "LEVER_ATS": 41,
     "WORKABLE_ATS": 11,
     "REMOTIVE_DIRECT": 9
   },
   "payload_metrics": {
-    "uncompressed_bytes": 9894222,
-    "compressed_bytes": 890239,
-    "compression_ratio": "91.0%"
+    "uncompressed_bytes": 9816913,
+    "compressed_bytes": 872926,
+    "compression_ratio": "91.1%"
   },
   "shards": {
     "roles": {
-      "frontend": 112,
-      "backend": 342,
-      "fullstack": 149,
-      "aiml": 1410,
-      "devops": 1111
+      "frontend": 103,
+      "backend": 331,
+      "fullstack": 141,
+      "aiml": 1355,
+      "devops": 1071
     },
     "cities": {
       "bengaluru": 425,
-      "london": 564,
-      "san_francisco": 3563,
-      "remote": 1905
+      "london": 524,
+      "san_francisco": 3564,
+      "remote": 1893
     }
   },
   "endpoints": {
