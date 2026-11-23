@@ -1,9 +1,9 @@
 {
   "name": "sprav-sovereign-job-feed",
   "private": true,
-  "version": "1.0.0",
-  "description": "SPrav Sovereign Daily Jobs Mirror Data Feed",
+  "version": "2.0.0",
+  "description": "SPrav Sovereign Daily Real-Time ATS Jobs Feed",
   "scripts": {
-    "build": "echo 'Sovereign job feed data branch - skipping compilation'"
+    "build": "echo 'Data branch - no-op'"
   }
 }
