@@ -1,54 +1,54 @@
 {
   "version": "2.0.0-realtime-ats",
-  "harvested_at": "2026-11-24T09:57:38.462212+00:00",
-  "pipeline_duration_seconds": 11.63,
-  "total_jobs": 10800,
-  "distinct_companies": 615,
+  "harvested_at": "2026-11-24T17:55:32.197524+00:00",
+  "pipeline_duration_seconds": 14.29,
+  "total_jobs": 10638,
+  "distinct_companies": 611,
   "boards_queried": 590,
   "open_feeds_queried": 2,
-  "duplicates_dropped": 241,
+  "duplicates_dropped": 239,
   "max_posting_age_days": 14.0,
-  "visa_sponsorship_jobs": 17,
-  "remote_jobs": 1738,
+  "visa_sponsorship_jobs": 26,
+  "remote_jobs": 1706,
   "regional_slices": {
-    "india": 564,
-    "us": 7826,
-    "europe": 2170,
-    "remote": 1747
+    "india": 559,
+    "us": 7688,
+    "europe": 2145,
+    "remote": 1715
   },
   "freshness_breakdown": {
-    "< 24h": 2032,
-    "< 3d": 384,
-    "< 7d": 4326,
-    "< 14d": 4058
+    "< 24h": 1656,
+    "< 3d": 961,
+    "< 7d": 4127,
+    "< 14d": 3894
   },
   "platform_breakdown": {
-    "SMARTRECRUITERS_ATS": 190,
-    "GREENHOUSE_ATS": 8950,
-    "ARBEITNOW_DIRECT": 893,
-    "ASHBY_ATS": 704,
-    "LEVER_ATS": 41,
-    "WORKABLE_ATS": 15,
-    "REMOTIVE_DIRECT": 7
+    "GREENHOUSE_ATS": 8797,
+    "ASHBY_ATS": 701,
+    "SMARTRECRUITERS_ATS": 189,
+    "ARBEITNOW_DIRECT": 888,
+    "LEVER_ATS": 39,
+    "WORKABLE_ATS": 18,
+    "REMOTIVE_DIRECT": 6
   },
   "payload_metrics": {
-    "uncompressed_bytes": 9642236,
-    "compressed_bytes": 888483,
-    "compression_ratio": "90.8%"
+    "uncompressed_bytes": 9504328,
+    "compressed_bytes": 882638,
+    "compression_ratio": "90.7%"
   },
   "shards": {
     "roles": {
-      "frontend": 104,
-      "backend": 312,
+      "frontend": 106,
+      "backend": 300,
       "fullstack": 133,
-      "aiml": 1308,
-      "devops": 1032
+      "aiml": 1302,
+      "devops": 1042
     },
     "cities": {
-      "bengaluru": 412,
-      "london": 580,
-      "san_francisco": 3476,
-      "remote": 1747
+      "bengaluru": 410,
+      "london": 568,
+      "san_francisco": 3449,
+      "remote": 1715
     }
   },
   "endpoints": {
